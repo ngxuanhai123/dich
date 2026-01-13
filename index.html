@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HiHi Ultimate - Học Bằng Cả Trái Tim</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        quicksand: ['Quicksand', 'sans-serif'],
+                        heart: ['Dancing Script', 'cursive'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.4); }
+        .dark .glass { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.1); }
+        body { transition: background-color 0.5s ease, color 0.5s ease; }
+        .heart-beat { animation: heartBeat 1.5s infinite; }
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.1); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.1); }
+            70% { transform: scale(1); }
+        }
+        .zen-mode #sidebar { display: none; }
+        .zen-mode main { max-width: 900px; margin: 0 auto; }
+    </style>
+</head>
+<body class="font-quicksand bg-[#fdf2f8] dark:bg-slate-950 text-slate-800 dark:text-slate-200">
+
+    <div id="app" class="flex flex-col lg:flex-row min-h-screen">
+        
+        <aside id="sidebar" class="w-full lg:w-80 glass border-r p-6 order-2 lg:order-1 transition-all duration-500">
+            <div class="flex items-center gap-3 mb-8">
+                <i data-lucide="heart" class="text-rose-500 fill-rose-500 heart-beat"></i>
+                <h2 class="text-xl font-bold font-heart text-rose-600 dark:text-rose-400">XH làm bằng cả trái tim</h2>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="p-4 bg-white/50 dark:bg-slate-800/50 rounded-2xl border border-rose-100 dark:border-slate-700 text-center">
+                    <p class="text-[10px] uppercase font-black text-slate-400 mb-1">Số bài</p>
+                    <span id="totalLessons" class="text-2xl font-black text-rose-500">0</span>
+                </div>
+                <div class="p-4 bg-white/50 dark:bg-slate-800/50 rounded-2xl border border-sky-100 dark:border-slate-700 text-center">
+                    <p class="text-[10px] uppercase font-black text-slate-400 mb-1">Số từ</p>
+                    <span id="totalWords" class="text-2xl font-black text-sky-500">0</span>
+                </div>
+            </div>
+
+            <div class="p-5 mb-8 bg-gradient-to-br from-rose-500 to-orange-400 rounded-[2rem] text-white shadow-lg">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Danh hiệu</p>
+                        <h3 id="userRank" class="text-xl font-black">Người mới</h3>
+                    </div>
+                    <i data-lucide="award" class="w-8 h-8 opacity-50"></i>
+                </div>
+                <div class="w-full bg-white/20 rounded-full h-1.5 mb-2">
+                    <div id="rankProgress" class="bg-white h-1.5 rounded-full" style="width: 10%"></div>
+                </div>
+                <p id="rankSubtext" class="text-[10px] opacity-90 italic">Cần thêm 5 bài để thăng cấp</p>
+            </div>
+            
+            <div id="historyList" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 mb-6">
+                </div>
+
+            <button onclick="clearAllData()" class="w-full py-3 text-xs font-bold text-slate-400 hover:text-red-500 transition-colors flex items-center justify-center gap-2">
+                <i data-lucide="refresh-ccw" class="w-3 h-3"></i> Xóa hành trình của tôi
+            </button>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8 order-1 lg:order-2">
+            <header class="flex justify-between items-center mb-10">
+                <div>
+                    <h1 class="text-4xl font-black tracking-tighter text-slate-900 dark:text-white">HiHi <span class="font-heart text-rose-500 text-2xl">luyện Dịch</span></h1>
+                    <p class="text-sm text-slate-500 italic opacity-80" id="quoteText">"Hành trình vạn dặm bắt đầu từ một đoạn văn."</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleZen()" class="p-3 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-all text-slate-500" title="Chế độ tập trung">
+                        <i data-lucide="eye-off" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="toggleDarkMode()" class="p-3 rounded-full bg-white dark:bg-slate-800 shadow-lg text-amber-500 dark:text-sky-400">
+                        <i data-lucide="sun" id="sunIcon" class="w-5 h-5"></i>
+                        <i data-lucide="moon" id="moonIcon" class="hidden w-5 h-5"></i>
+                    </button>
+                </div>
+            </header>
+
+            <section class="glass rounded-[3rem] p-6 md:p-10 shadow-2xl shadow-rose-200/20 dark:shadow-black/50 mb-8">
+                <div class="flex flex-wrap items-center gap-4 mb-8">
+                    <div class="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl">
+                        <button onclick="setLang('English')" id="btnEn" class="px-4 py-1.5 rounded-xl font-bold text-sm bg-white dark:bg-slate-700 shadow-sm">English</button>
+                        <button onclick="setLang('Indonesian')" id="btnIn" class="px-4 py-1.5 rounded-xl font-bold text-sm opacity-50">Indonesia</button>
+                    </div>
+                    <select id="levelSelect" class="bg-transparent border-none font-bold text-slate-500 outline-none">
+                        <option value="A1">Nhẹ nhàng</option>
+                        <option value="B2">Vừa sức</option>
+                        <option value="C1">Thử thách</option>
+                    </select>
+                    <button id="btnGenerate" class="ml-auto flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-2xl font-bold shadow-lg transition-all active:scale-95">
+                        <i data-lucide="wand-2" class="w-4 h-4"></i> Tạo văn bản</nav>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="relative group">
+                        <div class="absolute -top-3 left-6 flex items-center gap-2">
+                            <span class="bg-white dark:bg-slate-900 px-3 py-1 rounded-full text-[10px] font-black uppercase text-rose-500 border border-rose-100 dark:border-rose-900 shadow-sm">Nguồn</span>
+                            <button onclick="speakText('sourceText')" class="p-1.5 rounded-full hover:bg-rose-100 text-rose-500"><i data-lucide="volume-2" class="w-3 h-3"></i></button>
+                        </div>
+                        <textarea id="sourceText" rows="6" class="w-full bg-transparent border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 outline-none focus:border-rose-400 transition-all text-xl font-medium" placeholder="Dán văn bản..."></textarea>
+                    </div>
+                    <div class="relative group">
+                        <div class="absolute -top-3 left-6">
+                            <span class="bg-white dark:bg-slate-900 px-3 py-1 rounded-full text-[10px] font-black uppercase text-sky-500 border border-sky-100 dark:border-sky-900 shadow-sm">Dịch</span>
+                        </div>
+                        <textarea id="translateText" rows="6" class="w-full bg-transparent border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 outline-none focus:border-sky-400 transition-all text-xl font-medium" placeholder="Dịch bài ở đây..."></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-10 flex flex-col items-center">
+                    <button id="btnGrade" class="group bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-16 py-5 rounded-[2rem] font-black text-xl shadow-xl hover:scale-105 transition-all flex items-center gap-4">
+                        Chấm Điểm & Phân Tích
+                        <i data-lucide="sparkles" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </section>
+
+            <div id="resultArea" class="hidden space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-700">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass p-8 rounded-[2.5rem] flex flex-col items-center justify-center border-none shadow-xl">
+                        <div class="relative">
+                            <svg class="w-24 h-24 transform -rotate-90">
+                                <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="8" fill="transparent" class="text-slate-100 dark:text-slate-800"/>
+                                <circle id="scoreCircle" cx="48" cy="48" r="40" stroke="currentColor" stroke-width="8" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2" class="text-rose-500 transition-all duration-1000"/>
+                            </svg>
+                            <span id="gradeOutput" class="absolute inset-0 flex items-center justify-center text-3xl font-black">0</span>
+                        </div>
+                    </div>
+                    <div class="md:col-span-3 glass p-8 rounded-[2.5rem] border-none shadow-xl">
+                        <h3 class="font-bold text-lg mb-4 text-rose-500">Lời nhắn từ AI</h3>
+                        <div id="feedbackOutput" class="text-slate-600 dark:text-slate-300 leading-relaxed italic"></div>
+                    </div>
+                </div>
+
+                <div class="glass p-8 rounded-[2.5rem] border-none shadow-xl">
+                    <h3 class="font-bold mb-6 flex items-center gap-2"><i data-lucide="languages" class="text-sky-500"></i> Từ vựng "vàng"</h3>
+                    <div id="vocabList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const API_URL = "https://hihi.ngxuanhai123.workers.dev/";
+        let currentLang = 'English';
+
+        // Load stats from LocalStorage
+        let stats = JSON.parse(localStorage.getItem('hihi_stats') || '{"lessons":0, "words":0, "history":[]}');
+        updateUIStats();
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            document.getElementById('sunIcon').classList.toggle('hidden', isDark);
+            document.getElementById('moonIcon').classList.toggle('hidden', !isDark);
+        }
+
+        function toggleZen() { document.body.classList.toggle('zen-mode'); }
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.getElementById('btnEn').className = lang === 'English' ? 'px-4 py-1.5 rounded-xl font-bold text-sm bg-white dark:bg-slate-700 shadow-sm transition-all' : 'px-4 py-1.5 rounded-xl font-bold text-sm opacity-50 transition-all';
+            document.getElementById('btnIn').className = lang === 'Indonesian' ? 'px-4 py-1.5 rounded-xl font-bold text-sm bg-white dark:bg-slate-700 shadow-sm transition-all' : 'px-4 py-1.5 rounded-xl font-bold text-sm opacity-50 transition-all';
+        }
+
+        function speakText(id) {
+            const text = document.getElementById(id).value;
+            if(!text) return;
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = currentLang === 'English' ? 'en-US' : 'id-ID';
+            window.speechSynthesis.speak(msg);
+        }
+
+        async function callAI(prompt) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                const data = await response.json();
+                return data.response || data.content || data.text || data;
+            } catch (e) { return "Hệ thống bận!"; }
+        }
+
+        btnGenerate.onclick = async () => {
+            const level = document.getElementById('levelSelect').value;
+            btnGenerate.disabled = true;
+            btnGenerate.innerHTML = `<span class="animate-ping">❤️</span>`;
+            const res = await callAI(`Tạo 1 câu/đoạn văn mẫu bằng ${currentLang}, trình độ ${level}. Chỉ trả về văn bản.`);
+            document.getElementById('sourceText').value = res.trim();
+            btnGenerate.disabled = false;
+            btnGenerate.innerHTML = `<i data-lucide="wand-2" class="w-4 h-4"></i> Tạo cảm hứng`;
+            lucide.createIcons();
+        };
+
+        btnGrade.onclick = async () => {
+            const source = document.getElementById('sourceText').value;
+            const trans = document.getElementById('translateText').value;
+            if(!source || !trans) return;
+
+            btnGrade.disabled = true;
+            btnGrade.innerHTML = `<i data-lucide="heart" class="heart-beat"></i> HiHi đang đọc...`;
+
+            const prompt = `Chấm bài dịch. Gốc: ${source}. Dịch: ${trans}. Trả về JSON: {"score": 1-10, "feedback": "...", "vocab": [{"w": "từ", "m": "nghĩa"}], "quote": "..."}`;
+            const res = await callAI(prompt);
+            
+            try {
+                const data = JSON.parse(res.match(/\{.*\}/s)[0]);
+                
+                // Animation Score
+                const offset = 251.2 - (data.score / 10) * 251.2;
+                document.getElementById('scoreCircle').style.strokeDashoffset = offset;
+                document.getElementById('gradeOutput').innerText = data.score;
+                document.getElementById('feedbackOutput').innerText = data.feedback;
+                document.getElementById('quoteText').innerText = data.quote;
+                
+                // Vocab
+                document.getElementById('vocabList').innerHTML = data.vocab.map(v => `
+                    <div class="p-4 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                        <span class="font-bold text-rose-500">${v.w}</span>
+                        <span class="text-xs opacity-70">${v.m}</span>
+                    </div>
+                `).join('');
+
+                document.getElementById('resultArea').classList.remove('hidden');
+                
+                // Update Stats
+                stats.lessons += 1;
+                stats.words += source.split(/\s+/).length;
+                stats.history.unshift({ text: source.substring(0, 20) + "...", score: data.score });
+                if(stats.history.length > 5) stats.history.pop();
+                
+                localStorage.setItem('hihi_stats', JSON.stringify(stats));
+                updateUIStats();
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+            } catch (e) { alert("AI phản hồi không đúng định dạng. Hãy thử lại!"); }
+
+            btnGrade.disabled = false;
+            btnGrade.innerHTML = `Chấm Điểm & Phân Tích <i data-lucide="sparkles" class="w-6 h-6"></i>`;
+            lucide.createIcons();
+        };
+
+        function updateUIStats() {
+            document.getElementById('totalLessons').innerText = stats.lessons;
+            document.getElementById('totalWords').innerText = stats.words;
+            
+            // Rank Logic
+            let rank = "Người mới";
+            let next = 5;
+            let progress = (stats.lessons / 5) * 100;
+
+            if(stats.lessons >= 5) { rank = "Tập sự"; next = 15; progress = (stats.lessons / 15) * 100; }
+            if(stats.lessons >= 15) { rank = "Thông thái"; next = 50; progress = (stats.lessons / 50) * 100; }
+            if(stats.lessons >= 50) { rank = "Bậc thầy"; next = 100; progress = 100; }
+
+            document.getElementById('userRank').innerText = rank;
+            document.getElementById('rankProgress').style.width = Math.min(progress, 100) + "%";
+            document.getElementById('rankSubtext').innerText = stats.lessons >= 50 ? "Bạn đã đạt đỉnh cao!" : `Cần thêm ${next - stats.lessons} bài để thăng cấp`;
+
+            // Render History
+            document.getElementById('historyList').innerHTML = stats.history.map(h => `
+                <div class="p-3 bg-white/30 dark:bg-slate-800/30 rounded-xl flex justify-between text-xs border border-white/20">
+                    <span>${h.text}</span>
+                    <span class="font-bold text-rose-500">${h.score}đ</span>
+                </div>
+            `).join('');
+        }
+
+        function clearAllData() {
+            if(confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử và thống kê?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
