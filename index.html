@@ -16,6 +16,16 @@
                     fontFamily: {
                         inter: ['Inter', 'sans-serif'],
                         heart: ['Pacifico', 'cursive'],
+                    },
+                    animation: {
+                        'slide-up': 'slideUp 0.3s ease-out forwards',
+                        'spin-slow': 'spin 3s linear infinite',
+                    },
+                    keyframes: {
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
                     }
                 }
             }
@@ -35,12 +45,78 @@
         }
         .zen-mode #sidebar { display: none; }
         .zen-mode main { max-width: 900px; margin: 0 auto; }
-        @media (max-width: 640px) {
-            h1 { font-size: 2rem; }
-            .text-4xl { font-size: 2.5rem; }
-            .text-xl { font-size: 1.25rem; }
-            #sidebar { display: none; }
-            body { classList.add('zen-mode'); } /* Default zen mode on mobile */
+        
+        select option { background: white; color: black; }
+        .dark select option { background: #1e293b; color: white; }
+
+        #focusOverlay.active { display: flex; }
+
+        /* Styles cho từ tương tác trong Focus Mode */
+        .interactive-word {
+            position: relative;
+            cursor: help; /* Đổi con trỏ thành dấu hỏi */
+            border-bottom: 2px dashed rgba(255, 255, 255, 0.3);
+            transition: all 0.2s;
+            display: inline-block;
+            margin: 0 2px;
+            padding: 0 2px;
+            border-radius: 4px;
+        }
+        .interactive-word:hover {
+            background-color: rgba(251, 191, 36, 0.2); /* Amber background mờ */
+            color: #fbbf24; /* Amber-400 */
+            border-bottom-color: #fbbf24;
+        }
+        /* Tooltip style */
+        .word-tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 130%; /* Cao hơn một chút */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #0f172a; /* Slate-900 */
+            color: white;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            white-space: normal; /* Cho phép xuống dòng */
+            min-width: 150px;
+            max-width: 250px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .interactive-word:hover .word-tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+            pointer-events: auto;
+        }
+        /* Mũi tên tooltip */
+        .word-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #0f172a transparent transparent transparent;
+        }
+        /* Loading dot animation */
+        .loading-dots::after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
         }
     </style>
 </head>
@@ -79,11 +155,8 @@
                 <p id="rankSubtext" class="text-[10px] opacity-90 italic">Cần thêm 5 bài để thăng cấp</p>
             </div>
             
-            <div id="historyList" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 mb-6">
-                </div>
-
-            <div id="favoritesList" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 mb-6 hidden">
-                </div>
+            <div id="historyList" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 mb-6"></div>
+            <div id="favoritesList" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 mb-6 hidden"></div>
 
             <button onclick="toggleFavorites()" class="w-full py-3 text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors flex items-center justify-center gap-2 mb-4">
                 <i data-lucide="star" class="w-3 h-3"></i> Bài yêu thích
@@ -94,7 +167,7 @@
             </button>
         </aside>
 
-        <main class="flex-1 p-4 md:p-8 order-1 lg:order-2">
+        <main class="flex-1 p-4 md:p-8 order-1 lg:order-2 relative">
             <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
                 <div>
                     <h1 class="text-4xl font-black tracking-tighter text-slate-900 dark:text-white">HiHi <span class="font-heart text-rose-500 text-2xl">luyện Dịch</span></h1>
@@ -117,20 +190,20 @@
             <section class="glass rounded-[3rem] p-6 md:p-10 shadow-2xl shadow-rose-200/20 dark:shadow-black/50 mb-8">
                 <div class="flex flex-wrap items-center gap-4 mb-8">
                     <div class="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl">
-                        <select id="sourceLangSelect" class="bg-transparent border-none font-bold text-sm text-slate-800 dark:text-slate-200 outline-none px-4 py-1.5">
+                        <select id="sourceLangSelect" onchange="saveConfig()" class="bg-transparent border-none font-bold text-sm text-slate-800 dark:text-slate-200 outline-none px-4 py-1.5 cursor-pointer">
                             <option value="English">English (Nguồn)</option>
                             <option value="Indonesian">Indonesia (Nguồn)</option>
                             <option value="Vietnamese">Tiếng Việt (Nguồn)</option>
                         </select>
                     </div>
                     <div class="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl">
-                        <select id="targetLangSelect" class="bg-transparent border-none font-bold text-sm text-slate-800 dark:text-slate-200 outline-none px-4 py-1.5">
+                        <select id="targetLangSelect" onchange="saveConfig()" class="bg-transparent border-none font-bold text-sm text-slate-800 dark:text-slate-200 outline-none px-4 py-1.5 cursor-pointer">
                             <option value="Vietnamese">Tiếng Việt (Đích)</option>
                             <option value="English">English (Đích)</option>
                             <option value="Indonesian">Indonesia (Đích)</option>
                         </select>
                     </div>
-                    <select id="levelSelect" class="bg-transparent border-none font-bold text-slate-500 outline-none">
+                    <select id="levelSelect" onchange="saveConfig()" class="bg-transparent border-none font-bold text-slate-500 outline-none cursor-pointer">
                         <option value="A1">Nhẹ nhàng (A1)</option>
                         <option value="A2">Dễ dàng (A2)</option>
                         <option value="B1">Cơ bản (B1)</option>
@@ -138,33 +211,61 @@
                         <option value="C1">Thử thách (C1)</option>
                         <option value="C2">Chuyên gia (C2)</option>
                     </select>
-                    <button id="btnGenerate" class="ml-auto flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-2xl font-bold shadow-lg transition-all active:scale-95">
-                        <i data-lucide="wand-2" class="w-4 h-4"></i> Tạo văn bản
-                    </button>
+                    
+                    <div class="ml-auto flex gap-3">
+                        <button id="btnGenerate" class="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-2xl font-bold shadow-lg transition-all active:scale-95">
+                            <i data-lucide="wand-2" class="w-4 h-4"></i> Tạo văn bản
+                        </button>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                     <div class="relative group">
-                        <div class="absolute -top-3 left-6 flex items-center gap-2">
+                        <div class="absolute -top-3 left-6 flex items-center gap-2 z-10">
                             <span class="bg-white dark:bg-slate-900 px-3 py-1 rounded-full text-[10px] font-black uppercase text-rose-500 border border-rose-100 dark:border-rose-900 shadow-sm">Nguồn</span>
-                            <button onclick="speakText('sourceText')" class="p-1.5 rounded-full hover:bg-rose-100 text-rose-500"><i data-lucide="volume-2" class="w-3 h-3"></i></button>
-                            <button onclick="pasteFromClipboard('sourceText')" class="p-1.5 rounded-full hover:bg-rose-100 text-rose-500"><i data-lucide="clipboard-paste" class="w-3 h-3"></i></button>
-                            <button onclick="copyToClipboard('sourceText')" class="p-1.5 rounded-full hover:bg-rose-100 text-rose-500"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                            
+                            <div class="relative inline-block">
+                                <button onclick="toggleTTSPanel()" class="p-1.5 rounded-full hover:bg-rose-100 text-rose-500" title="Cài đặt giọng đọc">
+                                    <i data-lucide="settings-2" class="w-3 h-3"></i>
+                                </button>
+                                <div id="ttsPanel" class="hidden absolute top-8 left-0 w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50 animate-slide-up">
+                                    <h4 class="text-xs font-bold mb-2 text-slate-500 uppercase">Giọng đọc & Tốc độ</h4>
+                                    <select id="voiceSelect" onchange="saveConfig()" class="w-full mb-3 text-xs p-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700 outline-none">
+                                        <option value="">Đang tải giọng...</option>
+                                    </select>
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="rabbit" class="w-4 h-4 text-slate-400"></i>
+                                        <input type="range" id="rateRange" onchange="saveConfig()" min="0.5" max="2" step="0.1" value="1" class="w-full accent-rose-500 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                                        <span id="rateValue" class="text-xs font-bold w-6">1.0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button id="mainSpeakBtn" onclick="toggleSpeak('sourceText', this)" class="p-1.5 rounded-full hover:bg-rose-100 text-rose-500 transition-colors" title="Đọc/Dừng văn bản">
+                                <i data-lucide="volume-2" class="w-3 h-3"></i>
+                            </button>
+                            <button onclick="pasteFromClipboard('sourceText')" class="p-1.5 rounded-full hover:bg-rose-100 text-rose-500" title="Dán"><i data-lucide="clipboard-paste" class="w-3 h-3"></i></button>
                         </div>
-                        <textarea id="sourceText" rows="6" class="w-full bg-transparent border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 outline-none focus:border-rose-400 transition-all text-xl font-medium" placeholder="Dán văn bản..."></textarea>
+                        <textarea id="sourceText" rows="6" class="w-full bg-transparent border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 outline-none focus:border-rose-400 transition-all text-xl font-medium" placeholder="Dán văn bản hoặc nhấn 'Tạo văn bản'..."></textarea>
                     </div>
+
                     <div class="relative group">
                         <div class="absolute -top-3 left-6 flex items-center gap-2">
                             <span class="bg-white dark:bg-slate-900 px-3 py-1 rounded-full text-[10px] font-black uppercase text-sky-500 border border-sky-100 dark:border-sky-900 shadow-sm">Dịch</span>
                             <button onclick="copyToClipboard('translateText')" class="p-1.5 rounded-full hover:bg-sky-100 text-sky-500"><i data-lucide="copy" class="w-3 h-3"></i></button>
                         </div>
-                        <textarea id="translateText" rows="6" class="w-full bg-transparent border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 outline-none focus:border-sky-400 transition-all text-xl font-medium" placeholder="Dịch bài ở đây..."></textarea>
+                        <textarea id="translateText" rows="6" class="w-full bg-transparent border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 outline-none focus:border-sky-400 transition-all text-xl font-medium" placeholder="Viết bản dịch của bạn ở đây..."></textarea>
                     </div>
                 </div>
 
-                <div class="mt-10 flex flex-col items-center">
-                    <button id="btnGrade" class="group bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-16 py-5 rounded-[2rem] font-black text-xl shadow-xl hover:scale-105 transition-all flex items-center gap-4">
-                        Chấm Điểm & Phân Tích bằng AI
+                <div class="mt-10 flex flex-wrap justify-center gap-6">
+                    <button onclick="startFocusMode()" class="group bg-amber-400 hover:bg-amber-500 text-white px-8 py-5 rounded-[2rem] font-bold text-xl shadow-xl hover:scale-105 transition-all flex items-center gap-3" title="Dịch từng câu với hỗ trợ tra từ">
+                        <i data-lucide="play-circle" class="w-6 h-6"></i>
+                        Làm bài ngay
+                    </button>
+
+                    <button id="btnGrade" class="group bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-5 rounded-[2rem] font-black text-xl shadow-xl hover:scale-105 transition-all flex items-center gap-3">
+                        Chấm Điểm
                         <i data-lucide="sparkles" class="w-6 h-6"></i>
                     </button>
                 </div>
@@ -201,81 +302,256 @@
         </main>
     </div>
 
-    <div id="toast" class="fixed bottom-4 right-4 px-6 py-3 bg-slate-800 text-white rounded-xl shadow-lg hidden transition-opacity duration-300"></div>
+    <div id="focusOverlay" class="hidden fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-md flex-col items-center justify-center p-4 md:p-20 transition-all duration-300">
+        <button onclick="exitFocusMode()" class="absolute top-6 right-6 p-2 text-slate-400 hover:text-white bg-white/10 rounded-full">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+
+        <div class="w-full max-w-3xl space-y-8 animate-slide-up">
+            <div class="w-full bg-slate-800 rounded-full h-2 mb-8">
+                <div id="focusProgress" class="bg-gradient-to-r from-rose-500 to-orange-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+
+            <div class="text-center space-y-4">
+                <p class="text-xs font-bold text-rose-400 uppercase tracking-widest">Câu gốc (<span id="sentenceCounter">1/1</span>)</p>
+                <div id="focusSourceText" class="text-2xl md:text-4xl font-black text-white leading-tight flex flex-wrap justify-center gap-x-2 gap-y-1">
+                    ...
+                </div>
+                <div class="flex justify-center gap-4 mt-2">
+                    <p class="text-[10px] text-slate-500"><i data-lucide="mouse-pointer-2" class="w-3 h-3 inline"></i> Rà chuột lên từ để xem nghĩa tự động</p>
+                </div>
+                <div class="flex justify-center gap-4">
+                    <button id="focusSpeakBtn" onclick="toggleSpeakFocus()" class="text-slate-400 hover:text-rose-400 transition-colors p-2"><i data-lucide="volume-2" class="w-6 h-6"></i></button>
+                </div>
+            </div>
+
+            <div class="relative w-full">
+                <input type="text" id="focusInput" 
+                    class="w-full bg-transparent border-b-2 border-slate-700 text-center text-xl md:text-2xl text-sky-400 py-4 outline-none focus:border-sky-500 placeholder-slate-600 transition-all" 
+                    placeholder="Nhập bản dịch và nhấn Enter..." autocomplete="off">
+                <div class="mt-4 text-center">
+                    <p class="text-xs text-slate-500 italic">Nhấn <kbd class="px-2 py-1 bg-slate-800 rounded text-slate-300 font-sans">Enter</kbd> để qua câu tiếp theo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-4 right-4 px-6 py-3 bg-slate-800 text-white rounded-xl shadow-lg hidden transition-opacity duration-300 z-[110]"></div>
 
     <script>
         lucide.createIcons();
         const API_URL = "https://dich.ngxuanhai123.workers.dev/";
+        
+        // --- FIXED GLOBAL VARIABLES ---
         let currentSourceLang = 'English';
         let currentTargetLang = 'Vietnamese';
+        let wordCache = {}; // Cache bản dịch từ
+        let hoverTimeout; // Cho debounce
 
-        // --- KHU VỰC SỬA LỖI 1: Tải dữ liệu an toàn ---
+        // --- STATS & INIT ---
         const defaultStats = { lessons: 0, words: 0, history: [], favorites: [] };
         let savedStats = {};
-        
-        try {
-            savedStats = JSON.parse(localStorage.getItem('hihi_stats') || '{}');
-        } catch (e) {
-            console.error("Lỗi parse JSON cũ, sẽ dùng dữ liệu mới.");
-        }
-
+        try { savedStats = JSON.parse(localStorage.getItem('hihi_stats') || '{}'); } catch (e) { console.error("Data error"); }
         let stats = { ...defaultStats, ...savedStats };
         if (!Array.isArray(stats.history)) stats.history = [];
         if (!Array.isArray(stats.favorites)) stats.favorites = [];
-        
         updateUIStats();
 
+        // --- CONFIG PERSISTENCE (Lưu cấu hình) ---
+        function saveConfig() {
+            const config = {
+                source: document.getElementById('sourceLangSelect').value,
+                target: document.getElementById('targetLangSelect').value,
+                level: document.getElementById('levelSelect').value,
+                voice: document.getElementById('voiceSelect').selectedOptions[0]?.getAttribute('data-name') || '',
+                rate: document.getElementById('rateRange').value,
+                isDark: document.documentElement.classList.contains('dark')
+            };
+            localStorage.setItem('hihi_config', JSON.stringify(config));
+            
+            // Cập nhật ngay lập tức các biến toàn cục khi lưu
+            currentSourceLang = config.source;
+            currentTargetLang = config.target;
+            wordCache = {}; // Clear cache khi đổi ngôn ngữ
+        }
+
+        function loadConfig() {
+            try {
+                const config = JSON.parse(localStorage.getItem('hihi_config'));
+                if (config) {
+                    if (config.source) {
+                        document.getElementById('sourceLangSelect').value = config.source;
+                        currentSourceLang = config.source; 
+                    }
+                    if (config.target) {
+                        document.getElementById('targetLangSelect').value = config.target;
+                        currentTargetLang = config.target;
+                    }
+                    
+                    if (config.level) document.getElementById('levelSelect').value = config.level;
+                    if (config.rate) {
+                        document.getElementById('rateRange').value = config.rate;
+                        document.getElementById('rateValue').textContent = config.rate;
+                    }
+                    if (config.isDark) {
+                        document.documentElement.classList.add('dark');
+                        document.getElementById('sunIcon').classList.add('hidden');
+                        document.getElementById('moonIcon').classList.remove('hidden');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        document.getElementById('sunIcon').classList.remove('hidden');
+                        document.getElementById('moonIcon').classList.add('hidden');
+                    }
+                    return config.voice; 
+                }
+            } catch (e) { console.error("Config Load Error", e); }
+            return null;
+        }
+        
+        const savedVoiceName = loadConfig(); // Run on startup
+
+        // --- DARK MODE & UI TOGGLES ---
         function toggleDarkMode() {
             const html = document.documentElement;
             html.classList.toggle('dark');
             const isDark = html.classList.contains('dark');
             document.getElementById('sunIcon').classList.toggle('hidden', isDark);
             document.getElementById('moonIcon').classList.toggle('hidden', !isDark);
+            saveConfig(); // Save state
         }
-
         function toggleZen() { document.body.classList.toggle('zen-mode'); }
-
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('hidden'); }
-
-        // --- UPDATE: Xử lý sự kiện ngôn ngữ (tránh trùng lặp) ---
+        
+        // --- LANGUAGE LOGIC ---
         const sourceSelect = document.getElementById('sourceLangSelect');
         const targetSelect = document.getElementById('targetLangSelect');
 
         function handleLangChange(changedSide) {
             const sVal = sourceSelect.value;
             const tVal = targetSelect.value;
-
-            // Kiểm tra nếu ngôn ngữ nguồn và đích trùng nhau
             if (sVal === tVal) {
-                // Logic: Nếu trùng, tự động đổi cái còn lại sang tiếng Anh (hoặc tiếng Việt nếu cái kia là Anh)
                 const newVal = (sVal === 'English') ? 'Vietnamese' : 'English';
-                
-                if (changedSide === 'source') {
-                    // Nếu người dùng vừa đổi nguồn, thì hệ thống tự đổi đích
-                    targetSelect.value = newVal;
-                    showToast('Đã tự động đổi ngôn ngữ đích để tránh trùng lặp', 'info');
-                } else {
-                    // Nếu người dùng vừa đổi đích, thì hệ thống tự đổi nguồn
-                    sourceSelect.value = newVal;
-                    showToast('Đã tự động đổi ngôn ngữ nguồn để tránh trùng lặp', 'info');
-                }
+                if (changedSide === 'source') { targetSelect.value = newVal; showToast('Đã đổi ngôn ngữ đích để tránh trùng', 'info'); } 
+                else { sourceSelect.value = newVal; showToast('Đã đổi ngôn ngữ nguồn để tránh trùng', 'info'); }
             }
-            
-            // Cập nhật biến toàn cục
+            // Update global vars
             currentSourceLang = sourceSelect.value;
             currentTargetLang = targetSelect.value;
+            wordCache = {}; // Reset cache
+            
+            populateVoiceList(); 
+            saveConfig();
         }
 
         sourceSelect.addEventListener('change', () => handleLangChange('source'));
         targetSelect.addEventListener('change', () => handleLangChange('target'));
-        // ------------------------------------------------------------
 
-        function speakText(id) {
-            const text = document.getElementById(id).value;
-            if(!text) return;
-            const msg = new SpeechSynthesisUtterance(text);
-            msg.lang = getLangCode(currentSourceLang);
-            window.speechSynthesis.speak(msg);
+        // --- ADVANCED TTS (TEXT TO SPEECH) ---
+        let voices = [];
+        const synth = window.speechSynthesis;
+        const voiceSelect = document.getElementById('voiceSelect');
+        const rateRange = document.getElementById('rateRange');
+        const rateValue = document.getElementById('rateValue');
+        let isSpeaking = false; 
+
+        function populateVoiceList() {
+            voices = synth.getVoices();
+            if(!voices.length) return; 
+            
+            voiceSelect.innerHTML = '';
+            const langCode = getLangCode(currentSourceLang);
+            const filteredVoices = voices.filter(v => v.lang.startsWith(langCode.split('-')[0]));
+            
+            if(filteredVoices.length === 0) {
+                 const option = document.createElement('option');
+                 option.textContent = "Không tìm thấy giọng phù hợp";
+                 voiceSelect.appendChild(option);
+            } else {
+                filteredVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.setAttribute('data-name', voice.name);
+                    if (savedVoiceName && voice.name === savedVoiceName) {
+                        option.selected = true;
+                    }
+                    voiceSelect.appendChild(option);
+                });
+            }
+        }
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+        setTimeout(populateVoiceList, 100);
+
+        rateRange.addEventListener('input', (e) => {
+            rateValue.textContent = e.target.value;
+            saveConfig();
+        });
+
+        function toggleTTSPanel() {
+            document.getElementById('ttsPanel').classList.toggle('hidden');
+            populateVoiceList();
+        }
+
+        function toggleSpeak(idOrText, btnElement) {
+            if (synth.speaking) {
+                synth.cancel();
+                isSpeaking = false;
+                if(btnElement) updateSpeakButtonIcon(btnElement, false);
+                updateSpeakButtonIcon(document.getElementById('focusSpeakBtn'), false);
+            } else {
+                const text = document.getElementById(idOrText).value;
+                if(!text) return;
+                
+                speakRaw(text, () => {
+                   if(btnElement) updateSpeakButtonIcon(btnElement, false);
+                });
+                if(btnElement) updateSpeakButtonIcon(btnElement, true);
+            }
+        }
+
+        function toggleSpeakFocus() {
+             if (synth.speaking) {
+                synth.cancel();
+                updateSpeakButtonIcon(document.getElementById('focusSpeakBtn'), false);
+            } else {
+                speakFocusSentence(); 
+                updateSpeakButtonIcon(document.getElementById('focusSpeakBtn'), true);
+            }
+        }
+
+        function updateSpeakButtonIcon(btn, speaking) {
+            if(!btn) return;
+            btn.innerHTML = speaking 
+                ? `<i data-lucide="square" class="w-3 h-3 fill-current"></i>` 
+                : (btn.id === 'focusSpeakBtn' ? `<i data-lucide="volume-2" class="w-6 h-6"></i>` : `<i data-lucide="volume-2" class="w-3 h-3"></i>`);
+            lucide.createIcons();
+        }
+
+        function speakRaw(text, onEndCallback) {
+            synth.cancel(); 
+            
+            const utterThis = new SpeechSynthesisUtterance(text);
+            const selectedOption = voiceSelect.selectedOptions[0]?.getAttribute('data-name');
+            
+            if (selectedOption) {
+                const voice = voices.find(v => v.name === selectedOption);
+                if(voice) utterThis.voice = voice;
+            }
+            
+            utterThis.rate = parseFloat(rateRange.value);
+            utterThis.lang = getLangCode(currentSourceLang);
+            
+            utterThis.onend = function() {
+                isSpeaking = false;
+                if(onEndCallback) onEndCallback();
+                updateSpeakButtonIcon(document.getElementById('mainSpeakBtn'), false);
+                updateSpeakButtonIcon(document.getElementById('focusSpeakBtn'), false);
+            };
+
+            isSpeaking = true;
+            synth.speak(utterThis);
         }
 
         function getLangCode(lang) {
@@ -284,8 +560,200 @@
             if (lang === 'Vietnamese') return 'vi-VN';
             return 'en-US';
         }
+        
+        function getGoogleTranslateCode(lang) {
+            if (lang === 'English') return 'en';
+            if (lang === 'Indonesian') return 'id';
+            if (lang === 'Vietnamese') return 'vi';
+            return 'en';
+        }
 
-        // --- KHU VỰC SỬA LỖI 2: Fix Tracking Prevention & Call AI ---
+        // --- FOCUS MODE LOGIC (AUTO TRANSLATE OPTIMIZED) ---
+        let focusSentences = [];
+        let focusTranslations = [];
+        let currentFocusIndex = 0;
+
+        function startFocusMode() {
+            const text = document.getElementById('sourceText').value.trim();
+            if (!text) {
+                showToast("Vui lòng nhập văn bản nguồn trước!", "error");
+                return;
+            }
+            
+            currentSourceLang = document.getElementById('sourceLangSelect').value;
+            currentTargetLang = document.getElementById('targetLangSelect').value;
+
+            try {
+                const segmenter = new Intl.Segmenter(getLangCode(currentSourceLang), { granularity: 'sentence' });
+                const segments = segmenter.segment(text);
+                focusSentences = Array.from(segments).map(s => s.segment.trim()).filter(s => s.length > 0);
+            } catch (e) {
+                focusSentences = text.split(/([.?!:\n]+)/).filter(Boolean).reduce((acc, curr, i, arr) => {
+                    if (curr.match(/[.?!:\n]+/)) {
+                        if (acc.length > 0) acc[acc.length - 1] += curr;
+                    } else {
+                        acc.push(curr);
+                    }
+                    return acc;
+                }, []).map(s => s.trim()).filter(s => s.length > 0);
+            }
+
+            if (focusSentences.length === 0) return;
+
+            focusTranslations = new Array(focusSentences.length).fill("");
+            currentFocusIndex = 0;
+            
+            document.getElementById('focusOverlay').classList.remove('hidden');
+            document.getElementById('focusOverlay').classList.add('active');
+            updateFocusUI();
+            document.body.style.overflow = 'hidden';
+        }
+
+        function updateFocusUI() {
+            const progress = ((currentFocusIndex) / focusSentences.length) * 100;
+            document.getElementById('focusProgress').style.width = `${progress}%`;
+            document.getElementById('sentenceCounter').innerText = `${currentFocusIndex + 1}/${focusSentences.length}`;
+            
+            const sentence = focusSentences[currentFocusIndex];
+            const wordsContainer = document.getElementById('focusSourceText');
+            wordsContainer.innerHTML = ''; 
+
+            const words = sentence.split(' ');
+            const sourceCode = getGoogleTranslateCode(currentSourceLang); 
+            const targetCode = getGoogleTranslateCode(currentTargetLang);
+
+            words.forEach(word => {
+                const cleanWord = word.replace(/[.,!?;:"()]/g, "").trim(); 
+                if(cleanWord.length > 0) {
+                    const span = document.createElement('span');
+                    span.className = 'interactive-word group';
+                    span.innerText = word + " "; 
+                    
+                    const tooltip = document.createElement('span');
+                    tooltip.className = 'word-tooltip';
+                    tooltip.innerHTML = `<span class="loading-dots">Đang dịch</span>`; // Default loading state
+                    
+                    // --- AUTO FETCH TRANSLATION ON HOVER ---
+                    span.onmouseenter = () => {
+                        handleWordHover(cleanWord, tooltip, sourceCode, targetCode);
+                    };
+                    
+                    span.onmouseleave = () => {
+                        clearTimeout(hoverTimeout);
+                    }
+
+                    span.appendChild(tooltip);
+                    wordsContainer.appendChild(span);
+                } else {
+                    const span = document.createElement('span');
+                    span.innerText = word + " ";
+                    wordsContainer.appendChild(span);
+                }
+            });
+            lucide.createIcons();
+
+            const input = document.getElementById('focusInput');
+            input.value = focusTranslations[currentFocusIndex] || "";
+            input.focus();
+            updateSpeakButtonIcon(document.getElementById('focusSpeakBtn'), false);
+        }
+
+        // --- NEW: AUTO TRANSLATE LOGIC ---
+        function handleWordHover(word, tooltipEl, sCode, tCode) {
+            // Kiểm tra Cache trước
+            if (wordCache[word]) {
+                tooltipEl.innerHTML = buildTooltipContent(word, wordCache[word], sCode, tCode);
+                return;
+            }
+
+            // Debounce: Chờ 300ms dừng chuột mới gọi API
+            hoverTimeout = setTimeout(async () => {
+                const prompt = `Translate the word "${word}" from ${currentSourceLang} to ${currentTargetLang}. Provide only the meaning(s) briefly. No explanations.`;
+                
+                try {
+                    const res = await callAI(prompt);
+                    const meaning = res ? res.trim() : "Lỗi dịch";
+                    wordCache[word] = meaning; // Lưu vào cache
+                    tooltipEl.innerHTML = buildTooltipContent(word, meaning, sCode, tCode);
+                } catch (e) {
+                    tooltipEl.innerHTML = "Lỗi kết nối";
+                }
+            }, 300);
+        }
+
+        function buildTooltipContent(word, meaning, sCode, tCode) {
+            return `
+                <div class="flex flex-col gap-1 text-left">
+                    <div class="font-bold text-amber-400 text-base">${word}</div>
+                    <div class="text-white font-medium">${meaning}</div>
+                    <div class="mt-1 pt-1 border-t border-slate-700">
+                        <a href="https://translate.google.com/?sl=${sCode}&tl=${tCode}&text=${encodeURIComponent(word)}" target="_blank" class="text-[10px] text-slate-400 hover:text-sky-400 flex items-center gap-1">
+                            <i data-lucide="external-link" class="w-3 h-3"></i> Mở Google Dịch
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function speakFocusSentence() {
+            speakRaw(focusSentences[currentFocusIndex], () => {
+                updateSpeakButtonIcon(document.getElementById('focusSpeakBtn'), false);
+            });
+        }
+
+        document.getElementById('focusInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                nextFocusSentence();
+            }
+        });
+
+        function nextFocusSentence() {
+            const val = document.getElementById('focusInput').value.trim();
+            if (!val) {
+                showToast("Hãy dịch câu này trước khi đi tiếp", "info");
+                return;
+            }
+            
+            focusTranslations[currentFocusIndex] = val;
+            
+            if (synth.speaking) {
+                synth.cancel();
+                updateSpeakButtonIcon(document.getElementById('focusSpeakBtn'), false);
+            }
+
+            if (currentFocusIndex < focusSentences.length - 1) {
+                currentFocusIndex++;
+                updateFocusUI();
+                const input = document.getElementById('focusInput');
+                input.classList.remove('animate-in', 'slide-in-from-right');
+                void input.offsetWidth; 
+                input.classList.add('animate-in', 'slide-in-from-right');
+            } else {
+                finishFocusMode();
+            }
+        }
+
+        function finishFocusMode() {
+            const finalTranslation = focusTranslations.join(' ');
+            document.getElementById('translateText').value = finalTranslation;
+            exitFocusMode();
+            showToast("Hoàn thành! Đang chấm điểm...", "success");
+            // Auto trigger grading
+            setTimeout(() => {
+                document.getElementById('btnGrade').click();
+                document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        }
+
+        function exitFocusMode() {
+            if(synth.speaking) synth.cancel();
+            document.getElementById('focusOverlay').classList.add('hidden');
+            document.getElementById('focusOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // --- CORE FUNCTIONS ---
         async function callAI(prompt) {
             try {
                 const response = await fetch(API_URL, {
@@ -294,16 +762,11 @@
                     body: JSON.stringify({ prompt }),
                     credentials: 'omit'
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
-                }
-                
+                if (!response.ok) throw new Error(`Server error: ${response.status}`);
                 const data = await response.json();
                 return data.response || data.content || data.text || data;
             } catch (e) { 
-                console.error("AI Error Details:", e); 
-                showToast('Lỗi kết nối AI! Kiểm tra Console (F12) để biết thêm.', 'error');
+                console.error("AI Error:", e); 
                 return null; 
             }
         }
@@ -313,19 +776,13 @@
                 const text = await navigator.clipboard.readText();
                 document.getElementById(id).value = text;
                 showToast('Đã dán từ clipboard!', 'success');
-            } catch (e) {
-                showToast('Không thể đọc clipboard. Hãy cấp quyền.', 'error');
-            }
+            } catch (e) { showToast('Không thể đọc clipboard.', 'error'); }
         }
 
         function copyToClipboard(id) {
             const elem = document.getElementById(id);
             const text = elem.tagName === 'TEXTAREA' ? elem.value : elem.innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('Đã copy vào clipboard!', 'success');
-            }).catch(() => {
-                showToast('Không thể copy. Hãy thử lại.', 'error');
-            });
+            navigator.clipboard.writeText(text).then(() => showToast('Đã copy!', 'success')).catch(() => showToast('Lỗi copy.', 'error'));
         }
 
         function showToast(message, type = 'info') {
@@ -333,7 +790,7 @@
             toast.innerText = message;
             toast.classList.remove('hidden', 'opacity-0');
             toast.classList.add('opacity-100');
-            toast.style.backgroundColor = type === 'error' ? '#ef4444' : (type === 'info' ? '#3b82f6' : '#10b981'); // Thêm màu xanh dương cho info
+            toast.style.backgroundColor = type === 'error' ? '#ef4444' : (type === 'info' ? '#3b82f6' : '#10b981');
             setTimeout(() => {
                 toast.classList.remove('opacity-100');
                 toast.classList.add('opacity-0');
@@ -341,6 +798,7 @@
             }, 3000);
         }
 
+        // --- BUTTON ACTIONS ---
         btnGenerate.onclick = async () => {
             const level = document.getElementById('levelSelect').value;
             btnGenerate.disabled = true;
@@ -348,17 +806,14 @@
             const res = await callAI(`Tạo 1 câu/đoạn văn mẫu bằng ${currentSourceLang}, trình độ ${level}. Chỉ trả về văn bản.`);
             if (res) document.getElementById('sourceText').value = res.trim();
             btnGenerate.disabled = false;
-            btnGenerate.innerHTML = `<i data-lucide="wand-2" class="w-4 h-4"></i> Tạo văn bản bằng AI`;
+            btnGenerate.innerHTML = `<i data-lucide="wand-2" class="w-4 h-4"></i> Tạo văn bản`;
             lucide.createIcons();
         };
 
         btnGrade.onclick = async () => {
             const source = document.getElementById('sourceText').value;
             const trans = document.getElementById('translateText').value;
-            if(!source || !trans) {
-                showToast('Vui lòng nhập văn bản nguồn và dịch!', 'error');
-                return;
-            }
+            if(!source || !trans) { showToast('Vui lòng nhập văn bản nguồn và dịch!', 'error'); return; }
 
             btnGrade.disabled = true;
             btnGrade.innerHTML = `<i data-lucide="heart" class="heart-beat"></i> HiHi đang đọc...`;
@@ -372,14 +827,12 @@
                     if (!jsonMatch) throw new Error("No JSON found");
                     const data = JSON.parse(jsonMatch[0]);
                     
-                    // Animation Score
                     const offset = 251.2 - (data.score / 10) * 251.2;
                     document.getElementById('scoreCircle').style.strokeDashoffset = offset;
                     document.getElementById('gradeOutput').innerText = data.score;
                     document.getElementById('feedbackOutput').innerText = data.feedback;
                     document.getElementById('quoteText').innerText = data.quote;
                     
-                    // Vocab with dictionary links
                     document.getElementById('vocabList').innerHTML = data.vocab.map(v => `
                         <div class="p-4 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 flex justify-between items-center">
                             <span class="font-bold text-rose-500">${v.w}</span>
@@ -392,22 +845,15 @@
 
                     document.getElementById('resultArea').classList.remove('hidden');
                     
-                    // Update Stats
                     stats.lessons += 1;
                     stats.words += source.split(/\s+/).length;
                     stats.history.unshift({ text: source.substring(0, 20) + "...", score: data.score });
                     if(stats.history.length > 5) stats.history.pop();
-                    
                     localStorage.setItem('hihi_stats', JSON.stringify(stats));
                     updateUIStats();
                     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-
-                } catch (e) { 
-                    console.error(e);
-                    showToast("AI phản hồi không đúng định dạng. Hãy thử lại!", 'error'); 
-                }
+                } catch (e) { console.error(e); showToast("AI lỗi định dạng JSON.", 'error'); }
             }
-
             btnGrade.disabled = false;
             btnGrade.innerHTML = `Chấm Điểm & Phân Tích <i data-lucide="sparkles" class="w-6 h-6"></i>`;
             lucide.createIcons();
@@ -417,9 +863,7 @@
             const source = document.getElementById('sourceText').value;
             const trans = document.getElementById('translateText').value;
             const score = document.getElementById('gradeOutput').innerText;
-            
             if (!Array.isArray(stats.favorites)) stats.favorites = [];
-            
             stats.favorites.unshift({ source, trans, score });
             if (stats.favorites.length > 10) stats.favorites.pop();
             localStorage.setItem('hihi_stats', JSON.stringify(stats));
@@ -430,57 +874,30 @@
         function toggleFavorites() {
             const history = document.getElementById('historyList');
             const favorites = document.getElementById('favoritesList');
-            if (favorites.classList.contains('hidden')) {
-                history.classList.add('hidden');
-                favorites.classList.remove('hidden');
-            } else {
-                history.classList.remove('hidden');
-                favorites.classList.add('hidden');
-            }
+            if (favorites.classList.contains('hidden')) { history.classList.add('hidden'); favorites.classList.remove('hidden'); }
+            else { history.classList.remove('hidden'); favorites.classList.add('hidden'); }
         }
 
         function updateUIStats() {
             document.getElementById('totalLessons').innerText = stats.lessons;
             document.getElementById('totalWords').innerText = stats.words;
-            
-            // Rank Logic
-            let rank = "Người mới";
-            let next = 5;
-            let progress = (stats.lessons / 5) * 100;
-
+            let rank = "Người mới"; let next = 5; let progress = (stats.lessons / 5) * 100;
             if(stats.lessons >= 5) { rank = "Tập sự"; next = 15; progress = (stats.lessons / 15) * 100; }
             if(stats.lessons >= 15) { rank = "Thông thái"; next = 50; progress = (stats.lessons / 50) * 100; }
             if(stats.lessons >= 50) { rank = "Bậc thầy"; next = 100; progress = 100; }
-
             document.getElementById('userRank').innerText = rank;
             document.getElementById('rankProgress').style.width = Math.min(progress, 100) + "%";
             document.getElementById('rankSubtext').innerText = stats.lessons >= 50 ? "Bạn đã đạt đỉnh cao!" : `Cần thêm ${next - stats.lessons} bài để thăng cấp`;
-
-            // Render History
-            const historyHTML = (stats.history || []).map(h => `
-                <div class="p-3 bg-white/30 dark:bg-slate-800/30 rounded-xl flex justify-between text-xs border border-white/20">
-                    <span>${h.text}</span>
-                    <span class="font-bold text-rose-500">${h.score}đ</span>
-                </div>
+            document.getElementById('historyList').innerHTML = (stats.history || []).map(h => `
+                <div class="p-3 bg-white/30 dark:bg-slate-800/30 rounded-xl flex justify-between text-xs border border-white/20"><span>${h.text}</span><span class="font-bold text-rose-500">${h.score}đ</span></div>
             `).join('');
-            document.getElementById('historyList').innerHTML = historyHTML;
-
-            // Render Favorites
-            const favHTML = (stats.favorites || []).map(f => `
-                <div class="p-3 bg-white/30 dark:bg-slate-800/30 rounded-xl text-xs border border-white/20">
-                    <p><strong>Nguồn:</strong> ${f.source.substring(0, 20)}...</p>
-                    <p><strong>Dịch:</strong> ${f.trans.substring(0, 20)}...</p>
-                    <span class="font-bold text-rose-500">${f.score}đ</span>
-                </div>
+            document.getElementById('favoritesList').innerHTML = (stats.favorites || []).map(f => `
+                <div class="p-3 bg-white/30 dark:bg-slate-800/30 rounded-xl text-xs border border-white/20"><p><strong>Nguồn:</strong> ${f.source.substring(0, 20)}...</p><p><strong>Dịch:</strong> ${f.trans.substring(0, 20)}...</p><span class="font-bold text-rose-500">${f.score}đ</span></div>
             `).join('');
-            document.getElementById('favoritesList').innerHTML = favHTML;
         }
 
         function clearAllData() {
-            if(confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử và thống kê?")) {
-                localStorage.clear();
-                location.reload();
-            }
+            if(confirm("Xóa toàn bộ lịch sử?")) { localStorage.clear(); location.reload(); }
         }
     </script>
 </body>
