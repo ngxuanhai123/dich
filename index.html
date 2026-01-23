@@ -54,24 +54,26 @@
         /* Styles cho từ tương tác trong Focus Mode */
         .interactive-word {
             position: relative;
-            cursor: help; /* Đổi con trỏ thành dấu hỏi */
+            cursor: pointer; /* Đổi thành pointer để biết là bấm được */
             border-bottom: 2px dashed rgba(255, 255, 255, 0.3);
             transition: all 0.2s;
             display: inline-block;
             margin: 0 2px;
             padding: 0 2px;
             border-radius: 4px;
+            user-select: none; /* Tránh bôi đen khi click nhanh */
         }
-        .interactive-word:hover {
+        .interactive-word:hover, .interactive-word.active {
             background-color: rgba(251, 191, 36, 0.2); /* Amber background mờ */
             color: #fbbf24; /* Amber-400 */
             border-bottom-color: #fbbf24;
         }
+        
         /* Tooltip style */
         .word-tooltip {
             visibility: hidden;
             position: absolute;
-            bottom: 130%; /* Cao hơn một chút */
+            bottom: 140%; /* Cao hơn một chút */
             left: 50%;
             transform: translateX(-50%);
             background-color: #0f172a; /* Slate-900 */
@@ -90,12 +92,15 @@
             pointer-events: none;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .interactive-word:hover .word-tooltip {
+
+        /* Logic hiển thị tooltip khi có class active (được click) */
+        .interactive-word.active .word-tooltip {
             visibility: visible;
             opacity: 1;
-            transform: translateX(-50%) translateY(-5px);
+            transform: translateX(-50%) translateY(0);
             pointer-events: auto;
         }
+
         /* Mũi tên tooltip */
         .word-tooltip::after {
             content: "";
@@ -367,7 +372,7 @@
                     ...
                 </div>
                 <div class="flex justify-center gap-4 mt-2">
-                    <p class="text-[10px] text-slate-500"><i data-lucide="mouse-pointer-2" class="w-3 h-3 inline"></i> Rà chuột lên từ để xem nghĩa tự động</p>
+                    <p class="text-[10px] text-slate-500"><i data-lucide="mouse-pointer-2" class="w-3 h-3 inline"></i> Bấm vào từ để xem nghĩa</p>
                 </div>
                 <div class="flex justify-center gap-4">
                     <button id="focusSpeakBtn" onclick="toggleSpeakFocus()" class="text-slate-400 hover:text-rose-400 transition-colors p-2"><i data-lucide="volume-2" class="w-6 h-6"></i></button>
@@ -395,7 +400,6 @@
         let currentSourceLang = 'English';
         let currentTargetLang = 'Vietnamese';
         let wordCache = {}; // Cache bản dịch từ
-        let hoverTimeout; // Cho debounce
 
         // --- STATS & INIT ---
         const defaultStats = { lessons: 0, words: 0, history: [], favorites: [] };
@@ -617,7 +621,7 @@
             return 'en';
         }
 
-        // --- FOCUS MODE LOGIC (AUTO TRANSLATE OPTIMIZED) ---
+        // --- FOCUS MODE LOGIC (CLICK TO TRANSLATE) ---
         let focusSentences = [];
         let focusTranslations = [];
         let currentFocusIndex = 0;
@@ -682,14 +686,11 @@
                     tooltip.className = 'word-tooltip';
                     tooltip.innerHTML = `<span class="loading-dots">Đang dịch</span>`; // Default loading state
                     
-                    // --- AUTO FETCH TRANSLATION ON HOVER ---
-                    span.onmouseenter = () => {
-                        handleWordHover(cleanWord, tooltip, sourceCode, targetCode);
+                    // --- CLICK HANDLER INSTEAD OF HOVER ---
+                    span.onclick = (e) => {
+                        e.stopPropagation(); // Ngăn sự kiện nổi bọt lên body (sẽ đóng tooltip)
+                        handleWordClick(span, cleanWord, tooltip, sourceCode, targetCode);
                     };
-                    
-                    span.onmouseleave = () => {
-                        clearTimeout(hoverTimeout);
-                    }
 
                     span.appendChild(tooltip);
                     wordsContainer.appendChild(span);
@@ -707,27 +708,43 @@
             updateSpeakButtonIcon(document.getElementById('focusSpeakBtn'), false);
         }
 
-        // --- NEW: AUTO TRANSLATE LOGIC ---
-        function handleWordHover(word, tooltipEl, sCode, tCode) {
+        // Đóng tooltip khi click ra ngoài
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.interactive-word')) {
+                document.querySelectorAll('.interactive-word.active').forEach(el => el.classList.remove('active'));
+            }
+        });
+
+        // --- NEW: CLICK TRANSLATE LOGIC ---
+        async function handleWordClick(spanElement, word, tooltipEl, sCode, tCode) {
+            // Nếu từ này đang mở thì đóng lại
+            if (spanElement.classList.contains('active')) {
+                spanElement.classList.remove('active');
+                return;
+            }
+
+            // Đóng tất cả các tooltip khác
+            document.querySelectorAll('.interactive-word.active').forEach(el => el.classList.remove('active'));
+
+            // Mở tooltip hiện tại
+            spanElement.classList.add('active');
+
             // Kiểm tra Cache trước
             if (wordCache[word]) {
                 tooltipEl.innerHTML = buildTooltipContent(word, wordCache[word], sCode, tCode);
                 return;
             }
 
-            // Debounce: Chờ 300ms dừng chuột mới gọi API
-            hoverTimeout = setTimeout(async () => {
+            // Gọi API
+            try {
                 const prompt = `Translate the word "${word}" from ${currentSourceLang} to ${currentTargetLang}. Provide only the meaning(s) briefly. No explanations.`;
-                
-                try {
-                    const res = await callAI(prompt);
-                    const meaning = res ? res.trim() : "Lỗi dịch";
-                    wordCache[word] = meaning; // Lưu vào cache
-                    tooltipEl.innerHTML = buildTooltipContent(word, meaning, sCode, tCode);
-                } catch (e) {
-                    tooltipEl.innerHTML = "Lỗi kết nối";
-                }
-            }, 300);
+                const res = await callAI(prompt);
+                const meaning = res ? res.trim() : "Lỗi dịch";
+                wordCache[word] = meaning; // Lưu vào cache
+                tooltipEl.innerHTML = buildTooltipContent(word, meaning, sCode, tCode);
+            } catch (e) {
+                tooltipEl.innerHTML = "Lỗi kết nối";
+            }
         }
 
         function buildTooltipContent(word, meaning, sCode, tCode) {
