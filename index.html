@@ -174,7 +174,69 @@
     </style>
 </head>
 <body class="font-inter bg-[#fdf2f8] dark:bg-slate-950 text-slate-800 dark:text-slate-200">
-<a href="https://ngxuanhai123.github.io/" class="hihi-home-btn" title="Trang ch&#7911; HiHi Study"><i class="fas fa-home"></i></a>
+<div class="hihi-nav-pill">
+  <a href="https://ngxuanhai123.github.io/" class="hihi-pill-btn" title="Trang chá»§ HiHi Study">
+    <i class="fas fa-home"></i>
+  </a>
+  <button class="hihi-pill-btn" onclick="toggleHiHiSwitcher()" title="Chuyá»ƒn á»©ng dá»¥ng">
+    <i class="fas fa-th-large"></i>
+  </button>
+</div>
+<div id="hihiAppSwitcher" class="hihi-switcher-backdrop" onclick="toggleHiHiSwitcher(event)">
+  <div class="hihi-switcher-modal" onclick="event.stopPropagation()">
+    <div class="hihi-switcher-header">
+      <div class="hihi-switcher-title">
+        <i class="fas fa-th-large" style="color:#38bdf8;"></i>
+        <span>Há»‡ sinh thÃ¡i HiHi Study</span>
+      </div>
+      <button class="hihi-switcher-close" onclick="toggleHiHiSwitcher()" title="ÄÃ³ng">&times;</button>
+    </div>
+    <div class="hihi-switcher-grid">
+      <a href="https://ngxuanhai123.github.io/" class="hihi-app-item ">
+        <div class="hihi-app-icon icon-home"><i class="fas fa-home"></i></div>
+        <div class="hihi-app-info">
+          <div class="hihi-app-name">Trang Chá»§</div>
+          <div class="hihi-app-desc">Cá»•ng há»c táº­p HiHi</div>
+        </div>
+      </a>
+      <a href="https://ngxuanhai123.github.io/tuvung/" class="hihi-app-item ">
+        <div class="hihi-app-icon icon-vocab"><i class="fas fa-book-open"></i></div>
+        <div class="hihi-app-info">
+          <div class="hihi-app-name">Tá»« Vá»±ng</div>
+          <div class="hihi-app-desc">Flashcard & phÃ¡t Ã¢m</div>
+        </div>
+      </a>
+      <a href="https://ngxuanhai123.github.io/chinhta/" class="hihi-app-item ">
+        <div class="hihi-app-icon icon-spell"><i class="fas fa-keyboard"></i></div>
+        <div class="hihi-app-info">
+          <div class="hihi-app-name">ChÃ­nh Táº£</div>
+          <div class="hihi-app-desc">Nghe chÃ©p & pháº£n xáº¡</div>
+        </div>
+      </a>
+      <a href="https://ngxuanhai123.github.io/dich/" class="hihi-app-item current-app">
+        <div class="hihi-app-icon icon-trans"><i class="fas fa-language"></i></div>
+        <div class="hihi-app-info">
+          <div class="hihi-app-name">Luyá»‡n Dá»‹ch</div>
+          <div class="hihi-app-desc">Dá»‹ch cÃ¢u & song ngá»¯</div>
+        </div>
+      </a>
+      <a href="https://ngxuanhai123.github.io/note/" class="hihi-app-item">
+        <div class="hihi-app-icon icon-note"><i class="fas fa-sticky-note"></i></div>
+        <div class="hihi-app-info">
+          <div class="hihi-app-name">Ghi ChÃº</div>
+          <div class="hihi-app-desc">LÆ°u trá»¯ cÃ¡ nhÃ¢n</div>
+        </div>
+      </a>
+      <a href="https://ngxuanhai123.github.io/bamhuyet/" class="hihi-app-item">
+        <div class="hihi-app-icon icon-health"><i class="fas fa-hand-holding-heart"></i></div>
+        <div class="hihi-app-info">
+          <div class="hihi-app-name">Báº¥m Huyá»‡t</div>
+          <div class="hihi-app-desc">Sá»©c khá»e trá»‹ liá»‡u</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
 <div class="hihi-orb" style="position:fixed;border-radius:50%;filter:blur(80px);opacity:0.4;animation:hihiFloat 20s infinite alternate;z-index:-1;top:-10%;left:-10%;width:50vw;height:50vw;background:#1e3a8a;"></div>
 <div class="hihi-orb" style="position:fixed;border-radius:50%;filter:blur(80px);opacity:0.4;animation:hihiFloat 20s infinite alternate;animation-delay:-5s;z-index:-1;bottom:-10%;right:-10%;width:50vw;height:50vw;background:#0f4c75;"></div>
 <style>
