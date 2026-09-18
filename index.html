@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="vi" class="light">
 <head>
+    <!-- HIHI STUDY PERFORMANCE PRECONNECT -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com">
+    <link rel="preconnect" href="https://tuvung-88e8d.firebaseapp.com">
+    <link rel="dns-prefetch" href="https://api.github.com">
+    <link rel="dns-prefetch" href="https://raw.githubusercontent.com">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HiHi Luyện Dịch</title>
@@ -2541,7 +2549,19 @@ window.hihiFetchAllTopics = async function() {
   const topics = [];
   // 1. Fetch 57 JSON topics from GitHub
   try {
-    const res = await fetch("https://api.github.com/repos/ngxuanhai123/tuvung/contents/?t=" + Date.now());
+    // Ưu tiên đọc manifest tĩnh siêu tốc (<50ms), fallback sang GitHub API nếu cần
+  try {
+    const fastRes = await fetch("https://raw.githubusercontent.com/ngxuanhai123/tuvung/main/vocab_manifest.json");
+    if (fastRes.ok) {
+      const manifest = await fastRes.json();
+      for (const t of manifest.topics) {
+        topics.push({ id: t.file, name: t.name, download_url: t.url, isCustom: false });
+      }
+    }
+  } catch(e) {}
+  if (topics.length === 0) {
+    try {
+      const res = await fetch("https://api.github.com/repos/ngxuanhai123/tuvung/contents/?t=" + Date.now());
     if (res.ok) {
       const files = await res.json();
       const jsonFiles = files.filter(f => f.name.endsWith(".json"));
@@ -2640,6 +2660,18 @@ window.hihiSelectTopic = async function(topicId) {
     window.hihiOnTopicSelect(topic.name, words);
   }
 };
+</script>
+
+
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration skipped:', err);
+    });
+  });
+}
 </script>
 
 </body>
