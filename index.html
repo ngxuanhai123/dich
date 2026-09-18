@@ -2940,7 +2940,7 @@ window.hihiDeleteTopic = async function(id) {
   }
 };
 
-// --- 4. SHARED TOPIC POOL (57 GitHub Topics + Firestore Custom) ---
+// --- 4. SHARED TOPIC POOL (57 GitHub Topics + 3000tv Oxford + Firestore Custom) ---
 window.hihiAllSharedTopics = [];
 
 window.hihiFetchAllTopics = async function() {
@@ -2954,44 +2954,40 @@ window.hihiFetchAllTopics = async function() {
   }
 
   const topics = [];
+
+  // 1. Nạp 57 chủ đề từ vựng tiếng Anh giao tiếp từ tuvung
   try {
     const fastRes = await fetch("https://raw.githubusercontent.com/ngxuanhai123/tuvung/main/vocab_manifest.json");
     if (fastRes.ok) {
       const manifest = await fastRes.json();
       for (const t of manifest.topics) {
-        topics.push({ id: t.file, name: t.name, download_url: t.url, isCustom: false });
+        topics.push({ id: 'tuvung_' + t.file, name: t.name, download_url: t.url, isCustom: false, category: '57 Chủ đề thông dụng' });
       }
     }
   } catch(e) {}
-  if (topics.length === 0) {
-    try {
-      const res = await fetch("https://api.github.com/repos/ngxuanhai123/tuvung/contents/?t=" + Date.now());
-      if (res.ok) {
-        const files = await res.json();
-        const jsonFiles = files.filter(f => f.name.endsWith(".json"));
-        for (const f of jsonFiles) {
-          topics.push({
-            id: f.name,
-            name: f.name.replace(".json", "").replace(/_/g, " "),
-            download_url: f.download_url,
-            isCustom: false
-          });
-        }
-      }
-    } catch(e) {
-      console.warn("GitHub topics fetch fallback:", e);
-    }
-  }
 
+  // 2. Nạp kho 3000 từ vựng Oxford (24 chữ cái A-Y) từ 3000tv
+  try {
+    const res3000 = await fetch("https://raw.githubusercontent.com/ngxuanhai123/3000tv/main/vocab_manifest.json");
+    if (res3000.ok) {
+      const manifest3000 = await res3000.json();
+      for (const l of manifest3000.letters) {
+        topics.push({ id: '3000tv_' + l.file, name: `${l.name} (${l.wordCount} từ)`, download_url: l.url, isCustom: false, category: 'Oxford 3000 từ' });
+      }
+    }
+  } catch(e) {}
+
+  // 3. Nạp các chủ đề do Admin tạo trên Firestore
   try {
     const snap = await getDocs(collection(db, "hihi_custom_topics"));
     snap.forEach((d) => {
       const dat = d.data();
       topics.unshift({
-        id: d.id,
+        id: 'custom_' + d.id,
         name: dat.name + " (Custom)",
         words: dat.words,
-        isCustom: true
+        isCustom: true,
+        category: '⭐ Do Admin tạo'
       });
     });
   } catch(e) {}
@@ -3029,7 +3025,7 @@ function hihiRenderTopicCards(list) {
     <div onclick="hihiSelectTopic('${t.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.1)';this.style.borderColor='#38bdf8';" onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.borderColor='rgba(255,255,255,0.08)';">
       <div>
         <div style="font-weight:600;font-size:0.88rem;color:var(--hihi-card-text,#f1f5f9);">${t.name}</div>
-        <div style="font-size:0.72rem;color:#94a3b8;">${t.isCustom ? "⭐ Do Admin tạo" : "📚 Kho từ vựng GitHub"}</div>
+        <div style="font-size:0.72rem;color:#94a3b8;"><span style="display:inline-block;padding:1px 6px;border-radius:4px;background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:600;margin-right:6px;">${t.category || "Chủ đề"}</span>${t.isCustom ? "⭐ Tùy chỉnh" : "📚 Kho từ vựng GitHub"}</div>
       </div>
       <i class="fas fa-chevron-right" style="color:#94a3b8;font-size:0.8rem;"></i>
     </div>
