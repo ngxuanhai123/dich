@@ -1173,9 +1173,26 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
       <button class="hihi-suite-modal-close" onclick="hihiCloseAdminStudio()">&times;</button>
     </div>
     <div class="hihi-suite-modal-body">
-      <div class="hihi-admin-section">
-        <label style="font-size:0.85rem;font-weight:700;color:var(--hihi-card-text,#f1f5f9);">Tên Chủ Đề (Topic Name):</label>
-        <input type="text" id="hihiTopicNameInput" class="hihi-admin-input" placeholder="Ví dụ: 100 Từ vựng Công nghệ thông tin phổ biến, IELTS Band 7+...">
+      <!-- TOPIC NAME & MULTI-LANGUAGE SELECTOR -->
+      <div class="hihi-admin-section" style="display:grid;grid-template-columns:1fr 210px;gap:12px;align-items:end;margin-bottom:12px;">
+        <div>
+          <label style="font-size:0.85rem;font-weight:700;color:var(--hihi-card-text,#f1f5f9);display:block;margin-bottom:4px;">Tên Chủ Đề (Topic Name) *:</label>
+          <input type="text" id="hihiTopicNameInput" class="hihi-admin-input" placeholder="Ví dụ: 100 Từ vựng Công nghệ, JLPT N5, HSK 3, Du lịch...">
+        </div>
+        <div>
+          <label style="font-size:0.85rem;font-weight:700;color:var(--hihi-card-text,#f1f5f9);display:block;margin-bottom:4px;">Ngôn Ngữ Học (Language):</label>
+          <select id="hihiTopicLangSelect" class="hihi-admin-input" style="cursor:pointer;padding:8px 10px;background:rgba(15,23,42,0.9);color:#f1f5f9;border:1px solid rgba(255,255,255,0.15);" onchange="hihiOnAdminLangChange(this.value)">
+            <option value="en">🇺🇸 Tiếng Anh (English)</option>
+            <option value="id">🇮🇩 Tiếng Indo (Bahasa)</option>
+            <option value="ja">🇯🇵 Tiếng Nhật (Japanese)</option>
+            <option value="ko">🇰🇷 Tiếng Hàn (Korean)</option>
+            <option value="zh">🇨🇳 Tiếng Trung (Chinese)</option>
+            <option value="fr">🇫🇷 Tiếng Pháp (French)</option>
+            <option value="de">🇩🇪 Tiếng Đức (German)</option>
+            <option value="es">🇪🇸 Tiếng TBN (Spanish)</option>
+            <option value="vi">🇻🇳 Tiếng Việt (Vietnamese)</option>
+          </select>
+        </div>
       </div>
 
       <div class="hihi-admin-tabs">
@@ -1188,21 +1205,21 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
       <div id="hihiAdminTabSingle">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
           <div>
-            <label style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);">Tiếng Anh (Word) *:</label>
+            <label id="hihiWordInputLabel" style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);display:block;margin-bottom:3px;">Từ vựng Tiếng Anh (Word) *:</label>
             <input type="text" id="hihiSingleWord" class="hihi-admin-input" placeholder="e.g. meticulous">
           </div>
           <div>
-            <label style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);">Nghĩa Tiếng Việt *:</label>
+            <label id="hihiMeaningInputLabel" style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);display:block;margin-bottom:3px;">Nghĩa Tiếng Việt *:</label>
             <input type="text" id="hihiSingleMeaning" class="hihi-admin-input" placeholder="e.g. tỉ mỉ, cẩn thận">
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
           <div>
-            <label style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);">Phiên âm (IPA):</label>
+            <label id="hihiIPAInputLabel" style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);display:block;margin-bottom:3px;">Phiên âm (IPA):</label>
             <input type="text" id="hihiSingleIPA" class="hihi-admin-input" placeholder="e.g. /məˈtɪk.jə.ləs/">
           </div>
           <div>
-            <label style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);">Câu ví dụ (Example):</label>
+            <label id="hihiExampleInputLabel" style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);display:block;margin-bottom:3px;">Câu ví dụ (Example):</label>
             <input type="text" id="hihiSingleExample" class="hihi-admin-input" placeholder="e.g. He is meticulous about his work.">
           </div>
         </div>
@@ -1211,15 +1228,15 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
 
       <!-- TAB 2: BULK IMPORT (MEMRISE STYLE) -->
       <div id="hihiAdminTabBulk" style="display:none;">
-        <p style="font-size:0.78rem;color:var(--hihi-nav-text,#94a3b8);margin-bottom:8px;">
+        <p id="hihiBulkHint" style="font-size:0.78rem;color:var(--hihi-nav-text,#94a3b8);margin-bottom:8px;">
           💡 <strong>Nhập siêu tốc kiểu Memrise:</strong> Sao chép bảng từ Excel / Google Sheets / Memrise rồi dán thẳng vào ô dưới (Hỗ trợ phân cách bằng <strong>Tab, Dấu gạch ngang -, Dấu hai chấm : hoặc Phẩy CSV</strong>):
         </p>
-        <textarea id="hihiBulkTextarea" class="hihi-admin-textarea" rows="6" oninput="hihiParseBulkInput()" placeholder="Ví dụ dán từ Excel:&#10;ubiquitous	phổ biến, khắp nơi	/juːˈbɪk.wə.təs/	Smartphones are ubiquitous today.&#10;resilient	kiên cường	/rɪˈzɪl.jənt/	Children are resilient.&#10;&#10;Hoặc dán dạng văn bản:&#10;hello - xin chào&#10;world : thế giới"></textarea>
+        <textarea id="hihiBulkTextarea" class="hihi-admin-textarea" rows="6" oninput="hihiParseBulkInput()" placeholder="Ví dụ dán từ Excel / Google Sheets:&#10;meticulous	tỉ mỉ, cẩn thận	/məˈtɪk.jə.ləs/	He is meticulous about his work.&#10;resilient	kiên cường, bất khuất	/rɪˈzɪl.jənt/	Children are very resilient.&#10;&#10;Hoặc dán dạng văn bản đơn giản:&#10;hello - xin chào&#10;world : thế giới"></textarea>
       </div>
 
       <!-- TAB 3: MANAGE TOPICS -->
       <div id="hihiAdminTabManage" style="display:none;">
-        <div id="hihiManageTopicList" style="display:flex;flex-direction:column;gap:8px;">
+        <div id="hihiManageTopicList" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;padding-right:4px;">
           <div style="color:var(--hihi-nav-text,#94a3b8);text-align:center;padding:20px;">Đang tải danh sách chủ đề đã tạo...</div>
         </div>
       </div>
@@ -1231,13 +1248,13 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
           <button class="hihi-btn-secondary" style="padding:4px 8px;font-size:0.75rem;" onclick="hihiClearWordList()"><i class="fas fa-trash"></i> Xóa tất cả</button>
         </div>
         <div style="max-height:220px;overflow-y:auto;">
-          <table class="hihi-preview-table">
+          <table class="hihi-preview-table" style="width:100%;">
             <thead>
               <tr>
                 <th style="width:30px;">#</th>
-                <th>Từ (English)</th>
-                <th>Nghĩa (Tiếng Việt)</th>
-                <th>IPA</th>
+                <th id="hihiThWord">Từ vựng (Word)</th>
+                <th id="hihiThMeaning">Nghĩa (Tiếng Việt)</th>
+                <th id="hihiThIPA">Phiên âm</th>
                 <th>Ví dụ</th>
                 <th style="width:40px;"></th>
               </tr>
@@ -2717,12 +2734,172 @@ function hihiRenderFilteredLeaderboard() {
   }).join("");
 }
 
-// --- 3. MEMRISE ADMIN STUDIO ---
+// --- 3. MEMRISE ADMIN STUDIO (MULTI-LANGUAGE SUPPORT) ---
+const HIHI_LANGUAGES = {
+  en: {
+    name: "Tiếng Anh",
+    flag: "🇺🇸",
+    wordLabel: "Từ vựng Tiếng Anh (Word) *:",
+    meaningLabel: "Nghĩa Tiếng Việt *:",
+    ipaLabel: "Phiên âm (IPA)",
+    placeholder: "e.g. meticulous",
+    ipaPlaceholder: "e.g. /məˈtɪk.jə.ləs/",
+    examplePlaceholder: "e.g. He is meticulous about his work.",
+    bulkExample: "meticulous\ttỉ mỉ, cẩn thận\t/məˈtɪk.jə.ləs/\tHe is meticulous about his work.\nresilient\tkiên cường\t/rɪˈzɪl.jənt/\tChildren are resilient."
+  },
+  id: {
+    name: "Tiếng Indo",
+    flag: "🇮🇩",
+    wordLabel: "Từ vựng Tiếng Indo (Kata) *:",
+    meaningLabel: "Nghĩa Tiếng Việt *:",
+    ipaLabel: "Phiên âm / Cách đọc",
+    placeholder: "e.g. selamat pagi, terima kasih",
+    ipaPlaceholder: "e.g. səˈlamat ˈpaɡi",
+    examplePlaceholder: "e.g. Selamat pagi, apa kabar?",
+    bulkExample: "selamat pagi\txin chào buổi sáng\tsəˈlamat ˈpaɡi\tSelamat pagi, apa kabar?\nterima kasih\tcảm ơn\ttəˈrima ˈkasih\tTerima kasih nhiều."
+  },
+  ja: {
+    name: "Tiếng Nhật",
+    flag: "🇯🇵",
+    wordLabel: "Từ vựng Tiếng Nhật (単語) *:",
+    meaningLabel: "Nghĩa Tiếng Việt *:",
+    ipaLabel: "Cách đọc / Furigana",
+    placeholder: "e.g. ありがとう, こんにちは",
+    ipaPlaceholder: "e.g. arigatou, konnichiwa",
+    examplePlaceholder: "e.g. どうもありがとうございます。",
+    bulkExample: "ありがとう\tcảm ơn\tarigatou\tどうもありがとうございます。\nこんにちは\txin chào\tkonnichiwa\tこんにちは、お元気ですか。"
+  },
+  ko: {
+    name: "Tiếng Hàn",
+    flag: "🇰🇷",
+    wordLabel: "Từ vựng Tiếng Hàn (단어) *:",
+    meaningLabel: "Nghĩa Tiếng Việt *:",
+    ipaLabel: "Romaja / Phiên âm",
+    placeholder: "e.g. 안녕하세요, 감사합니다",
+    ipaPlaceholder: "e.g. annyeonghaseyo",
+    examplePlaceholder: "e.g. 만나서 반가워요.",
+    bulkExample: "안녕하세요\txin chào\tannyeonghaseyo\t만나서 반가워요.\n감사합니다\tcảm ơn\tgamsahamnida\t정말 감사합니다."
+  },
+  zh: {
+    name: "Tiếng Trung",
+    flag: "🇨🇳",
+    wordLabel: "Từ vựng Tiếng Trung (生词) *:",
+    meaningLabel: "Nghĩa Tiếng Việt *:",
+    ipaLabel: "Bính âm (Pinyin)",
+    placeholder: "e.g. 你好, 谢谢",
+    ipaPlaceholder: "e.g. nǐ hǎo, xièxie",
+    examplePlaceholder: "e.g. 很高兴认识你。",
+    bulkExample: "你好\txin chào\tnǐ hǎo\t很高兴认识你。\n谢谢\tcảm ơn\txièxie\t非常感谢你。"
+  },
+  fr: {
+    name: "Tiếng Pháp",
+    flag: "🇫🇷",
+    wordLabel: "Từ vựng Tiếng Pháp (Mot) *:",
+    meaningLabel: "Nghĩa Tiếng Việt *:",
+    ipaLabel: "Phiên âm (Phonétique)",
+    placeholder: "e.g. bonjour, merci",
+    ipaPlaceholder: "e.g. /bɔ̃.ʒuʁ/",
+    examplePlaceholder: "e.g. Bonjour, comment allez-vous ?",
+    bulkExample: "bonjour\txin chào\t/bɔ̃.ʒuʁ/\tBonjour, comment allez-vous ?\nmerci\tcảm ơn\t/mɛʁ.si/\tMerci beaucoup pour votre aide."
+  },
+  de: {
+    name: "Tiếng Đức",
+    flag: "🇩🇪",
+    wordLabel: "Từ vựng Tiếng Đức (Wort) *:",
+    meaningLabel: "Nghĩa Tiếng Việt *:",
+    ipaLabel: "Phiên âm (Lautschrift)",
+    placeholder: "e.g. danke, guten tag",
+    ipaPlaceholder: "e.g. /ˈdaŋ.kə/",
+    examplePlaceholder: "e.g. Vielen Dank für Ihre Hilfe.",
+    bulkExample: "guten tag\txin chào\t/ˈɡuːtn̩ ˈtaːk/\tGuten Tag, wie geht es Ihnen?\ndanke\tcảm ơn\t/ˈdaŋ.kə/\tVielen Dank für Ihre Hilfe."
+  },
+  es: {
+    name: "Tiếng Tây Ban Nha",
+    flag: "🇪🇸",
+    wordLabel: "Từ vựng Tiếng TBN (Palabra) *:",
+    meaningLabel: "Nghĩa Tiếng Việt *:",
+    ipaLabel: "Phiên âm (Fonética)",
+    placeholder: "e.g. hola, gracias",
+    ipaPlaceholder: "e.g. /ˈo.la/",
+    examplePlaceholder: "e.g. Muchas gracias por todo.",
+    bulkExample: "hola\txin chào\t/ˈo.la/\t¡Hola! ¿Cómo estás?\ngracias\tcảm ơn\t/ˈɡɾa.sjas/\tMuchas gracias por todo."
+  },
+  vi: {
+    name: "Tiếng Việt",
+    flag: "🇻🇳",
+    wordLabel: "Từ vựng Tiếng Việt *:",
+    meaningLabel: "Giải thích ý nghĩa *:",
+    ipaLabel: "Từ loại / Ghi chú",
+    placeholder: "e.g. kiên trì, nỗ lực",
+    ipaPlaceholder: "e.g. danh từ, tính từ",
+    examplePlaceholder: "e.g. Kiên trì là chìa khóa của thành công.",
+    bulkExample: "kiên trì\tbền bỉ theo đuổi mục tiêu\ttính từ\tKiên trì là chìa khóa của thành công.\nnỗ lực\tcố gắng hết sức mình\tđộng từ\tCần nỗ lực mỗi ngày để tiến bộ."
+  }
+};
+
+window.hihiDetectCurrentAppLang = function() {
+  // 1. Saved admin choice
+  const savedAdminLang = localStorage.getItem("hihi_admin_lang");
+  if (savedAdminLang && HIHI_LANGUAGES[savedAdminLang]) return savedAdminLang;
+
+  // 2. App-specific active language (e.g. tuvung's currentLang or fp_aurora_lang)
+  if (typeof window.currentLang === "string" && HIHI_LANGUAGES[window.currentLang]) {
+    return window.currentLang;
+  }
+  const appLang = localStorage.getItem("fp_aurora_lang");
+  if (appLang && HIHI_LANGUAGES[appLang]) return appLang;
+
+  // 3. Fallback to English
+  return "en";
+};
+
+window.hihiOnAdminLangChange = function(langCode, savePreference = true) {
+  const cfg = HIHI_LANGUAGES[langCode] || HIHI_LANGUAGES.en;
+  if (savePreference) {
+    try { localStorage.setItem("hihi_admin_lang", langCode); } catch(e) {}
+  }
+  const sel = document.getElementById("hihiTopicLangSelect");
+  if (sel && sel.value !== langCode) sel.value = langCode;
+
+  const wLabel = document.getElementById("hihiWordInputLabel");
+  const wInput = document.getElementById("hihiSingleWord");
+  if (wLabel) wLabel.textContent = cfg.wordLabel;
+  if (wInput) wInput.placeholder = cfg.placeholder;
+
+  const mLabel = document.getElementById("hihiMeaningInputLabel");
+  if (mLabel) mLabel.textContent = cfg.meaningLabel;
+
+  const ipaLabel = document.getElementById("hihiIPAInputLabel");
+  const ipaInput = document.getElementById("hihiSingleIPA");
+  if (ipaLabel) ipaLabel.textContent = cfg.ipaLabel + ":";
+  if (ipaInput) ipaInput.placeholder = cfg.ipaPlaceholder;
+
+  const exInput = document.getElementById("hihiSingleExample");
+  if (exInput) exInput.placeholder = cfg.examplePlaceholder;
+
+  const thWord = document.getElementById("hihiThWord");
+  if (thWord) thWord.textContent = `Từ (${cfg.flag} ${cfg.name})`;
+
+  const thMeaning = document.getElementById("hihiThMeaning");
+  if (thMeaning) thMeaning.textContent = cfg.meaningLabel.replace(/\s*\*:\s*$/, "");
+
+  const thIPA = document.getElementById("hihiThIPA");
+  if (thIPA) thIPA.textContent = cfg.ipaLabel;
+
+  const bulkTextarea = document.getElementById("hihiBulkTextarea");
+  if (bulkTextarea && !bulkTextarea.value.trim()) {
+    bulkTextarea.placeholder = `Ví dụ dán bảng ${cfg.name}:\n${cfg.bulkExample}\n\nHoặc dán dạng văn bản:\nhello - xin chào\nworld : thế giới`;
+  }
+};
+
 window.hihiOpenAdminStudio = function() {
   if (!window.hihiIsAdmin) {
     alert("Chức năng chỉ dành cho quản trị viên haingxua@gmail.com");
     return;
   }
+  const detectedLang = hihiDetectCurrentAppLang();
+  hihiOnAdminLangChange(detectedLang, false);
+
   const m = document.getElementById("hihiAdminModal");
   if (m) m.classList.add("active");
   hihiRenderWordTable();
@@ -2739,21 +2916,28 @@ window.hihiSwitchAdminTab = function(tabName) {
   document.getElementById("hihiTabBulkBtn")?.classList.toggle("active", tabName === "bulk");
   document.getElementById("hihiTabManageBtn")?.classList.toggle("active", tabName === "manage");
 
-  document.getElementById("hihiAdminTabSingle").style.display = tabName === "single" ? "block" : "none";
-  document.getElementById("hihiAdminTabBulk").style.display = tabName === "bulk" ? "block" : "none";
-  document.getElementById("hihiAdminTabManage").style.display = tabName === "manage" ? "block" : "none";
+  const tabSingle = document.getElementById("hihiAdminTabSingle");
+  const tabBulk = document.getElementById("hihiAdminTabBulk");
+  const tabManage = document.getElementById("hihiAdminTabManage");
+  if (tabSingle) tabSingle.style.display = tabName === "single" ? "block" : "none";
+  if (tabBulk) tabBulk.style.display = tabName === "bulk" ? "block" : "none";
+  if (tabManage) tabManage.style.display = tabName === "manage" ? "block" : "none";
 
   if (tabName === "manage") hihiLoadCustomTopicsList();
 };
 
 window.hihiAddSingleWord = function() {
+  const sel = document.getElementById("hihiTopicLangSelect");
+  const langCode = sel ? sel.value : (localStorage.getItem("hihi_admin_lang") || hihiDetectCurrentAppLang());
+  const cfg = HIHI_LANGUAGES[langCode] || HIHI_LANGUAGES.en;
+
   const w = document.getElementById("hihiSingleWord").value.trim();
   const m = document.getElementById("hihiSingleMeaning").value.trim();
-  const p = document.getElementById("hihiSinglePhonetic").value.trim();
+  const p = document.getElementById("hihiSingleIPA").value.trim();
   const e = document.getElementById("hihiSingleExample").value.trim();
 
   if (!w || !m) {
-    alert("Vui lòng nhập Từ tiếng Anh và Nghĩa tiếng Việt!");
+    alert(`Vui lòng nhập Từ (${cfg.name}) và Nghĩa!`);
     return;
   }
 
@@ -2761,18 +2945,25 @@ window.hihiAddSingleWord = function() {
     word: w,
     meaning: m,
     phonetic: p || "",
-    example: e || ""
+    example: e || "",
+    lang: langCode,
+    // Dual compatibility with legacy engines:
+    english: w,
+    vietnamese: m,
+    ipa: p || ""
   });
 
   document.getElementById("hihiSingleWord").value = "";
   document.getElementById("hihiSingleMeaning").value = "";
-  document.getElementById("hihiSinglePhonetic").value = "";
+  document.getElementById("hihiSingleIPA").value = "";
   document.getElementById("hihiSingleExample").value = "";
 
   hihiRenderWordTable();
 };
 
 window.hihiParseBulkInput = function() {
+  const sel = document.getElementById("hihiTopicLangSelect");
+  const langCode = sel ? sel.value : (localStorage.getItem("hihi_admin_lang") || hihiDetectCurrentAppLang());
   const raw = document.getElementById("hihiBulkTextarea").value.trim();
   if (!raw) return;
 
@@ -2788,11 +2979,19 @@ window.hihiParseBulkInput = function() {
     else if (l.includes(",")) parts = l.split(",");
 
     if (parts.length >= 2) {
+      const w = parts[0].trim();
+      const m = parts[1].trim();
+      const p = parts[2] ? parts[2].trim() : "";
+      const e = parts[3] ? parts[3].trim() : "";
       window.hihiStagedWords.push({
-        word: parts[0].trim(),
-        meaning: parts[1].trim(),
-        phonetic: parts[2] ? parts[2].trim() : "",
-        example: parts[3] ? parts[3].trim() : ""
+        word: w,
+        meaning: m,
+        phonetic: p,
+        example: e,
+        lang: langCode,
+        english: w,
+        vietnamese: m,
+        ipa: p
       });
       count++;
     }
@@ -2805,24 +3004,25 @@ window.hihiParseBulkInput = function() {
 };
 
 function hihiRenderWordTable() {
-  const countEl = document.getElementById("hihiWordCountBadge");
-  const tbody = document.getElementById("hihiStagedTableBody");
+  const countEl = document.getElementById("hihiWordCount") || document.getElementById("hihiWordCountBadge");
+  const tbody = document.getElementById("hihiWordTableBody") || document.getElementById("hihiStagedTableBody");
   if (!tbody) return;
 
-  if (countEl) countEl.textContent = `${window.hihiStagedWords.length} từ`;
+  if (countEl) countEl.textContent = `${window.hihiStagedWords.length}`;
 
   if (window.hihiStagedWords.length === 0) {
-    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;padding:24px;color:#94a3b8;'>Chưa có từ vựng nào trong danh sách. Hãy thêm từ ở trên!</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;padding:20px;color:var(--hihi-nav-text,#94a3b8);'>Chưa có từ nào. Hãy thêm từ hoặc dán danh sách hàng loạt ở trên.</td></tr>";
     return;
   }
 
   tbody.innerHTML = window.hihiStagedWords.map((item, idx) => `
     <tr>
-      <td style="color:#94a3b8;font-size:0.75rem;">${idx + 1}</td>
-      <td style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);">${item.word}</td>
-      <td style="color:#38bdf8;">${item.phonetic || "-"}</td>
-      <td>${item.meaning}</td>
-      <td style="text-align:right;">
+      <td style="color:#94a3b8;font-size:0.75rem;width:30px;">${idx + 1}</td>
+      <td style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);">${item.word || item.english}</td>
+      <td>${item.meaning || item.vietnamese}</td>
+      <td style="color:#38bdf8;font-size:0.82rem;">${item.phonetic || item.ipa || "-"}</td>
+      <td style="font-size:0.8rem;color:#94a3b8;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.example || "-"}</td>
+      <td style="text-align:right;width:40px;">
         <button class="hihi-btn-secondary" style="padding:2px 8px;font-size:0.75rem;color:#ef4444;" onclick="hihiRemoveWord(${idx})"><i class="fas fa-times"></i></button>
       </td>
     </tr>
@@ -2842,7 +3042,12 @@ window.hihiClearWordList = function() {
 };
 
 window.hihiSaveTopicToFirebase = async function() {
-  const name = document.getElementById("hihiTopicNameInput").value.trim();
+  const nameInput = document.getElementById("hihiTopicNameInput");
+  const name = nameInput ? nameInput.value.trim() : "";
+  const sel = document.getElementById("hihiTopicLangSelect");
+  const langCode = sel ? sel.value : (localStorage.getItem("hihi_admin_lang") || hihiDetectCurrentAppLang());
+  const cfg = HIHI_LANGUAGES[langCode] || HIHI_LANGUAGES.en;
+
   if (!name) {
     alert("Vui lòng nhập Tên Chủ Đề!");
     return;
@@ -2852,15 +3057,19 @@ window.hihiSaveTopicToFirebase = async function() {
     return;
   }
   try {
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "topic-" + Date.now();
+    const rawSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "topic-" + Date.now();
+    const slug = langCode !== "en" ? `${langCode}-${rawSlug}` : rawSlug;
     const docRef = doc(db, "hihi_custom_topics", slug);
     await setDoc(docRef, {
       name: name,
+      lang: langCode,
+      langName: cfg.name,
+      flag: cfg.flag,
       words: window.hihiStagedWords,
       createdAt: Date.now(),
       createdBy: auth.currentUser?.email || "Admin"
     });
-    alert(`Đã lưu thành công chủ đề "${name}" với ${window.hihiStagedWords.length} từ vào Firebase!`);
+    alert(`Đã lưu thành công chủ đề "${cfg.flag} ${name}" (${cfg.name}) với ${window.hihiStagedWords.length} từ vào Firebase!`);
     sessionStorage.removeItem("hihi_cached_topics");
   } catch(e) {
     alert("Lỗi lưu Firebase: " + e.message);
@@ -2869,18 +3078,26 @@ window.hihiSaveTopicToFirebase = async function() {
 
 window.hihiDownloadTopicJSON = function() {
   const name = document.getElementById("hihiTopicNameInput").value.trim() || "chu-de-moi";
+  const sel = document.getElementById("hihiTopicLangSelect");
+  const langCode = sel ? sel.value : (localStorage.getItem("hihi_admin_lang") || hihiDetectCurrentAppLang());
+  const cfg = HIHI_LANGUAGES[langCode] || HIHI_LANGUAGES.en;
+
   if (window.hihiStagedWords.length === 0) {
     alert("Chưa có từ vựng nào để tải về!");
     return;
   }
   const payload = {
     name: name,
+    lang: langCode,
+    langName: cfg.name,
+    flag: cfg.flag,
     words: window.hihiStagedWords
   };
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
   const a = document.createElement("a");
   a.setAttribute("href", dataStr);
-  a.setAttribute("download", `${name.toLowerCase().replace(/\s+/g, "_")}.json`);
+  const filePrefix = langCode !== "en" ? `${langCode}_` : "";
+  a.setAttribute("download", `${filePrefix}${name.toLowerCase().replace(/\s+/g, "_")}.json`);
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -2889,22 +3106,27 @@ window.hihiDownloadTopicJSON = function() {
 async function hihiLoadCustomTopicsList() {
   const container = document.getElementById("hihiManageTopicList");
   if (!container) return;
-  container.innerHTML = "Đang tải...";
+  container.innerHTML = "<div style='color:var(--hihi-nav-text,#94a3b8);text-align:center;padding:20px;'><i class='fas fa-spinner fa-spin'></i> Đang tải...</div>";
   try {
     const snap = await getDocs(collection(db, "hihi_custom_topics"));
     if (snap.empty) {
-      container.innerHTML = "<div style='color:#94a3b8;text-align:center;'>Chưa có chủ đề tùy chỉnh nào được tạo.</div>";
+      container.innerHTML = "<div style='color:#94a3b8;text-align:center;padding:20px;'>Chưa có chủ đề tùy chỉnh nào được tạo.</div>";
       return;
     }
     container.innerHTML = "";
     snap.forEach((dSnap) => {
       const t = dSnap.data();
+      const flag = t.flag || (HIHI_LANGUAGES[t.lang]?.flag) || "🌐";
+      const langLabel = t.langName || (HIHI_LANGUAGES[t.lang]?.name) || "Tiếng Anh";
       const div = document.createElement("div");
       div.style.cssText = "display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);";
       div.innerHTML = `
         <div>
-          <div style="font-weight:700;color:var(--hihi-card-text,#f1f5f9);">${t.name}</div>
-          <div style="font-size:0.75rem;color:#94a3b8;">${t.words?.length || 0} từ vựng</div>
+          <div style="font-weight:700;color:var(--hihi-card-text,#f1f5f9);">
+            <span style="margin-right:6px;">${flag}</span>${t.name}
+            <span style="display:inline-block;margin-left:6px;font-size:0.7rem;padding:1px 6px;border-radius:4px;background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:600;">${langLabel}</span>
+          </div>
+          <div style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">${t.words?.length || 0} từ vựng</div>
         </div>
         <div style="display:flex;gap:6px;">
           <button class="hihi-btn-secondary" style="padding:4px 8px;font-size:0.75rem;" onclick="hihiLoadTopicToEdit('${dSnap.id}')"><i class="fas fa-edit"></i> Nạp</button>
@@ -2923,7 +3145,10 @@ window.hihiLoadTopicToEdit = async function(id) {
     const snap = await getDoc(doc(db, "hihi_custom_topics", id));
     if (snap.exists()) {
       const data = snap.data();
-      document.getElementById("hihiTopicNameInput").value = data.name;
+      const topicNameInput = document.getElementById("hihiTopicNameInput");
+      if (topicNameInput) topicNameInput.value = data.name || "";
+      const topicLang = data.lang || "en";
+      hihiOnAdminLangChange(topicLang, false);
       window.hihiStagedWords = data.words || [];
       hihiSwitchAdminTab("single");
       hihiRenderWordTable();
@@ -2977,17 +3202,22 @@ window.hihiFetchAllTopics = async function() {
     }
   } catch(e) {}
 
-  // 3. Nạp các chủ đề do Admin tạo trên Firestore
+  // 3. Nạp các chủ đề do Admin tạo trên Firestore (Hỗ trợ Đa Ngôn Ngữ)
   try {
     const snap = await getDocs(collection(db, "hihi_custom_topics"));
     snap.forEach((d) => {
       const dat = d.data();
+      const flag = dat.flag || (HIHI_LANGUAGES[dat.lang]?.flag) || "⭐";
+      const langName = dat.langName || (HIHI_LANGUAGES[dat.lang]?.name) || "Custom";
       topics.unshift({
         id: 'custom_' + d.id,
-        name: dat.name + " (Custom)",
+        name: `${flag} ${dat.name} [${langName}]`,
+        lang: dat.lang || 'en',
+        langName: langName,
+        flag: flag,
         words: dat.words,
         isCustom: true,
-        category: '⭐ Do Admin tạo'
+        category: `⭐ ${langName}`
       });
     });
   } catch(e) {}
