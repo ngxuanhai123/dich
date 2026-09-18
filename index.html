@@ -507,6 +507,435 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+
+
+/* === HIHI SHARED SYSTEM (AUTH, LEADERBOARD, ADMIN STUDIO) === */
+.hihi-auth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--hihi-nav-text-hover, #f1f5f9);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.hihi-auth-btn:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+  color: #38bdf8;
+}
+[data-theme="light"] .hihi-auth-btn, html.light .hihi-auth-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #0f172a;
+}
+.hihi-user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px 3px 4px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hihi-user-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+[data-theme="light"] .hihi-user-pill, html.light .hihi-user-pill {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+.hihi-user-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #3b82f6;
+}
+.hihi-user-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--hihi-nav-text-hover, #f1f5f9);
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+[data-theme="light"] .hihi-user-name, html.light .hihi-user-name {
+  color: #0f172a;
+}
+.hihi-admin-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+/* User Dropdown */
+.hihi-user-dropdown {
+  position: fixed;
+  top: calc(var(--hihi-nav-h, 52px) + 6px);
+  right: 14px;
+  width: 270px;
+  background: var(--hihi-modal-bg, rgba(30, 41, 59, 0.98));
+  border: 1px solid var(--hihi-modal-border, rgba(255, 255, 255, 0.12));
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000001;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+.hihi-user-dropdown.active {
+  display: flex;
+}
+[data-theme="light"] .hihi-user-dropdown, html.light .hihi-user-dropdown {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+.hihi-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+[data-theme="light"] .hihi-dropdown-header, html.light .hihi-dropdown-header {
+  border-bottom-color: rgba(0,0,0,0.06);
+}
+.hihi-dropdown-scores {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: rgba(255,255,255,0.03);
+  padding: 8px;
+  border-radius: 10px;
+  text-align: center;
+}
+[data-theme="light"] .hihi-dropdown-scores, html.light .hihi-dropdown-scores {
+  background: rgba(0,0,0,0.02);
+}
+.hihi-score-item .score-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+.hihi-score-item .score-lbl {
+  font-size: 0.65rem;
+  color: var(--hihi-nav-text, #94a3b8);
+}
+.hihi-dropdown-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hihi-dropdown-btn {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--hihi-card-text, #f1f5f9);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.hihi-dropdown-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #38bdf8;
+}
+[data-theme="light"] .hihi-dropdown-btn, html.light .hihi-dropdown-btn {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.06);
+  color: #0f172a;
+}
+.hihi-dropdown-btn.admin-btn {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(180, 83, 9, 0.15));
+  border-color: rgba(217, 119, 6, 0.4);
+  color: #fbbf24;
+}
+.hihi-dropdown-btn.logout-btn {
+  color: #ef4444;
+}
+.hihi-dropdown-btn.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+/* LEADERBOARD MODAL & ADMIN MODAL (Full Popups) */
+.hihi-suite-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 1000005;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+.hihi-suite-modal-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.hihi-suite-modal {
+  width: 100%;
+  max-width: 680px;
+  max-height: 88vh;
+  background: var(--hihi-modal-bg, rgba(30, 41, 59, 0.98));
+  border: 1px solid var(--hihi-modal-border, rgba(255, 255, 255, 0.14));
+  border-radius: 20px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+[data-theme="light"] .hihi-suite-modal, html.light .hihi-suite-modal {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+}
+.hihi-suite-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+[data-theme="light"] .hihi-suite-modal-header, html.light .hihi-suite-modal-header {
+  border-bottom-color: rgba(0,0,0,0.06);
+}
+.hihi-suite-modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--hihi-card-text, #f1f5f9);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+[data-theme="light"] .hihi-suite-modal-title, html.light .hihi-suite-modal-title {
+  color: #0f172a;
+}
+.hihi-suite-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--hihi-nav-text, #94a3b8);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.hihi-suite-modal-close:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.hihi-suite-modal-body {
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+}
+
+/* Leaderboard Specific Styles */
+.hihi-lb-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 8px;
+  overflow-x: auto;
+}
+.hihi-lb-tab {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: var(--hihi-nav-text, #94a3b8);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.hihi-lb-tab.active {
+  background: var(--hihi-nav-active-bg, rgba(56, 189, 248, 0.12));
+  color: var(--hihi-nav-active-text, #38bdf8);
+}
+.hihi-lb-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.hihi-lb-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--hihi-nav-text, #94a3b8);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.hihi-lb-table td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.85rem;
+  color: var(--hihi-card-text, #f1f5f9);
+}
+[data-theme="light"] .hihi-lb-table td, html.light .hihi-lb-table td {
+  color: #0f172a;
+}
+.hihi-lb-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hihi-lb-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #3b82f6;
+  object-fit: cover;
+}
+.hihi-lb-rank {
+  font-weight: 700;
+  width: 30px;
+}
+.hihi-lb-rank.rank-1 { color: #f59e0b; font-size: 1.1rem; }
+.hihi-lb-rank.rank-2 { color: #94a3b8; font-size: 1rem; }
+.hihi-lb-rank.rank-3 { color: #d97706; font-size: 0.95rem; }
+
+/* Admin Studio Specific Styles */
+.hihi-admin-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.hihi-admin-input, .hihi-admin-textarea, .hihi-admin-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--hihi-card-text, #f1f5f9);
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+}
+.hihi-admin-input:focus, .hihi-admin-textarea:focus {
+  border-color: #f59e0b;
+}
+[data-theme="light"] .hihi-admin-input, [data-theme="light"] .hihi-admin-textarea {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+.hihi-admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.hihi-admin-tab-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: var(--hihi-nav-text, #94a3b8);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hihi-admin-tab-btn.active {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+.hihi-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-top: 10px;
+}
+.hihi-preview-table th {
+  background: rgba(255,255,255,0.05);
+  padding: 6px 8px;
+  text-align: left;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.hihi-preview-table td {
+  padding: 6px 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.hihi-admin-btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.hihi-btn-primary {
+  padding: 8px 16px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s;
+}
+.hihi-btn-secondary {
+  padding: 8px 16px;
+  border-radius: 9px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--hihi-card-text, #f1f5f9);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+[data-theme="light"] .hihi-btn-secondary {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
+  color: #0f172a;
+}
 </style>
 </head>
 <body class="font-inter bg-[#fdf2f8] dark:bg-slate-950 text-slate-800 dark:text-slate-200">
@@ -542,9 +971,201 @@ body {
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
         </svg>
       </button>
+
+      <!-- HIHI AUTH PILL / BUTTON -->
+      <button id="hihiSysAuthBtn" class="hihi-auth-btn" onclick="hihiAuthLogin()" title="Đăng nhập Google">
+        <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+        <span>Đăng nhập</span>
+      </button>
+      <div id="hihiUserPill" class="hihi-user-pill" style="display:none;" onclick="toggleHiHiUserMenu(event)">
+        <img id="hihiUserAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" class="hihi-user-avatar" alt="Avatar">
+        <span id="hihiUserName" class="hihi-user-name">Học viên</span>
+        <span id="hihiAdminBadge" class="hihi-admin-tag" style="display:none;">ADMIN</span>
+      </div>
     </div>
   </div>
 </header>
+
+<!-- HIHI SHARED USER DROPDOWN -->
+<div id="hihiUserDropdown" class="hihi-user-dropdown" onclick="event.stopPropagation()">
+  <div class="hihi-dropdown-header">
+    <img id="hihiDropAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" class="hihi-user-avatar" alt="Avatar">
+    <div style="min-width:0;">
+      <div id="hihiDropName" style="font-weight:700;font-size:0.88rem;color:var(--hihi-card-text,#f1f5f9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Khách</div>
+      <div id="hihiDropEmail" style="font-size:0.72rem;color:var(--hihi-nav-text,#94a3b8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Chưa đăng nhập</div>
+    </div>
+  </div>
+  <div class="hihi-dropdown-scores">
+    <div class="hihi-score-item">
+      <div id="hihiScoreTotal" class="score-val">0</div>
+      <div class="score-lbl">🏆 Tổng điểm</div>
+    </div>
+    <div class="hihi-score-item">
+      <div id="hihiScoreVocab" class="score-val">0</div>
+      <div class="score-lbl">📚 Từ Vựng</div>
+    </div>
+    <div class="hihi-score-item">
+      <div id="hihiScoreSpell" class="score-val">0</div>
+      <div class="score-lbl">✍️ Chính Tả</div>
+    </div>
+  </div>
+  <div class="hihi-dropdown-actions">
+    <button class="hihi-dropdown-btn" onclick="hihiOpenLeaderboard()"><i class="fas fa-trophy" style="color:#f59e0b;"></i> Bảng Xếp Hạng Chung</button>
+    <button id="hihiAdminStudioBtn" class="hihi-dropdown-btn admin-btn" style="display:none;" onclick="hihiOpenAdminStudio()"><i class="fas fa-bolt"></i> Admin Memrise Studio</button>
+    <button class="hihi-dropdown-btn logout-btn" onclick="hihiAuthLogout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+  </div>
+</div>
+
+<!-- HIHI UNIFIED LEADERBOARD MODAL -->
+<div id="hihiLeaderboardModal" class="hihi-suite-modal-backdrop" onclick="hihiCloseLeaderboard(event)">
+  <div class="hihi-suite-modal" onclick="event.stopPropagation()">
+    <div class="hihi-suite-modal-header">
+      <div class="hihi-suite-modal-title">
+        <i class="fas fa-trophy" style="color:#f59e0b;"></i>
+        <span>Bảng Xếp Hạng Hệ Thống HiHi</span>
+      </div>
+      <button class="hihi-suite-modal-close" onclick="hihiCloseLeaderboard()">&times;</button>
+    </div>
+    <div class="hihi-lb-tabs">
+      <button class="hihi-lb-tab active" data-filter="total_score" onclick="hihiSwitchLbFilter('total_score', this)">🏆 Toàn Hệ Thống</button>
+      <button class="hihi-lb-tab" data-filter="tuvung_score" onclick="hihiSwitchLbFilter('tuvung_score', this)">📚 Từ Vựng</button>
+      <button class="hihi-lb-tab" data-filter="chinhta_score" onclick="hihiSwitchLbFilter('chinhta_score', this)">✍️ Chính Tả</button>
+      <button class="hihi-lb-tab" data-filter="dich_score" onclick="hihiSwitchLbFilter('dich_score', this)">📖 Luyện Dịch</button>
+    </div>
+    <div class="hihi-suite-modal-body">
+      <div id="hihiLbLoading" style="text-align:center;padding:30px;color:var(--hihi-nav-text,#94a3b8);"><i class="fas fa-spinner fa-spin"></i> Đang tải bảng xếp hạng...</div>
+      <table class="hihi-lb-table" id="hihiLbTable" style="display:none;">
+        <thead>
+          <tr>
+            <th style="width:50px;">Hạng</th>
+            <th>Học viên</th>
+            <th style="text-align:right;">Điểm số</th>
+          </tr>
+        </thead>
+        <tbody id="hihiLbBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- HIHI MEMRISE ADMIN STUDIO MODAL -->
+<div id="hihiAdminModal" class="hihi-suite-modal-backdrop" onclick="hihiCloseAdminStudio(event)">
+  <div class="hihi-suite-modal" style="max-width:760px;" onclick="event.stopPropagation()">
+    <div class="hihi-suite-modal-header">
+      <div class="hihi-suite-modal-title">
+        <i class="fas fa-bolt" style="color:#f59e0b;"></i>
+        <span>HiHi Admin Studio — Quản Trị Từ Vựng</span>
+      </div>
+      <button class="hihi-suite-modal-close" onclick="hihiCloseAdminStudio()">&times;</button>
+    </div>
+    <div class="hihi-suite-modal-body">
+      <div class="hihi-admin-section">
+        <label style="font-size:0.85rem;font-weight:700;color:var(--hihi-card-text,#f1f5f9);">Tên Chủ Đề (Topic Name):</label>
+        <input type="text" id="hihiTopicNameInput" class="hihi-admin-input" placeholder="Ví dụ: 100 Từ vựng Công nghệ thông tin phổ biến, IELTS Band 7+...">
+      </div>
+
+      <div class="hihi-admin-tabs">
+        <button id="hihiTabSingleBtn" class="hihi-admin-tab-btn active" onclick="hihiSwitchAdminTab('single')"><i class="fas fa-plus-circle"></i> Thêm từng từ</button>
+        <button id="hihiTabBulkBtn" class="hihi-admin-tab-btn" onclick="hihiSwitchAdminTab('bulk')"><i class="fas fa-paste"></i> Nhập hàng loạt (Memrise / Excel)</button>
+        <button id="hihiTabManageBtn" class="hihi-admin-tab-btn" onclick="hihiSwitchAdminTab('manage')"><i class="fas fa-folder-open"></i> Danh sách chủ đề</button>
+      </div>
+
+      <!-- TAB 1: SINGLE ADD -->
+      <div id="hihiAdminTabSingle">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);">Tiếng Anh (Word) *:</label>
+            <input type="text" id="hihiSingleWord" class="hihi-admin-input" placeholder="e.g. meticulous">
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);">Nghĩa Tiếng Việt *:</label>
+            <input type="text" id="hihiSingleMeaning" class="hihi-admin-input" placeholder="e.g. tỉ mỉ, cẩn thận">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+          <div>
+            <label style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);">Phiên âm (IPA):</label>
+            <input type="text" id="hihiSingleIPA" class="hihi-admin-input" placeholder="e.g. /məˈtɪk.jə.ləs/">
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:var(--hihi-nav-text,#94a3b8);">Câu ví dụ (Example):</label>
+            <input type="text" id="hihiSingleExample" class="hihi-admin-input" placeholder="e.g. He is meticulous about his work.">
+          </div>
+        </div>
+        <button class="hihi-btn-secondary" onclick="hihiAddSingleWord()"><i class="fas fa-plus"></i> Thêm từ này vào danh sách</button>
+      </div>
+
+      <!-- TAB 2: BULK IMPORT (MEMRISE STYLE) -->
+      <div id="hihiAdminTabBulk" style="display:none;">
+        <p style="font-size:0.78rem;color:var(--hihi-nav-text,#94a3b8);margin-bottom:8px;">
+          💡 <strong>Nhập siêu tốc kiểu Memrise:</strong> Sao chép bảng từ Excel / Google Sheets / Memrise rồi dán thẳng vào ô dưới (Hỗ trợ phân cách bằng <strong>Tab, Dấu gạch ngang -, Dấu hai chấm : hoặc Phẩy CSV</strong>):
+        </p>
+        <textarea id="hihiBulkTextarea" class="hihi-admin-textarea" rows="6" oninput="hihiParseBulkInput()" placeholder="Ví dụ dán từ Excel:&#10;ubiquitous	phổ biến, khắp nơi	/juːˈbɪk.wə.təs/	Smartphones are ubiquitous today.&#10;resilient	kiên cường	/rɪˈzɪl.jənt/	Children are resilient.&#10;&#10;Hoặc dán dạng văn bản:&#10;hello - xin chào&#10;world : thế giới"></textarea>
+      </div>
+
+      <!-- TAB 3: MANAGE TOPICS -->
+      <div id="hihiAdminTabManage" style="display:none;">
+        <div id="hihiManageTopicList" style="display:flex;flex-direction:column;gap:8px;">
+          <div style="color:var(--hihi-nav-text,#94a3b8);text-align:center;padding:20px;">Đang tải danh sách chủ đề đã tạo...</div>
+        </div>
+      </div>
+
+      <!-- PREVIEW TABLE FOR CURRENT TOPIC -->
+      <div id="hihiTopicPreviewWrap" style="margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
+          <span style="font-size:0.85rem;font-weight:700;color:var(--hihi-card-text,#f1f5f9);">Danh sách từ vựng (<span id="hihiWordCount">0</span> từ):</span>
+          <button class="hihi-btn-secondary" style="padding:4px 8px;font-size:0.75rem;" onclick="hihiClearWordList()"><i class="fas fa-trash"></i> Xóa tất cả</button>
+        </div>
+        <div style="max-height:220px;overflow-y:auto;">
+          <table class="hihi-preview-table">
+            <thead>
+              <tr>
+                <th style="width:30px;">#</th>
+                <th>Từ (English)</th>
+                <th>Nghĩa (Tiếng Việt)</th>
+                <th>IPA</th>
+                <th>Ví dụ</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody id="hihiWordTableBody">
+              <tr><td colspan="6" style="text-align:center;color:var(--hihi-nav-text,#94a3b8);padding:14px;">Chưa có từ nào. Hãy thêm từ hoặc dán danh sách hàng loạt ở trên.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="hihi-admin-btn-row">
+          <button class="hihi-btn-primary" onclick="hihiSaveTopicToFirebase()"><i class="fas fa-cloud-upload-alt"></i> Lưu vào Hệ Thống (Firebase)</button>
+          <button class="hihi-btn-secondary" onclick="hihiDownloadTopicJSON()"><i class="fas fa-download"></i> Tải file JSON (Chuẩn GitHub)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HIHI SHARED TOPIC PICKER (Dùng cho Chính Tả & Luyện Dịch) -->
+<div id="hihiTopicPickerModal" class="hihi-suite-modal-backdrop" onclick="hihiCloseTopicPicker(event)">
+  <div class="hihi-suite-modal" style="max-width:580px;" onclick="event.stopPropagation()">
+    <div class="hihi-suite-modal-header">
+      <div class="hihi-suite-modal-title">
+        <i class="fas fa-book-open" style="color:#38bdf8;"></i>
+        <span>Chọn Chủ Đề Từ Vựng Chung (GitHub)</span>
+      </div>
+      <button class="hihi-suite-modal-close" onclick="hihiCloseTopicPicker()">&times;</button>
+    </div>
+    <div class="hihi-suite-modal-body">
+      <p style="font-size:0.8rem;color:var(--hihi-nav-text,#94a3b8);margin-bottom:12px;">
+        Chọn chủ đề từ kho dữ liệu 57+ bộ từ vựng dùng chung để bắt đầu luyện tập:
+      </p>
+      <input type="text" id="hihiTopicSearchInput" class="hihi-admin-input" placeholder="🔍 Tìm kiếm chủ đề từ vựng..." oninput="hihiFilterTopicList(this.value)" style="margin-bottom:12px;">
+      <div id="hihiTopicListContainer" style="display:grid;grid-template-columns:1fr;gap:8px;max-height:360px;overflow-y:auto;">
+        <div style="text-align:center;padding:20px;color:var(--hihi-nav-text,#94a3b8);"><i class="fas fa-spinner fa-spin"></i> Đang tải danh sách chủ đề từ GitHub...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <!-- HIHI STUDY APP SWITCHER MODAL -->
 <div id="hihiSysModalOverlay" class="hihi-modal-overlay" onclick="closeHiHiSysMenu(event)">
@@ -659,7 +1280,8 @@ body {
                     <p class="text-sm text-slate-500 italic opacity-80" id="quoteText">"Hành trình vạn dặm bắt đầu từ một đoạn văn."</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button onclick="toggleSidebar()" class="p-3 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-all text-slate-500 lg:hidden" title="Mở sidebar">
+                    <button onclick="dichPickSharedTopic()" class="flex items-center gap-1 px-3 py-2 rounded-xl bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 text-xs font-bold transition-all" title="Lấy câu từ kho từ vựng chung"><i class="fas fa-book-open"></i> Chủ đề từ vựng</button>
+            <button onclick="toggleSidebar()" class="p-3 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-all text-slate-500 lg:hidden" title="Mở sidebar">
                         <i data-lucide="menu" class="w-5 h-5"></i>
                     </button>
                     <button onclick="toggleZen()" class="p-3 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-all text-slate-500" title="Chế độ tập trung">
@@ -1354,6 +1976,7 @@ body {
                     stats.history.unshift({ text: source.substring(0, 20) + "...", score: data.score });
                     if(stats.history.length > 5) stats.history.pop();
                     localStorage.setItem('hihi_stats', JSON.stringify(stats));
+            if (window.hihiUpdateScore && data && data.score) window.hihiUpdateScore('dich', parseInt(data.score));
                     updateUIStats();
                     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
                 } catch (e) { console.error(e); showToast("AI lỗi định dạng JSON.", 'error'); }
@@ -1371,6 +1994,7 @@ body {
             stats.favorites.unshift({ source, trans, score });
             if (stats.favorites.length > 10) stats.favorites.pop();
             localStorage.setItem('hihi_stats', JSON.stringify(stats));
+            if (window.hihiUpdateScore && data && data.score) window.hihiUpdateScore('dich', parseInt(data.score));
             updateUIStats();
             showToast('Đã lưu vào bài yêu thích!', 'success');
         }
@@ -1461,5 +2085,562 @@ document.addEventListener('keydown', function(e) {
   applyHiHiTheme(saved);
 })();
 </script>
+
+
+<!-- FIREBASE & HIHI SHARED SUITE LOGIC -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const hihiFirebaseConfig = {
+  apiKey: "AIzaSyDtaVYb_72YvoGzvcERJZypUGS-u3skz2M",
+  authDomain: "tuvung-88e8d.firebaseapp.com",
+  databaseURL: "https://tuvung-88e8d-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "tuvung-88e8d",
+  storageBucket: "tuvung-88e8d.firebasestorage.app",
+  messagingSenderId: "722559465686",
+  appId: "1:722559465686:web:bae1a77791205d372db177",
+  measurementId: "G-T785TQ3V32"
+};
+
+const HIHI_ADMIN_EMAIL = "haingxua@gmail.com";
+
+// Initialize Firebase App
+let hihiApp;
+try {
+  hihiApp = initializeApp(hihiFirebaseConfig, "hihiSharedSuite");
+} catch(e) {
+  hihiApp = initializeApp(hihiFirebaseConfig);
+}
+const auth = getAuth(hihiApp);
+const db = getFirestore(hihiApp);
+const provider = new GoogleAuthProvider();
+
+window.hihiCurrentUserData = null;
+window.hihiStagedWords = [];
+
+// --- 1. AUTH MANAGEMENT (SSO) ---
+window.hihiAuthLogin = async function() {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch(err) {
+    console.error("Login failed:", err);
+    alert("Đăng nhập Google thất bại: " + err.message);
+  }
+};
+
+window.hihiAuthLogout = async function() {
+  try {
+    await signOut(auth);
+    window.location.reload();
+  } catch(err) {
+    console.error("Logout failed:", err);
+  }
+};
+
+window.toggleHiHiUserMenu = function(e) {
+  if (e) e.stopPropagation();
+  const d = document.getElementById("hihiUserDropdown");
+  if (d) d.classList.toggle("active");
+};
+
+document.addEventListener("click", function() {
+  const d = document.getElementById("hihiUserDropdown");
+  if (d) d.classList.remove("active");
+});
+
+onAuthStateChanged(auth, async (user) => {
+  const authBtn = document.getElementById("hihiSysAuthBtn");
+  const userPill = document.getElementById("hihiUserPill");
+  const avatar = document.getElementById("hihiUserAvatar");
+  const name = document.getElementById("hihiUserName");
+  const dropAvatar = document.getElementById("hihiDropAvatar");
+  const dropName = document.getElementById("hihiDropName");
+  const dropEmail = document.getElementById("hihiDropEmail");
+  const adminBadge = document.getElementById("hihiAdminBadge");
+  const adminStudioBtn = document.getElementById("hihiAdminStudioBtn");
+
+  if (user) {
+    const isAdmin = (user.email === HIHI_ADMIN_EMAIL);
+    window.hihiIsAdmin = isAdmin;
+    if (authBtn) authBtn.style.display = "none";
+    if (userPill) userPill.style.display = "inline-flex";
+    if (avatar) avatar.src = user.photoURL || avatar.src;
+    if (name) name.textContent = user.displayName || user.email.split("@")[0];
+    if (dropAvatar) dropAvatar.src = user.photoURL || dropAvatar.src;
+    if (dropName) dropName.textContent = user.displayName || "Học viên";
+    if (dropEmail) dropEmail.textContent = user.email;
+    if (adminBadge) adminBadge.style.display = isAdmin ? "inline-block" : "none";
+    if (adminStudioBtn) adminStudioBtn.style.display = isAdmin ? "flex" : "none";
+
+    // Load or create unified user profile in Firestore
+    try {
+      const userRef = doc(db, "hihi_leaderboard", user.uid);
+      const snap = await getDoc(userRef);
+      if (snap.exists()) {
+        window.hihiCurrentUserData = snap.data();
+      } else {
+        window.hihiCurrentUserData = {
+          uid: user.uid,
+          displayName: user.displayName || "Học viên",
+          photoURL: user.photoURL || "",
+          email: user.email,
+          tuvung_score: 0,
+          chinhta_score: 0,
+          dich_score: 0,
+          total_score: 0,
+          lastActive: Date.now()
+        };
+        await setDoc(userRef, window.hihiCurrentUserData);
+      }
+      hihiUpdateScoreUI(window.hihiCurrentUserData);
+    } catch(e) {
+      console.warn("Firestore user sync:", e);
+    }
+  } else {
+    window.hihiIsAdmin = false;
+    window.hihiCurrentUserData = null;
+    if (authBtn) authBtn.style.display = "inline-flex";
+    if (userPill) userPill.style.display = "none";
+  }
+});
+
+function hihiUpdateScoreUI(data) {
+  if (!data) return;
+  const tot = document.getElementById("hihiScoreTotal");
+  const voc = document.getElementById("hihiScoreVocab");
+  const spl = document.getElementById("hihiScoreSpell");
+  if (tot) tot.textContent = data.total_score || 0;
+  if (voc) voc.textContent = data.tuvung_score || 0;
+  if (spl) spl.textContent = data.chinhta_score || 0;
+}
+
+// --- 2. LEADERBOARD API & MODAL ---
+window.hihiUpdateScore = async function(appKey, pointsToAdd) {
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    const userRef = doc(db, "hihi_leaderboard", user.uid);
+    const snap = await getDoc(userRef);
+    let data = snap.exists() ? snap.data() : {
+      uid: user.uid,
+      displayName: user.displayName || "Học viên",
+      photoURL: user.photoURL || "",
+      email: user.email,
+      tuvung_score: 0,
+      chinhta_score: 0,
+      dich_score: 0,
+      total_score: 0
+    };
+    if (appKey === 'tuvung') data.tuvung_score = (data.tuvung_score || 0) + pointsToAdd;
+    if (appKey === 'chinhta') data.chinhta_score = (data.chinhta_score || 0) + pointsToAdd;
+    if (appKey === 'dich') data.dich_score = (data.dich_score || 0) + pointsToAdd;
+    data.total_score = (data.tuvung_score || 0) + (data.chinhta_score || 0) + (data.dich_score || 0);
+    data.lastActive = Date.now();
+    await setDoc(userRef, data, { merge: true });
+    window.hihiCurrentUserData = data;
+    hihiUpdateScoreUI(data);
+  } catch(e) {
+    console.error("Failed to update hihi score:", e);
+  }
+};
+
+window.hihiOpenLeaderboard = function() {
+  const m = document.getElementById("hihiLeaderboardModal");
+  if (m) m.classList.add("active");
+  hihiFetchLeaderboard("total_score");
+};
+
+window.hihiCloseLeaderboard = function(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains("hihi-suite-modal-close")) return;
+  const m = document.getElementById("hihiLeaderboardModal");
+  if (m) m.classList.remove("active");
+};
+
+window.hihiSwitchLbFilter = function(field, btn) {
+  document.querySelectorAll(".hihi-lb-tab").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  hihiFetchLeaderboard(field);
+};
+
+async function hihiFetchLeaderboard(sortField) {
+  const loadEl = document.getElementById("hihiLbLoading");
+  const tableEl = document.getElementById("hihiLbTable");
+  const bodyEl = document.getElementById("hihiLbBody");
+  if (!loadEl || !tableEl || !bodyEl) return;
+
+  loadEl.style.display = "block";
+  tableEl.style.display = "none";
+  bodyEl.innerHTML = "";
+
+  try {
+    const q = query(collection(db, "hihi_leaderboard"), orderBy(sortField, "desc"), limit(25));
+    const snap = await getDocs(q);
+    loadEl.style.display = "none";
+    tableEl.style.display = "table";
+
+    if (snap.empty) {
+      bodyEl.innerHTML = "<tr><td colspan='3' style='text-align:center;padding:20px;color:#94a3b8;'>Chưa có dữ liệu bảng xếp hạng.</td></tr>";
+      return;
+    }
+
+    let rank = 1;
+    snap.forEach((docSnap) => {
+      const u = docSnap.data();
+      const tr = document.createElement("tr");
+      let rankBadge = rank;
+      if (rank === 1) rankBadge = "🥇";
+      else if (rank === 2) rankBadge = "🥈";
+      else if (rank === 3) rankBadge = "🥉";
+
+      const val = u[sortField] || 0;
+      tr.innerHTML = `
+        <td class="hihi-lb-rank rank-${rank}">${rankBadge}</td>
+        <td>
+          <div class="hihi-lb-user-cell">
+            <img src="${u.photoURL || 'data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 24 24\\' fill=\\'%2394a3b8\\'%3E%3Cpath d=\\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z\\'/%3E%3C/svg%3E'}" class="hihi-lb-avatar" alt="Avatar">
+            <div>
+              <div style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);">${u.displayName || "Học viên"}</div>
+              <div style="font-size:0.7rem;color:#94a3b8;">Tổng: ${u.total_score || 0}đ</div>
+            </div>
+          </div>
+        </td>
+        <td style="text-align:right;font-weight:700;color:#38bdf8;">${val}đ</td>
+      `;
+      bodyEl.appendChild(tr);
+      rank++;
+    });
+  } catch(e) {
+    loadEl.innerHTML = `<span style="color:#ef4444;">Lỗi tải dữ liệu: ${e.message}</span>`;
+  }
+}
+
+// --- 3. MEMRISE ADMIN STUDIO ---
+window.hihiOpenAdminStudio = function() {
+  if (!window.hihiIsAdmin) {
+    alert("Chức năng chỉ dành cho quản trị viên haingxua@gmail.com");
+    return;
+  }
+  const m = document.getElementById("hihiAdminModal");
+  if (m) m.classList.add("active");
+  hihiRenderWordTable();
+};
+
+window.hihiCloseAdminStudio = function(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains("hihi-suite-modal-close")) return;
+  const m = document.getElementById("hihiAdminModal");
+  if (m) m.classList.remove("active");
+};
+
+window.hihiSwitchAdminTab = function(tabName) {
+  document.getElementById("hihiTabSingleBtn")?.classList.toggle("active", tabName === "single");
+  document.getElementById("hihiTabBulkBtn")?.classList.toggle("active", tabName === "bulk");
+  document.getElementById("hihiTabManageBtn")?.classList.toggle("active", tabName === "manage");
+
+  document.getElementById("hihiAdminTabSingle").style.display = tabName === "single" ? "block" : "none";
+  document.getElementById("hihiAdminTabBulk").style.display = tabName === "bulk" ? "block" : "none";
+  document.getElementById("hihiAdminTabManage").style.display = tabName === "manage" ? "block" : "none";
+
+  if (tabName === "manage") hihiLoadCustomTopicsList();
+};
+
+window.hihiAddSingleWord = function() {
+  const w = document.getElementById("hihiSingleWord").value.trim();
+  const m = document.getElementById("hihiSingleMeaning").value.trim();
+  const i = document.getElementById("hihiSingleIPA").value.trim();
+  const ex = document.getElementById("hihiSingleExample").value.trim();
+  if (!w || !m) {
+    alert("Vui lòng nhập cả Tiếng Anh và Nghĩa tiếng Việt!");
+    return;
+  }
+  window.hihiStagedWords.push({ english: w, vietnamese: m, ipa: i, example: ex });
+  document.getElementById("hihiSingleWord").value = "";
+  document.getElementById("hihiSingleMeaning").value = "";
+  document.getElementById("hihiSingleIPA").value = "";
+  document.getElementById("hihiSingleExample").value = "";
+  hihiRenderWordTable();
+};
+
+// Parse bulk input (Memrise style)
+window.hihiParseBulkInput = function() {
+  const raw = document.getElementById("hihiBulkTextarea").value;
+  const lines = raw.split(/\\r?\\n/).map(l => l.trim()).filter(Boolean);
+  const parsed = [];
+  for (const line of lines) {
+    let parts = [];
+    if (line.includes("\\t")) parts = line.split("\\t");
+    else if (line.includes(" - ")) parts = line.split(" - ");
+    else if (line.includes(" : ")) parts = line.split(" : ");
+    else if (line.includes(";")) parts = line.split(";");
+    else if (line.includes(",")) parts = line.split(",");
+    else parts = [line];
+
+    parts = parts.map(p => p.trim());
+    if (parts.length >= 2) {
+      parsed.push({
+        english: parts[0] || "",
+        vietnamese: parts[1] || "",
+        ipa: parts[2] || "",
+        example: parts[3] || ""
+      });
+    }
+  }
+  window.hihiStagedWords = parsed;
+  hihiRenderWordTable();
+};
+
+window.hihiRenderWordTable = function() {
+  const countEl = document.getElementById("hihiWordCount");
+  const bodyEl = document.getElementById("hihiWordTableBody");
+  if (!countEl || !bodyEl) return;
+  countEl.textContent = window.hihiStagedWords.length;
+
+  if (window.hihiStagedWords.length === 0) {
+    bodyEl.innerHTML = "<tr><td colspan='6' style='text-align:center;color:#94a3b8;padding:14px;'>Chưa có từ nào. Hãy nhập từ hoặc dán danh sách hàng loạt ở trên.</td></tr>";
+    return;
+  }
+
+  bodyEl.innerHTML = window.hihiStagedWords.map((item, idx) => `
+    <tr>
+      <td style="color:#94a3b8;">${idx + 1}</td>
+      <td style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);">${item.english}</td>
+      <td>${item.vietnamese}</td>
+      <td style="color:#94a3b8;font-style:italic;">${item.ipa || ""}</td>
+      <td style="font-size:0.75rem;color:#94a3b8;">${item.example || ""}</td>
+      <td><button onclick="hihiRemoveWord(${idx})" style="background:none;border:none;color:#ef4444;cursor:pointer;"><i class="fas fa-times"></i></button></td>
+    </tr>
+  `).join("");
+};
+
+window.hihiRemoveWord = function(idx) {
+  window.hihiStagedWords.splice(idx, 1);
+  hihiRenderWordTable();
+};
+
+window.hihiClearWordList = function() {
+  if (confirm("Xóa toàn bộ từ đang nhập?")) {
+    window.hihiStagedWords = [];
+    document.getElementById("hihiBulkTextarea").value = "";
+    hihiRenderWordTable();
+  }
+};
+
+window.hihiSaveTopicToFirebase = async function() {
+  const name = document.getElementById("hihiTopicNameInput").value.trim();
+  if (!name) {
+    alert("Vui lòng nhập Tên Chủ Đề!");
+    return;
+  }
+  if (window.hihiStagedWords.length === 0) {
+    alert("Vui lòng thêm ít nhất 1 từ vựng!");
+    return;
+  }
+  try {
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "topic-" + Date.now();
+    const docRef = doc(db, "hihi_custom_topics", slug);
+    await setDoc(docRef, {
+      name: name,
+      words: window.hihiStagedWords,
+      createdAt: Date.now(),
+      createdBy: auth.currentUser?.email || "Admin"
+    });
+    alert(`Đã lưu thành công chủ đề "${name}" với ${window.hihiStagedWords.length} từ vào Firebase!`);
+    sessionStorage.removeItem("hihi_cached_topics");
+  } catch(e) {
+    alert("Lỗi lưu Firebase: " + e.message);
+  }
+};
+
+window.hihiDownloadTopicJSON = function() {
+  const name = document.getElementById("hihiTopicNameInput").value.trim() || "chu-de-moi";
+  if (window.hihiStagedWords.length === 0) {
+    alert("Chưa có từ vựng nào để tải về!");
+    return;
+  }
+  const payload = {
+    name: name,
+    words: window.hihiStagedWords
+  };
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+  const a = document.createElement("a");
+  a.setAttribute("href", dataStr);
+  a.setAttribute("download", `${name.toLowerCase().replace(/\\s+/g, "_")}.json`);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
+
+async function hihiLoadCustomTopicsList() {
+  const container = document.getElementById("hihiManageTopicList");
+  if (!container) return;
+  container.innerHTML = "Đang tải...";
+  try {
+    const snap = await getDocs(collection(db, "hihi_custom_topics"));
+    if (snap.empty) {
+      container.innerHTML = "<div style='color:#94a3b8;text-align:center;'>Chưa có chủ đề tùy chỉnh nào được tạo.</div>";
+      return;
+    }
+    container.innerHTML = "";
+    snap.forEach((dSnap) => {
+      const t = dSnap.data();
+      const div = document.createElement("div");
+      div.style.cssText = "display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);";
+      div.innerHTML = `
+        <div>
+          <div style="font-weight:700;color:var(--hihi-card-text,#f1f5f9);">${t.name}</div>
+          <div style="font-size:0.75rem;color:#94a3b8;">${t.words?.length || 0} từ vựng</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="hihi-btn-secondary" style="padding:4px 8px;font-size:0.75rem;" onclick="hihiLoadTopicToEdit('${dSnap.id}')"><i class="fas fa-edit"></i> Nạp</button>
+          <button class="hihi-btn-secondary" style="padding:4px 8px;font-size:0.75rem;color:#ef4444;" onclick="hihiDeleteTopic('${dSnap.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  } catch(e) {
+    container.innerHTML = `<span style="color:#ef4444;">Lỗi tải: ${e.message}</span>`;
+  }
+}
+
+window.hihiLoadTopicToEdit = async function(id) {
+  try {
+    const snap = await getDoc(doc(db, "hihi_custom_topics", id));
+    if (snap.exists()) {
+      const data = snap.data();
+      document.getElementById("hihiTopicNameInput").value = data.name;
+      window.hihiStagedWords = data.words || [];
+      hihiSwitchAdminTab("single");
+      hihiRenderWordTable();
+    }
+  } catch(e) { alert(e.message); }
+};
+
+window.hihiDeleteTopic = async function(id) {
+  if (confirm("Xác nhận xóa chủ đề này khỏi Firebase?")) {
+    try {
+      await deleteDoc(doc(db, "hihi_custom_topics", id));
+      hihiLoadCustomTopicsList();
+    } catch(e) { alert(e.message); }
+  }
+};
+
+// --- 4. SHARED TOPIC POOL (57 GitHub Topics + Firestore Custom) ---
+window.hihiAllSharedTopics = [];
+
+window.hihiFetchAllTopics = async function() {
+  if (window.hihiAllSharedTopics.length > 0) return window.hihiAllSharedTopics;
+  const cached = sessionStorage.getItem("hihi_cached_topics");
+  if (cached) {
+    try {
+      window.hihiAllSharedTopics = JSON.parse(cached);
+      return window.hihiAllSharedTopics;
+    } catch(e) {}
+  }
+
+  const topics = [];
+  // 1. Fetch 57 JSON topics from GitHub
+  try {
+    const res = await fetch("https://api.github.com/repos/ngxuanhai123/tuvung/contents/?t=" + Date.now());
+    if (res.ok) {
+      const files = await res.json();
+      const jsonFiles = files.filter(f => f.name.endsWith(".json"));
+      for (const f of jsonFiles) {
+        topics.push({
+          id: f.name,
+          name: f.name.replace(".json", "").replace(/_/g, " "),
+          download_url: f.download_url,
+          isCustom: false
+        });
+      }
+    }
+  } catch(e) {
+    console.warn("GitHub topics fetch failed, using fallback list:", e);
+  }
+
+  // 2. Fetch custom topics from Firestore
+  try {
+    const snap = await getDocs(collection(db, "hihi_custom_topics"));
+    snap.forEach((d) => {
+      const dat = d.data();
+      topics.unshift({
+        id: d.id,
+        name: dat.name + " (Custom)",
+        words: dat.words,
+        isCustom: true
+      });
+    });
+  } catch(e) {}
+
+  window.hihiAllSharedTopics = topics;
+  try { sessionStorage.setItem("hihi_cached_topics", JSON.stringify(topics)); } catch(e) {}
+  return topics;
+};
+
+window.hihiOpenTopicPicker = async function(onSelectCallback) {
+  window.hihiOnTopicSelect = onSelectCallback;
+  const m = document.getElementById("hihiTopicPickerModal");
+  if (m) m.classList.add("active");
+  const container = document.getElementById("hihiTopicListContainer");
+  if (container) container.innerHTML = "<div style='text-align:center;padding:20px;color:#94a3b8;'><i class='fas fa-spinner fa-spin'></i> Đang tải danh sách chủ đề...</div>";
+
+  const topics = await window.hihiFetchAllTopics();
+  hihiRenderTopicCards(topics);
+};
+
+window.hihiCloseTopicPicker = function(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains("hihi-suite-modal-close")) return;
+  const m = document.getElementById("hihiTopicPickerModal");
+  if (m) m.classList.remove("active");
+};
+
+function hihiRenderTopicCards(list) {
+  const container = document.getElementById("hihiTopicListContainer");
+  if (!container) return;
+  if (!list || list.length === 0) {
+    container.innerHTML = "<div style='text-align:center;padding:20px;color:#94a3b8;'>Không tìm thấy chủ đề phù hợp.</div>";
+    return;
+  }
+  container.innerHTML = list.map(t => `
+    <div onclick="hihiSelectTopic('${t.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.1)';this.style.borderColor='#38bdf8';" onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.borderColor='rgba(255,255,255,0.08)';">
+      <div>
+        <div style="font-weight:600;font-size:0.88rem;color:var(--hihi-card-text,#f1f5f9);">${t.name}</div>
+        <div style="font-size:0.72rem;color:#94a3b8;">${t.isCustom ? "⭐ Do Admin tạo" : "📚 Kho từ vựng GitHub"}</div>
+      </div>
+      <i class="fas fa-chevron-right" style="color:#94a3b8;font-size:0.8rem;"></i>
+    </div>
+  `).join("");
+}
+
+window.hihiFilterTopicList = function(keyword) {
+  const kw = keyword.toLowerCase().trim();
+  const filtered = window.hihiAllSharedTopics.filter(t => t.name.toLowerCase().includes(kw));
+  hihiRenderTopicCards(filtered);
+};
+
+window.hihiSelectTopic = async function(topicId) {
+  const topic = window.hihiAllSharedTopics.find(t => t.id === topicId);
+  if (!topic) return;
+  let words = [];
+  if (topic.isCustom && topic.words) {
+    words = topic.words;
+  } else if (topic.download_url) {
+    try {
+      const res = await fetch(topic.download_url);
+      const data = await res.json();
+      words = data.words || (Array.isArray(data) ? data : []);
+    } catch(e) {
+      alert("Lỗi tải từ vựng: " + e.message);
+      return;
+    }
+  }
+
+  hihiCloseTopicPicker();
+  if (typeof window.hihiOnTopicSelect === "function") {
+    window.hihiOnTopicSelect(topic.name, words);
+  }
+};
+</script>
+
 </body>
 </html>
