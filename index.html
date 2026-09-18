@@ -985,6 +985,20 @@ body {
         <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
         <span>Đăng nhập</span>
       </button>
+      <script>
+window.hihiAuthLogin = window.hihiAuthLogin || function() {
+  if (window.hihiAuth && window.hihiAuth.login) {
+    window.hihiAuth.login();
+  } else {
+    window._hihiPendingLogin = true;
+  }
+};
+window.hihiAuthLogout = window.hihiAuthLogout || function() {
+  if (window.hihiAuth && window.hihiAuth.logout) {
+    window.hihiAuth.logout();
+  }
+};
+</script>
       <div id="hihiUserPill" class="hihi-user-pill" style="display:none;" onclick="toggleHiHiUserMenu(event)">
         <img id="hihiUserAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" class="hihi-user-avatar" alt="Avatar">
         <span id="hihiUserName" class="hihi-user-name">Học viên</span>
@@ -2097,9 +2111,9 @@ document.addEventListener('keydown', function(e) {
 
 <!-- FIREBASE & HIHI SHARED SUITE LOGIC -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const hihiFirebaseConfig = {
   apiKey: "AIzaSyDtaVYb_72YvoGzvcERJZypUGS-u3skz2M",
@@ -2114,38 +2128,82 @@ const hihiFirebaseConfig = {
 
 const HIHI_ADMIN_EMAIL = "haingxua@gmail.com";
 
-// Initialize Firebase App
-let hihiApp;
-try {
-  hihiApp = initializeApp(hihiFirebaseConfig, "hihiSharedSuite");
-} catch(e) {
-  hihiApp = initializeApp(hihiFirebaseConfig);
-}
+// Khởi tạo Firebase App DUY NHẤT [DEFAULT] cho toàn hệ sinh thái + Kích hoạt Persistent Local Cache
+const hihiApp = getApps().length === 0 ? initializeApp(hihiFirebaseConfig) : getApp();
 const auth = getAuth(hihiApp);
-const db = getFirestore(hihiApp);
+let db;
+try {
+  db = initializeFirestore(hihiApp, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    })
+  });
+} catch(e) {
+  db = getFirestore(hihiApp);
+}
 const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: 'select_account' });
 
 window.hihiCurrentUserData = null;
 window.hihiStagedWords = [];
 
-// --- 1. AUTH MANAGEMENT (SSO) ---
-window.hihiAuthLogin = async function() {
-  try {
-    await signInWithPopup(auth, provider);
-  } catch(err) {
-    console.error("Login failed:", err);
-    alert("Đăng nhập Google thất bại: " + err.message);
+// --- 1. AUTH MANAGEMENT (UNIFIED SSO CONTROLLER) ---
+window.hihiAuth = {
+  app: hihiApp,
+  auth,
+  db,
+  provider,
+  async login() {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch(err) {
+      console.warn("Popup sign-in warning:", err.code, err.message);
+      // Fallback sang redirect nếu popup bị chặn (Safari iOS, Chrome mobile, ad-block)
+      if (err.code === "auth/popup-blocked" || 
+          err.code === "auth/popup-closed-by-user" || 
+          err.code === "auth/cancelled-popup-request" ||
+          /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
+        try {
+          await signInWithRedirect(auth, provider);
+        } catch(redirectErr) {
+          console.error("Redirect login error:", redirectErr);
+          alert("Không thể đăng nhập Google: " + redirectErr.message);
+        }
+      } else {
+        alert("Đăng nhập Google thất bại: " + err.message);
+      }
+    }
+  },
+  async logout() {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("hihiGuest");
+      sessionStorage.removeItem("hihi_cached_topics");
+      sessionStorage.removeItem("hihi_lb_cache");
+      window.location.reload();
+    } catch(err) {
+      console.error("Logout failed:", err);
+    }
   }
 };
 
-window.hihiAuthLogout = async function() {
-  try {
-    await signOut(auth);
-    window.location.reload();
-  } catch(err) {
-    console.error("Logout failed:", err);
+window.hihiAuthLogin = () => window.hihiAuth.login();
+window.hihiAuthLogout = () => window.hihiAuth.logout();
+
+// Xử lý kết quả đăng nhập sau khi quay lại từ signInWithRedirect
+getRedirectResult(auth).then((result) => {
+  if (result && result.user) {
+    console.log("Xác thực thành công qua Redirect:", result.user.email);
   }
-};
+}).catch((err) => {
+  console.warn("Redirect result check:", err);
+});
+
+// Kích hoạt ngay nếu người dùng đã click đăng nhập trước khi script tải xong
+if (window._hihiPendingLogin) {
+  delete window._hihiPendingLogin;
+  window.hihiAuth.login();
+}
 
 window.toggleHiHiUserMenu = function(e) {
   if (e) e.stopPropagation();
@@ -2182,7 +2240,12 @@ onAuthStateChanged(auth, async (user) => {
     if (adminBadge) adminBadge.style.display = isAdmin ? "inline-block" : "none";
     if (adminStudioBtn) adminStudioBtn.style.display = isAdmin ? "flex" : "none";
 
-    // Load or create unified user profile in Firestore
+    // Phát sự kiện đồng bộ toàn trang
+    window.dispatchEvent(new CustomEvent('hihi-auth-changed', {
+      detail: { user, isAdmin }
+    }));
+
+    // Tối ưu hóa: Nạp thông tin người dùng từ Firestore (hoặc persistent local cache)
     try {
       const userRef = doc(db, "hihi_leaderboard", user.uid);
       const snap = await getDoc(userRef);
@@ -2211,6 +2274,14 @@ onAuthStateChanged(auth, async (user) => {
     window.hihiCurrentUserData = null;
     if (authBtn) authBtn.style.display = "inline-flex";
     if (userPill) userPill.style.display = "none";
+    if (adminBadge) adminBadge.style.display = "none";
+    if (adminStudioBtn) adminStudioBtn.style.display = "none";
+    if (dropName) dropName.textContent = "Khách";
+    if (dropEmail) dropEmail.textContent = "Chưa đăng nhập";
+
+    window.dispatchEvent(new CustomEvent('hihi-auth-changed', {
+      detail: { user: null, isAdmin: false }
+    }));
   }
 });
 
@@ -2224,34 +2295,64 @@ function hihiUpdateScoreUI(data) {
   if (spl) spl.textContent = data.chinhta_score || 0;
 }
 
-// --- 2. LEADERBOARD API & MODAL ---
-window.hihiUpdateScore = async function(appKey, pointsToAdd) {
+// --- 2. LEADERBOARD API & MODAL (TỐI ƯU HÓA CACHE & DEBOUNCE) ---
+let hihiScoreDebounceTimer = null;
+let hihiPendingScores = { tuvung_score: 0, chinhta_score: 0, dich_score: 0 };
+
+window.hihiUpdateScore = function(appKey, pointsToAdd) {
   const user = auth.currentUser;
-  if (!user) return;
-  try {
-    const userRef = doc(db, "hihi_leaderboard", user.uid);
-    const snap = await getDoc(userRef);
-    let data = snap.exists() ? snap.data() : {
-      uid: user.uid,
-      displayName: user.displayName || "Học viên",
-      photoURL: user.photoURL || "",
-      email: user.email,
-      tuvung_score: 0,
-      chinhta_score: 0,
-      dich_score: 0,
-      total_score: 0
-    };
-    if (appKey === 'tuvung') data.tuvung_score = (data.tuvung_score || 0) + pointsToAdd;
-    if (appKey === 'chinhta') data.chinhta_score = (data.chinhta_score || 0) + pointsToAdd;
-    if (appKey === 'dich') data.dich_score = (data.dich_score || 0) + pointsToAdd;
-    data.total_score = (data.tuvung_score || 0) + (data.chinhta_score || 0) + (data.dich_score || 0);
-    data.lastActive = Date.now();
-    await setDoc(userRef, data, { merge: true });
-    window.hihiCurrentUserData = data;
-    hihiUpdateScoreUI(data);
-  } catch(e) {
-    console.error("Failed to update hihi score:", e);
+  if (!user || !pointsToAdd || pointsToAdd <= 0) return;
+
+  if (appKey === 'tuvung') hihiPendingScores.tuvung_score += pointsToAdd;
+  if (appKey === 'chinhta') hihiPendingScores.chinhta_score += pointsToAdd;
+  if (appKey === 'dich') hihiPendingScores.dich_score += pointsToAdd;
+
+  // Cập nhật UI lạc quan (Optimistic UI) ngay lập tức
+  if (window.hihiCurrentUserData) {
+    if (appKey === 'tuvung') window.hihiCurrentUserData.tuvung_score = (window.hihiCurrentUserData.tuvung_score || 0) + pointsToAdd;
+    if (appKey === 'chinhta') window.hihiCurrentUserData.chinhta_score = (window.hihiCurrentUserData.chinhta_score || 0) + pointsToAdd;
+    if (appKey === 'dich') window.hihiCurrentUserData.dich_score = (window.hihiCurrentUserData.dich_score || 0) + pointsToAdd;
+    window.hihiCurrentUserData.total_score = (window.hihiCurrentUserData.tuvung_score || 0) + (window.hihiCurrentUserData.chinhta_score || 0) + (window.hihiCurrentUserData.dich_score || 0);
+    hihiUpdateScoreUI(window.hihiCurrentUserData);
   }
+
+  clearTimeout(hihiScoreDebounceTimer);
+  hihiScoreDebounceTimer = setTimeout(async () => {
+    try {
+      const userRef = doc(db, "hihi_leaderboard", user.uid);
+      const snap = await getDoc(userRef);
+      let data = snap.exists() ? snap.data() : {
+        uid: user.uid,
+        displayName: user.displayName || "Học viên",
+        photoURL: user.photoURL || "",
+        email: user.email,
+        tuvung_score: 0,
+        chinhta_score: 0,
+        dich_score: 0,
+        total_score: 0
+      };
+
+      const addT = hihiPendingScores.tuvung_score;
+      const addC = hihiPendingScores.chinhta_score;
+      const addD = hihiPendingScores.dich_score;
+      hihiPendingScores = { tuvung_score: 0, chinhta_score: 0, dich_score: 0 };
+
+      data.tuvung_score = (data.tuvung_score || 0) + addT;
+      data.chinhta_score = (data.chinhta_score || 0) + addC;
+      data.dich_score = (data.dich_score || 0) + addD;
+      data.total_score = (data.tuvung_score || 0) + (data.chinhta_score || 0) + (data.dich_score || 0);
+      data.lastActive = Date.now();
+
+      await setDoc(userRef, data, { merge: true });
+      window.hihiCurrentUserData = data;
+      hihiUpdateScoreUI(data);
+
+      // Xóa cache BXH cục bộ để lần sau mở sẽ lấy điểm mới
+      HIHI_LB_CACHE = {};
+    } catch(e) {
+      console.warn("Lưu điểm Firestore:", e);
+    }
+  }, 2500); // Debounce 2.5s gom nhóm tất cả lượt cộng điểm liên tiếp
 };
 
 window.hihiOpenLeaderboard = function() {
@@ -2272,11 +2373,22 @@ window.hihiSwitchLbFilter = function(field, btn) {
   hihiFetchLeaderboard(field);
 };
 
-async function hihiFetchLeaderboard(sortField) {
+// Cache client-side cho bảng xếp hạng (TTL 5 phút) để tiết kiệm Firestore Read Quota
+let HIHI_LB_CACHE = {};
+const HIHI_LB_TTL = 5 * 60 * 1000;
+
+async function hihiFetchLeaderboard(sortField, forceRefresh = false) {
   const loadEl = document.getElementById("hihiLbLoading");
   const tableEl = document.getElementById("hihiLbTable");
   const bodyEl = document.getElementById("hihiLbBody");
   if (!loadEl || !tableEl || !bodyEl) return;
+
+  const now = Date.now();
+  const cached = HIHI_LB_CACHE[sortField];
+  if (!forceRefresh && cached && (now - cached.ts < HIHI_LB_TTL)) {
+    renderLeaderboardRows(cached.data, sortField);
+    return;
+  }
 
   loadEl.style.display = "block";
   tableEl.style.display = "none";
@@ -2293,35 +2405,44 @@ async function hihiFetchLeaderboard(sortField) {
       return;
     }
 
-    let rank = 1;
-    snap.forEach((docSnap) => {
-      const u = docSnap.data();
-      const tr = document.createElement("tr");
-      let rankBadge = rank;
-      if (rank === 1) rankBadge = "🥇";
-      else if (rank === 2) rankBadge = "🥈";
-      else if (rank === 3) rankBadge = "🥉";
-
-      const val = u[sortField] || 0;
-      tr.innerHTML = `
-        <td class="hihi-lb-rank rank-${rank}">${rankBadge}</td>
-        <td>
-          <div class="hihi-lb-user-cell">
-            <img src="${u.photoURL || 'data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 24 24\\' fill=\\'%2394a3b8\\'%3E%3Cpath d=\\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z\\'/%3E%3C/svg%3E'}" class="hihi-lb-avatar" alt="Avatar">
-            <div>
-              <div style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);">${u.displayName || "Học viên"}</div>
-              <div style="font-size:0.7rem;color:#94a3b8;">Tổng: ${u.total_score || 0}đ</div>
-            </div>
-          </div>
-        </td>
-        <td style="text-align:right;font-weight:700;color:#38bdf8;">${val}đ</td>
-      `;
-      bodyEl.appendChild(tr);
-      rank++;
-    });
+    const users = [];
+    snap.forEach((docSnap) => users.push(docSnap.data()));
+    HIHI_LB_CACHE[sortField] = { data: users, ts: now };
+    renderLeaderboardRows(users, sortField);
   } catch(e) {
     loadEl.innerHTML = `<span style="color:#ef4444;">Lỗi tải dữ liệu: ${e.message}</span>`;
   }
+}
+
+function renderLeaderboardRows(users, sortField) {
+  const bodyEl = document.getElementById("hihiLbBody");
+  if (!bodyEl) return;
+  bodyEl.innerHTML = "";
+  let rank = 1;
+  users.forEach((u) => {
+    const tr = document.createElement("tr");
+    let rankBadge = rank;
+    if (rank === 1) rankBadge = "🥇";
+    else if (rank === 2) rankBadge = "🥈";
+    else if (rank === 3) rankBadge = "🥉";
+
+    const val = u[sortField] || 0;
+    tr.innerHTML = `
+      <td class="hihi-lb-rank rank-${rank}">${rankBadge}</td>
+      <td>
+        <div class="hihi-lb-user-cell">
+          <img src="${u.photoURL || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%2394a3b8\'%3E%3Cpath d=\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z\'/%3E%3C/svg%3E'}" class="hihi-lb-avatar" alt="Avatar">
+          <div>
+            <div style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);">${u.displayName || "Học viên"}</div>
+            <div style="font-size:0.7rem;color:#94a3b8;">Tổng: ${u.total_score || 0}đ</div>
+          </div>
+        </div>
+      </td>
+      <td style="text-align:right;font-weight:700;color:#38bdf8;">${val}đ</td>
+    `;
+    bodyEl.appendChild(tr);
+    rank++;
+  });
 }
 
 // --- 3. MEMRISE ADMIN STUDIO ---
@@ -2356,80 +2477,94 @@ window.hihiSwitchAdminTab = function(tabName) {
 window.hihiAddSingleWord = function() {
   const w = document.getElementById("hihiSingleWord").value.trim();
   const m = document.getElementById("hihiSingleMeaning").value.trim();
-  const i = document.getElementById("hihiSingleIPA").value.trim();
-  const ex = document.getElementById("hihiSingleExample").value.trim();
+  const p = document.getElementById("hihiSinglePhonetic").value.trim();
+  const e = document.getElementById("hihiSingleExample").value.trim();
+
   if (!w || !m) {
-    alert("Vui lòng nhập cả Tiếng Anh và Nghĩa tiếng Việt!");
+    alert("Vui lòng nhập Từ tiếng Anh và Nghĩa tiếng Việt!");
     return;
   }
-  window.hihiStagedWords.push({ english: w, vietnamese: m, ipa: i, example: ex });
+
+  window.hihiStagedWords.push({
+    word: w,
+    meaning: m,
+    phonetic: p || "",
+    example: e || ""
+  });
+
   document.getElementById("hihiSingleWord").value = "";
   document.getElementById("hihiSingleMeaning").value = "";
-  document.getElementById("hihiSingleIPA").value = "";
+  document.getElementById("hihiSinglePhonetic").value = "";
   document.getElementById("hihiSingleExample").value = "";
+
   hihiRenderWordTable();
 };
 
-// Parse bulk input (Memrise style)
 window.hihiParseBulkInput = function() {
-  const raw = document.getElementById("hihiBulkTextarea").value;
-  const lines = raw.split(/\\r?\\n/).map(l => l.trim()).filter(Boolean);
-  const parsed = [];
-  for (const line of lines) {
-    let parts = [];
-    if (line.includes("\\t")) parts = line.split("\\t");
-    else if (line.includes(" - ")) parts = line.split(" - ");
-    else if (line.includes(" : ")) parts = line.split(" : ");
-    else if (line.includes(";")) parts = line.split(";");
-    else if (line.includes(",")) parts = line.split(",");
-    else parts = [line];
+  const raw = document.getElementById("hihiBulkTextarea").value.trim();
+  if (!raw) return;
 
-    parts = parts.map(p => p.trim());
+  const lines = raw.split(/\r?\n/);
+  let count = 0;
+  for (const line of lines) {
+    const l = line.trim();
+    if (!l) continue;
+    let parts = [];
+    if (l.includes("\t")) parts = l.split("\t");
+    else if (l.includes(" - ")) parts = l.split(" - ");
+    else if (l.includes(":")) parts = l.split(":");
+    else if (l.includes(",")) parts = l.split(",");
+
     if (parts.length >= 2) {
-      parsed.push({
-        english: parts[0] || "",
-        vietnamese: parts[1] || "",
-        ipa: parts[2] || "",
-        example: parts[3] || ""
+      window.hihiStagedWords.push({
+        word: parts[0].trim(),
+        meaning: parts[1].trim(),
+        phonetic: parts[2] ? parts[2].trim() : "",
+        example: parts[3] ? parts[3].trim() : ""
       });
+      count++;
     }
   }
-  window.hihiStagedWords = parsed;
+
+  document.getElementById("hihiBulkTextarea").value = "";
+  hihiSwitchAdminTab("single");
   hihiRenderWordTable();
+  alert(`Đã nạp thành công ${count} từ vựng từ văn bản!`);
 };
 
-window.hihiRenderWordTable = function() {
-  const countEl = document.getElementById("hihiWordCount");
-  const bodyEl = document.getElementById("hihiWordTableBody");
-  if (!countEl || !bodyEl) return;
-  countEl.textContent = window.hihiStagedWords.length;
+function hihiRenderWordTable() {
+  const countEl = document.getElementById("hihiWordCountBadge");
+  const tbody = document.getElementById("hihiStagedTableBody");
+  if (!tbody) return;
+
+  if (countEl) countEl.textContent = `${window.hihiStagedWords.length} từ`;
 
   if (window.hihiStagedWords.length === 0) {
-    bodyEl.innerHTML = "<tr><td colspan='6' style='text-align:center;color:#94a3b8;padding:14px;'>Chưa có từ nào. Hãy nhập từ hoặc dán danh sách hàng loạt ở trên.</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;padding:24px;color:#94a3b8;'>Chưa có từ vựng nào trong danh sách. Hãy thêm từ ở trên!</td></tr>";
     return;
   }
 
-  bodyEl.innerHTML = window.hihiStagedWords.map((item, idx) => `
+  tbody.innerHTML = window.hihiStagedWords.map((item, idx) => `
     <tr>
-      <td style="color:#94a3b8;">${idx + 1}</td>
-      <td style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);">${item.english}</td>
-      <td>${item.vietnamese}</td>
-      <td style="color:#94a3b8;font-style:italic;">${item.ipa || ""}</td>
-      <td style="font-size:0.75rem;color:#94a3b8;">${item.example || ""}</td>
-      <td><button onclick="hihiRemoveWord(${idx})" style="background:none;border:none;color:#ef4444;cursor:pointer;"><i class="fas fa-times"></i></button></td>
+      <td style="color:#94a3b8;font-size:0.75rem;">${idx + 1}</td>
+      <td style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);">${item.word}</td>
+      <td style="color:#38bdf8;">${item.phonetic || "-"}</td>
+      <td>${item.meaning}</td>
+      <td style="text-align:right;">
+        <button class="hihi-btn-secondary" style="padding:2px 8px;font-size:0.75rem;color:#ef4444;" onclick="hihiRemoveWord(${idx})"><i class="fas fa-times"></i></button>
+      </td>
     </tr>
   `).join("");
-};
+}
 
-window.hihiRemoveWord = function(idx) {
-  window.hihiStagedWords.splice(idx, 1);
+window.hihiRemoveWord = function(index) {
+  window.hihiStagedWords.splice(index, 1);
   hihiRenderWordTable();
 };
 
 window.hihiClearWordList = function() {
-  if (confirm("Xóa toàn bộ từ đang nhập?")) {
+  if (confirm("Xóa toàn bộ từ vựng đang soạn thảo?")) {
     window.hihiStagedWords = [];
-    document.getElementById("hihiBulkTextarea").value = "";
     hihiRenderWordTable();
   }
 };
@@ -2473,7 +2608,7 @@ window.hihiDownloadTopicJSON = function() {
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
   const a = document.createElement("a");
   a.setAttribute("href", dataStr);
-  a.setAttribute("download", `${name.toLowerCase().replace(/\\s+/g, "_")}.json`);
+  a.setAttribute("download", `${name.toLowerCase().replace(/\s+/g, "_")}.json`);
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -2547,9 +2682,7 @@ window.hihiFetchAllTopics = async function() {
   }
 
   const topics = [];
-  // 1. Fetch 57 JSON topics from GitHub
-  try {
-    // Ưu tiên đọc manifest tĩnh siêu tốc (<50ms), fallback sang GitHub API nếu cần
+  // 1. Fetch 57 JSON topics from GitHub (ưu tiên manifest tĩnh siêu tốc)
   try {
     const fastRes = await fetch("https://raw.githubusercontent.com/ngxuanhai123/tuvung/main/vocab_manifest.json");
     if (fastRes.ok) {
@@ -2562,23 +2695,24 @@ window.hihiFetchAllTopics = async function() {
   if (topics.length === 0) {
     try {
       const res = await fetch("https://api.github.com/repos/ngxuanhai123/tuvung/contents/?t=" + Date.now());
-    if (res.ok) {
-      const files = await res.json();
-      const jsonFiles = files.filter(f => f.name.endsWith(".json"));
-      for (const f of jsonFiles) {
-        topics.push({
-          id: f.name,
-          name: f.name.replace(".json", "").replace(/_/g, " "),
-          download_url: f.download_url,
-          isCustom: false
-        });
+      if (res.ok) {
+        const files = await res.json();
+        const jsonFiles = files.filter(f => f.name.endsWith(".json"));
+        for (const f of jsonFiles) {
+          topics.push({
+            id: f.name,
+            name: f.name.replace(".json", "").replace(/_/g, " "),
+            download_url: f.download_url,
+            isCustom: false
+          });
+        }
       }
+    } catch(e) {
+      console.warn("GitHub topics fetch fallback:", e);
     }
-  } catch(e) {
-    console.warn("GitHub topics fetch failed, using fallback list:", e);
   }
 
-  // 2. Fetch custom topics from Firestore
+  // 2. Fetch custom topics from Firestore (sử dụng cache cục bộ nếu có)
   try {
     const snap = await getDocs(collection(db, "hihi_custom_topics"));
     snap.forEach((d) => {
