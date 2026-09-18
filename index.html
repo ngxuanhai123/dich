@@ -778,6 +778,69 @@ body {
 }
 
 /* Leaderboard Specific Styles */
+
+/* HiHi Leaderboard Period & Month Filters */
+.hihi-lb-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.hihi-lb-pill-group {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 3px;
+  border-radius: 8px;
+  gap: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.hihi-lb-period-btn {
+  padding: 5px 11px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--hihi-nav-text, #94a3b8);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.hihi-lb-period-btn.active {
+  background: #38bdf8;
+  color: #0f172a;
+}
+.hihi-lb-select {
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: var(--hihi-card-text, #f1f5f9);
+  font-size: 0.78rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+[data-theme="light"] .hihi-lb-filter-row {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+[data-theme="light"] .hihi-lb-pill-group {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+[data-theme="light"] .hihi-lb-period-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+}
+[data-theme="light"] .hihi-lb-select {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
 .hihi-lb-tabs {
   display: flex;
   gap: 6px;
@@ -1040,21 +1103,50 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
 
 <!-- HIHI UNIFIED LEADERBOARD MODAL -->
 <div id="hihiLeaderboardModal" class="hihi-suite-modal-backdrop" onclick="hihiCloseLeaderboard(event)">
-  <div class="hihi-suite-modal" onclick="event.stopPropagation()">
+  <div class="hihi-suite-modal" style="max-width:640px;" onclick="event.stopPropagation()">
     <div class="hihi-suite-modal-header">
       <div class="hihi-suite-modal-title">
         <i class="fas fa-trophy" style="color:#f59e0b;"></i>
-        <span>Bảng Xếp Hạng Hệ Thống HiHi</span>
+        <span>Bảng Xếp Hạng HiHi Study</span>
       </div>
-      <button class="hihi-suite-modal-close" onclick="hihiCloseLeaderboard()">&times;</button>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="hihi-btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="hihiRefreshLeaderboard()" title="Làm mới dữ liệu bảng xếp hạng">
+          <i class="fas fa-sync-alt" id="hihiLbRefreshIcon"></i> Làm mới
+        </button>
+        <button class="hihi-suite-modal-close" onclick="hihiCloseLeaderboard()">&times;</button>
+      </div>
     </div>
-    <div class="hihi-lb-tabs">
-      <button class="hihi-lb-tab active" data-filter="total_score" onclick="hihiSwitchLbFilter('total_score', this)">🏆 Toàn Hệ Thống</button>
-      <button class="hihi-lb-tab" data-filter="tuvung_score" onclick="hihiSwitchLbFilter('tuvung_score', this)">📚 Từ Vựng</button>
-      <button class="hihi-lb-tab" data-filter="chinhta_score" onclick="hihiSwitchLbFilter('chinhta_score', this)">✍️ Chính Tả</button>
-      <button class="hihi-lb-tab" data-filter="dich_score" onclick="hihiSwitchLbFilter('dich_score', this)">📖 Luyện Dịch</button>
+
+    <!-- TẦNG 1: BỘ LỌC KỲ THỜI GIAN (Tất cả / Tuần này / Theo Tháng) -->
+    <div class="hihi-lb-filter-row">
+      <div class="hihi-lb-pill-group" id="hihiLbPeriodGroup">
+        <button class="hihi-lb-period-btn active" data-period="all" onclick="hihiSetLbPeriod('all', this)">🏆 Tất cả</button>
+        <button class="hihi-lb-period-btn" data-period="week" onclick="hihiSetLbPeriod('week', this)">📅 Tuần này</button>
+        <button class="hihi-lb-period-btn" data-period="month" onclick="hihiSetLbPeriod('month', this)">🗓️ Theo Tháng</button>
+      </div>
+
+      <!-- CHỌN THÁNG (Hiển thị khi chọn Theo Tháng) -->
+      <div id="hihiLbMonthSelectorWrapper" style="display:none;align-items:center;gap:6px;">
+        <label for="hihiLbMonthSelect" style="font-size:0.78rem;font-weight:600;color:var(--hihi-nav-text,#94a3b8);">Chọn tháng:</label>
+        <select id="hihiLbMonthSelect" class="hihi-lb-select" onchange="hihiOnMonthChange(this.value)"></select>
+      </div>
     </div>
-    <div class="hihi-suite-modal-body">
+
+    <!-- TẦNG 2: BỘ LỌC MÔN HỌC -->
+    <div class="hihi-lb-tabs" style="padding:8px 16px;margin-bottom:0;">
+      <button class="hihi-lb-tab active" data-subject="total" onclick="hihiSetLbSubject('total', this)">🌟 Toàn Hệ Thống</button>
+      <button class="hihi-lb-tab" data-subject="tuvung" onclick="hihiSetLbSubject('tuvung', this)">📚 Từ Vựng</button>
+      <button class="hihi-lb-tab" data-subject="chinhta" onclick="hihiSetLbSubject('chinhta', this)">✍️ Chính Tả</button>
+      <button class="hihi-lb-tab" data-subject="dich" onclick="hihiSetLbSubject('dich', this)">📖 Luyện Dịch</button>
+    </div>
+
+    <!-- THANH TRẠNG THÁI KỲ & SỐ LƯỢNG HỌC VIÊN -->
+    <div id="hihiLbSubHeader" style="padding:6px 16px;font-size:0.75rem;color:#38bdf8;font-weight:600;display:flex;justify-content:space-between;background:rgba(56,189,248,0.04);border-bottom:1px solid rgba(255,255,255,0.05);">
+      <span id="hihiLbPeriodTitle">Kỳ: Toàn thời gian (Tất cả) • Môn: Toàn hệ thống</span>
+      <span id="hihiLbUserCount">Đang tải...</span>
+    </div>
+
+    <div class="hihi-suite-modal-body" style="padding:8px 16px 16px;max-height:420px;overflow-y:auto;">
       <div id="hihiLbLoading" style="text-align:center;padding:30px;color:var(--hihi-nav-text,#94a3b8);"><i class="fas fa-spinner fa-spin"></i> Đang tải bảng xếp hạng...</div>
       <table class="hihi-lb-table" id="hihiLbTable" style="display:none;">
         <thead>
@@ -2158,7 +2250,6 @@ window.hihiAuth = {
       await signInWithPopup(auth, provider);
     } catch(err) {
       console.warn("Popup sign-in warning:", err.code, err.message);
-      // Fallback sang redirect nếu popup bị chặn (Safari iOS, Chrome mobile, ad-block)
       if (err.code === "auth/popup-blocked" || 
           err.code === "auth/popup-closed-by-user" || 
           err.code === "auth/cancelled-popup-request" ||
@@ -2240,7 +2331,6 @@ onAuthStateChanged(auth, async (user) => {
     if (adminBadge) adminBadge.style.display = isAdmin ? "inline-block" : "none";
     if (adminStudioBtn) adminStudioBtn.style.display = isAdmin ? "flex" : "none";
 
-    // Phát sự kiện đồng bộ toàn trang
     window.dispatchEvent(new CustomEvent('hihi-auth-changed', {
       detail: { user, isAdmin }
     }));
@@ -2252,15 +2342,22 @@ onAuthStateChanged(auth, async (user) => {
       if (snap.exists()) {
         window.hihiCurrentUserData = snap.data();
       } else {
+        const wk = hihiWeekKey();
+        const mk = hihiMonthKey();
         window.hihiCurrentUserData = {
           uid: user.uid,
           displayName: user.displayName || "Học viên",
           photoURL: user.photoURL || "",
           email: user.email,
+          total_score: 0,
           tuvung_score: 0,
           chinhta_score: 0,
           dich_score: 0,
-          total_score: 0,
+          weekKey: wk,
+          week_score: 0,
+          monthKey: mk,
+          month_score: 0,
+          monthly: {},
           lastActive: Date.now()
         };
         await setDoc(userRef, window.hihiCurrentUserData);
@@ -2295,24 +2392,44 @@ function hihiUpdateScoreUI(data) {
   if (spl) spl.textContent = data.chinhta_score || 0;
 }
 
-// --- 2. LEADERBOARD API & MODAL (TỐI ƯU HÓA CACHE & DEBOUNCE) ---
+// --- 2. LEADERBOARD API (HỖ TRỢ TUẦN, THÁNG, CHỌN THÁNG, CLIENT CACHE) ---
+function hihiWeekKey(d) {
+  d = d || new Date();
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  return date.getUTCFullYear() + '-W' + String(week).padStart(2, '0');
+}
+
+function hihiMonthKey(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+let hihiCurrentLbPeriod = 'all'; // 'all' | 'week' | 'month'
+let hihiCurrentLbSubject = 'total'; // 'total' | 'tuvung' | 'chinhta' | 'dich'
+let hihiCurrentLbMonth = hihiMonthKey(); // "YYYY-MM"
+let hihiCachedLeaderboardUsers = null;
+let hihiLbCacheTimestamp = 0;
+const HIHI_LB_CACHE_MAX_AGE = 5 * 60 * 1000; // 5 phút
+
 let hihiScoreDebounceTimer = null;
-let hihiPendingScores = { tuvung_score: 0, chinhta_score: 0, dich_score: 0 };
+let hihiPendingScores = { tuvung: 0, chinhta: 0, dich: 0 };
 
 window.hihiUpdateScore = function(appKey, pointsToAdd) {
   const user = auth.currentUser;
   if (!user || !pointsToAdd || pointsToAdd <= 0) return;
 
-  if (appKey === 'tuvung') hihiPendingScores.tuvung_score += pointsToAdd;
-  if (appKey === 'chinhta') hihiPendingScores.chinhta_score += pointsToAdd;
-  if (appKey === 'dich') hihiPendingScores.dich_score += pointsToAdd;
+  if (appKey === 'tuvung' || appKey === 'chinhta' || appKey === 'dich') {
+    hihiPendingScores[appKey] += pointsToAdd;
+  }
 
   // Cập nhật UI lạc quan (Optimistic UI) ngay lập tức
   if (window.hihiCurrentUserData) {
-    if (appKey === 'tuvung') window.hihiCurrentUserData.tuvung_score = (window.hihiCurrentUserData.tuvung_score || 0) + pointsToAdd;
-    if (appKey === 'chinhta') window.hihiCurrentUserData.chinhta_score = (window.hihiCurrentUserData.chinhta_score || 0) + pointsToAdd;
-    if (appKey === 'dich') window.hihiCurrentUserData.dich_score = (window.hihiCurrentUserData.dich_score || 0) + pointsToAdd;
-    window.hihiCurrentUserData.total_score = (window.hihiCurrentUserData.tuvung_score || 0) + (window.hihiCurrentUserData.chinhta_score || 0) + (window.hihiCurrentUserData.dich_score || 0);
+    window.hihiCurrentUserData[appKey + '_score'] = (window.hihiCurrentUserData[appKey + '_score'] || 0) + pointsToAdd;
+    window.hihiCurrentUserData.total_score = (window.hihiCurrentUserData.total_score || 0) + pointsToAdd;
     hihiUpdateScoreUI(window.hihiCurrentUserData);
   }
 
@@ -2321,44 +2438,104 @@ window.hihiUpdateScore = function(appKey, pointsToAdd) {
     try {
       const userRef = doc(db, "hihi_leaderboard", user.uid);
       const snap = await getDoc(userRef);
+      const wk = hihiWeekKey();
+      const mk = hihiMonthKey();
+
       let data = snap.exists() ? snap.data() : {
         uid: user.uid,
         displayName: user.displayName || "Học viên",
         photoURL: user.photoURL || "",
         email: user.email,
+        total_score: 0,
         tuvung_score: 0,
         chinhta_score: 0,
         dich_score: 0,
-        total_score: 0
+        weekKey: wk,
+        week_score: 0,
+        week_tuvung: 0,
+        week_chinhta: 0,
+        week_dich: 0,
+        monthKey: mk,
+        month_score: 0,
+        month_tuvung: 0,
+        month_chinhta: 0,
+        month_dich: 0,
+        monthly: {}
       };
 
-      const addT = hihiPendingScores.tuvung_score;
-      const addC = hihiPendingScores.chinhta_score;
-      const addD = hihiPendingScores.dich_score;
-      hihiPendingScores = { tuvung_score: 0, chinhta_score: 0, dich_score: 0 };
+      const addT = hihiPendingScores.tuvung;
+      const addC = hihiPendingScores.chinhta;
+      const addD = hihiPendingScores.dich;
+      const totalAdd = addT + addC + addD;
+      hihiPendingScores = { tuvung: 0, chinhta: 0, dich: 0 };
 
+      // 1. Cập nhật All-Time
       data.tuvung_score = (data.tuvung_score || 0) + addT;
       data.chinhta_score = (data.chinhta_score || 0) + addC;
       data.dich_score = (data.dich_score || 0) + addD;
-      data.total_score = (data.tuvung_score || 0) + (data.chinhta_score || 0) + (data.dich_score || 0);
+      data.total_score = (data.total_score || 0) + totalAdd;
+
+      // 2. Cập nhật Tuần
+      if (data.weekKey !== wk) {
+        data.weekKey = wk;
+        data.week_score = totalAdd;
+        data.week_tuvung = addT;
+        data.week_chinhta = addC;
+        data.week_dich = addD;
+      } else {
+        data.week_score = (data.week_score || 0) + totalAdd;
+        data.week_tuvung = (data.week_tuvung || 0) + addT;
+        data.week_chinhta = (data.week_chinhta || 0) + addC;
+        data.week_dich = (data.week_dich || 0) + addD;
+      }
+
+      // 3. Cập nhật Tháng
+      if (data.monthKey !== mk) {
+        data.monthKey = mk;
+        data.month_score = totalAdd;
+        data.month_tuvung = addT;
+        data.month_chinhta = addC;
+        data.month_dich = addD;
+      } else {
+        data.month_score = (data.month_score || 0) + totalAdd;
+        data.month_tuvung = (data.month_tuvung || 0) + addT;
+        data.month_chinhta = (data.month_chinhta || 0) + addC;
+        data.month_dich = (data.month_dich || 0) + addD;
+      }
+
+      // 4. Cập nhật Map Lịch sử theo Tháng (monthly)
+      data.monthly = data.monthly || {};
+      const oldMonth = data.monthly[mk] || { score: 0, tuvung: 0, chinhta: 0, dich: 0 };
+      data.monthly[mk] = {
+        score: (oldMonth.score || 0) + totalAdd,
+        tuvung: (oldMonth.tuvung || 0) + addT,
+        chinhta: (oldMonth.chinhta || 0) + addC,
+        dich: (oldMonth.dich || 0) + addD
+      };
+
       data.lastActive = Date.now();
+      data.displayName = user.displayName || data.displayName;
+      data.photoURL = user.photoURL || data.photoURL;
+      data.email = user.email || data.email;
 
       await setDoc(userRef, data, { merge: true });
       window.hihiCurrentUserData = data;
       hihiUpdateScoreUI(data);
 
-      // Xóa cache BXH cục bộ để lần sau mở sẽ lấy điểm mới
-      HIHI_LB_CACHE = {};
+      // Invalidate cache
+      hihiCachedLeaderboardUsers = null;
+      hihiLbCacheTimestamp = 0;
     } catch(e) {
-      console.warn("Lưu điểm Firestore:", e);
+      console.warn("Lưu điểm Firebase:", e);
     }
-  }, 2500); // Debounce 2.5s gom nhóm tất cả lượt cộng điểm liên tiếp
+  }, 2500);
 };
 
-window.hihiOpenLeaderboard = function() {
+window.hihiOpenLeaderboard = async function() {
   const m = document.getElementById("hihiLeaderboardModal");
   if (m) m.classList.add("active");
-  hihiFetchLeaderboard("total_score");
+  hihiPopulateMonthOptions();
+  await hihiLoadLeaderboardData(false);
 };
 
 window.hihiCloseLeaderboard = function(e) {
@@ -2367,82 +2544,177 @@ window.hihiCloseLeaderboard = function(e) {
   if (m) m.classList.remove("active");
 };
 
-window.hihiSwitchLbFilter = function(field, btn) {
-  document.querySelectorAll(".hihi-lb-tab").forEach(b => b.classList.remove("active"));
-  if (btn) btn.classList.add("active");
-  hihiFetchLeaderboard(field);
+window.hihiRefreshLeaderboard = async function() {
+  const icon = document.getElementById("hihiLbRefreshIcon");
+  if (icon) icon.classList.add("fa-spin");
+  await hihiLoadLeaderboardData(true);
+  if (icon) icon.classList.remove("fa-spin");
 };
 
-// Cache client-side cho bảng xếp hạng (TTL 5 phút) để tiết kiệm Firestore Read Quota
-let HIHI_LB_CACHE = {};
-const HIHI_LB_TTL = 5 * 60 * 1000;
+window.hihiSetLbPeriod = function(period, btn) {
+  hihiCurrentLbPeriod = period;
+  document.querySelectorAll(".hihi-lb-period-btn").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
 
-async function hihiFetchLeaderboard(sortField, forceRefresh = false) {
+  const monthWrapper = document.getElementById("hihiLbMonthSelectorWrapper");
+  if (monthWrapper) {
+    monthWrapper.style.display = (period === 'month') ? 'inline-flex' : 'none';
+  }
+
+  hihiRenderFilteredLeaderboard();
+};
+
+window.hihiSetLbSubject = function(subject, btn) {
+  hihiCurrentLbSubject = subject;
+  document.querySelectorAll(".hihi-lb-tab").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+
+  hihiRenderFilteredLeaderboard();
+};
+
+window.hihiOnMonthChange = function(monthVal) {
+  hihiCurrentLbMonth = monthVal;
+  hihiRenderFilteredLeaderboard();
+};
+
+function hihiPopulateMonthOptions() {
+  const select = document.getElementById("hihiLbMonthSelect");
+  if (!select) return;
+  const curr = new Date();
+  const options = [];
+
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(curr.getFullYear(), curr.getMonth() - i, 1);
+    const mKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    const label = 'Tháng ' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear() + (i === 0 ? ' (Hiện tại)' : '');
+    options.push({ key: mKey, label: label });
+  }
+
+  select.innerHTML = options.map(opt => `
+    <option value="${opt.key}" ${opt.key === hihiCurrentLbMonth ? 'selected' : ''}>${opt.label}</option>
+  `).join("");
+}
+
+async function hihiLoadLeaderboardData(forceRefresh = false) {
   const loadEl = document.getElementById("hihiLbLoading");
   const tableEl = document.getElementById("hihiLbTable");
-  const bodyEl = document.getElementById("hihiLbBody");
-  if (!loadEl || !tableEl || !bodyEl) return;
-
   const now = Date.now();
-  const cached = HIHI_LB_CACHE[sortField];
-  if (!forceRefresh && cached && (now - cached.ts < HIHI_LB_TTL)) {
-    renderLeaderboardRows(cached.data, sortField);
+
+  if (!forceRefresh && hihiCachedLeaderboardUsers && (now - hihiLbCacheTimestamp < HIHI_LB_CACHE_MAX_AGE)) {
+    hihiRenderFilteredLeaderboard();
     return;
   }
 
-  loadEl.style.display = "block";
-  tableEl.style.display = "none";
-  bodyEl.innerHTML = "";
+  if (loadEl) loadEl.style.display = "block";
+  if (tableEl) tableEl.style.display = "none";
 
   try {
-    const q = query(collection(db, "hihi_leaderboard"), orderBy(sortField, "desc"), limit(25));
+    const q = query(collection(db, "hihi_leaderboard"), orderBy("total_score", "desc"), limit(100));
     const snap = await getDocs(q);
-    loadEl.style.display = "none";
-    tableEl.style.display = "table";
-
-    if (snap.empty) {
-      bodyEl.innerHTML = "<tr><td colspan='3' style='text-align:center;padding:20px;color:#94a3b8;'>Chưa có dữ liệu bảng xếp hạng.</td></tr>";
-      return;
-    }
-
     const users = [];
-    snap.forEach((docSnap) => users.push(docSnap.data()));
-    HIHI_LB_CACHE[sortField] = { data: users, ts: now };
-    renderLeaderboardRows(users, sortField);
+    snap.forEach(docSnap => users.push(docSnap.data()));
+
+    hihiCachedLeaderboardUsers = users;
+    hihiLbCacheTimestamp = now;
+    hihiRenderFilteredLeaderboard();
   } catch(e) {
-    loadEl.innerHTML = `<span style="color:#ef4444;">Lỗi tải dữ liệu: ${e.message}</span>`;
+    console.warn("Lỗi tải BXH:", e);
+    if (loadEl) loadEl.innerHTML = `<span style="color:#ef4444;">Lỗi tải dữ liệu: ${e.message}</span>`;
   }
 }
 
-function renderLeaderboardRows(users, sortField) {
+function hihiRenderFilteredLeaderboard() {
+  const loadEl = document.getElementById("hihiLbLoading");
+  const tableEl = document.getElementById("hihiLbTable");
   const bodyEl = document.getElementById("hihiLbBody");
+  const titleEl = document.getElementById("hihiLbPeriodTitle");
+  const countEl = document.getElementById("hihiLbUserCount");
   if (!bodyEl) return;
-  bodyEl.innerHTML = "";
-  let rank = 1;
-  users.forEach((u) => {
-    const tr = document.createElement("tr");
-    let rankBadge = rank;
-    if (rank === 1) rankBadge = "🥇";
-    else if (rank === 2) rankBadge = "🥈";
-    else if (rank === 3) rankBadge = "🥉";
 
-    const val = u[sortField] || 0;
-    tr.innerHTML = `
-      <td class="hihi-lb-rank rank-${rank}">${rankBadge}</td>
-      <td>
-        <div class="hihi-lb-user-cell">
-          <img src="${u.photoURL || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%2394a3b8\'%3E%3Cpath d=\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z\'/%3E%3C/svg%3E'}" class="hihi-lb-avatar" alt="Avatar">
-          <div>
-            <div style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);">${u.displayName || "Học viên"}</div>
-            <div style="font-size:0.7rem;color:#94a3b8;">Tổng: ${u.total_score || 0}đ</div>
+  if (loadEl) loadEl.style.display = "none";
+  if (tableEl) tableEl.style.display = "table";
+
+  const currWeek = hihiWeekKey();
+  const currMonth = hihiMonthKey();
+  const users = hihiCachedLeaderboardUsers || [];
+
+  let periodText = "Kỳ: Toàn thời gian (Tất cả)";
+  if (hihiCurrentLbPeriod === 'week') {
+    periodText = `Kỳ: Tuần này (${currWeek})`;
+  } else if (hihiCurrentLbPeriod === 'month') {
+    const parts = hihiCurrentLbMonth.split('-');
+    const m = parts[1] || "";
+    const y = parts[0] || "";
+    periodText = `Kỳ: Tháng ${m}/${y}${hihiCurrentLbMonth === currMonth ? ' (Hiện tại)' : ''}`;
+  }
+  const subjectNames = { total: "Toàn hệ thống", tuvung: "Từ Vựng", chinhta: "Chính Tả", dich: "Luyện Dịch" };
+  if (titleEl) titleEl.textContent = `${periodText} • Môn: ${subjectNames[hihiCurrentLbSubject] || "Tất cả"}`;
+
+  const rankedUsers = [];
+
+  for (const u of users) {
+    let pts = 0;
+    if (hihiCurrentLbPeriod === 'all') {
+      if (hihiCurrentLbSubject === 'total') pts = u.total_score || 0;
+      else pts = u[hihiCurrentLbSubject + '_score'] || 0;
+    } else if (hihiCurrentLbPeriod === 'week') {
+      if (u.weekKey === currWeek) {
+        if (hihiCurrentLbSubject === 'total') pts = u.week_score || 0;
+        else pts = u['week_' + hihiCurrentLbSubject] || 0;
+      }
+    } else if (hihiCurrentLbPeriod === 'month') {
+      if (u.monthly && u.monthly[hihiCurrentLbMonth]) {
+        const mData = u.monthly[hihiCurrentLbMonth];
+        pts = (hihiCurrentLbSubject === 'total') ? (mData.score || 0) : (mData[hihiCurrentLbSubject] || 0);
+      } else if (u.monthKey === hihiCurrentLbMonth) {
+        if (hihiCurrentLbSubject === 'total') pts = u.month_score || 0;
+        else pts = u['month_' + hihiCurrentLbSubject] || 0;
+      }
+    }
+
+    if (pts > 0 || hihiCurrentLbPeriod === 'all') {
+      rankedUsers.push({
+        displayName: u.displayName || "Học viên",
+        photoURL: u.photoURL || "",
+        email: u.email || "",
+        score: pts,
+        total_score: u.total_score || 0
+      });
+    }
+  }
+
+  rankedUsers.sort((a, b) => b.score - a.score);
+
+  if (countEl) countEl.textContent = `${rankedUsers.length} người tham gia`;
+
+  if (rankedUsers.length === 0) {
+    bodyEl.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:26px;color:#94a3b8;"><i class="fas fa-medal" style="font-size:1.5rem;margin-bottom:8px;display:block;opacity:0.5;"></i>Chưa có điểm nào được ghi nhận trong kỳ này.<br><span style="font-size:0.75rem;">Hãy là người đầu tiên ghi điểm!</span></td></tr>`;
+    return;
+  }
+
+  bodyEl.innerHTML = rankedUsers.map((u, idx) => {
+    const rank = idx + 1;
+    let badge = `${rank}`;
+    if (rank === 1) badge = "🥇";
+    else if (rank === 2) badge = "🥈";
+    else if (rank === 3) badge = "🥉";
+
+    return `
+      <tr>
+        <td class="hihi-lb-rank rank-${rank}">${badge}</td>
+        <td>
+          <div class="hihi-lb-user-cell">
+            <img src="${u.photoURL || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%2394a3b8\'%3E%3Cpath d=\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z\'/%3E%3C/svg%3E'}" class="hihi-lb-avatar" alt="Avatar">
+            <div>
+              <div style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);font-size:0.85rem;">${u.displayName}</div>
+              <div style="font-size:0.7rem;color:#94a3b8;">${hihiCurrentLbPeriod !== 'all' ? 'Tổng tích lũy: ' + u.total_score + 'đ' : (u.email || '')}</div>
+            </div>
           </div>
-        </div>
-      </td>
-      <td style="text-align:right;font-weight:700;color:#38bdf8;">${val}đ</td>
+        </td>
+        <td style="text-align:right;font-weight:700;color:#38bdf8;font-size:0.9rem;">${u.score.toLocaleString()}đ</td>
+      </tr>
     `;
-    bodyEl.appendChild(tr);
-    rank++;
-  });
+  }).join("");
 }
 
 // --- 3. MEMRISE ADMIN STUDIO ---
@@ -2682,7 +2954,6 @@ window.hihiFetchAllTopics = async function() {
   }
 
   const topics = [];
-  // 1. Fetch 57 JSON topics from GitHub (ưu tiên manifest tĩnh siêu tốc)
   try {
     const fastRes = await fetch("https://raw.githubusercontent.com/ngxuanhai123/tuvung/main/vocab_manifest.json");
     if (fastRes.ok) {
@@ -2712,7 +2983,6 @@ window.hihiFetchAllTopics = async function() {
     }
   }
 
-  // 2. Fetch custom topics from Firestore (sử dụng cache cục bộ nếu có)
   try {
     const snap = await getDocs(collection(db, "hihi_custom_topics"));
     snap.forEach((d) => {
