@@ -1,0 +1,176 @@
+{
+  "totalTopics": 21,
+  "lang": "id",
+  "langName": "Tiếng Indonesia",
+  "flag": "🇮🇩",
+  "topics": [
+    {
+      "file": "1 -benh_tat_va_trieu_chung - penyakit_dan_gejala.json",
+      "name": "Bệnh tật và Triệu chứng - Penyakit dan Gejala",
+      "wordCount": 26,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/1%20-benh_tat_va_trieu_chung%20-%20penyakit_dan_gejala.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/1%20-benh_tat_va_trieu_chung%20-%20penyakit_dan_gejala.json"
+    },
+    {
+      "file": "2 - benh_tat_va_trieu_chung_2 - penyakit_dan_gejala_2.json",
+      "name": "Bệnh tật và Triệu chứng 2 - Penyakit dan Gejala 2",
+      "wordCount": 26,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/2%20-%20benh_tat_va_trieu_chung_2%20-%20penyakit_dan_gejala_2.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/2%20-%20benh_tat_va_trieu_chung_2%20-%20penyakit_dan_gejala_2.json"
+    },
+    {
+      "file": "3 - tu_vung_co_ban - kosakata_dasar.json",
+      "name": "Từ vựng Cơ bản - Kosakata Dasar",
+      "wordCount": 36,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/3%20-%20tu_vung_co_ban%20-%20kosakata_dasar.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/3%20-%20tu_vung_co_ban%20-%20kosakata_dasar.json"
+    },
+    {
+      "file": "4 - tim_hieu_-_ofmcap - belajar_-_ofmcap.json",
+      "name": "Tìm hiểu - OFMCap - Belajar - OFMCap",
+      "wordCount": 26,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/4%20-%20tim_hieu_-_ofmcap%20-%20belajar_-_ofmcap.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/4%20-%20tim_hieu_-_ofmcap%20-%20belajar_-_ofmcap.json"
+    },
+    {
+      "file": "5 - tim_hieu_-_cap_2 - belajar_-_cap_2.json",
+      "name": "Tìm hiểu - Cap 2 - Belajar - Cap 2",
+      "wordCount": 19,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/5%20-%20tim_hieu_-_cap_2%20-%20belajar_-_cap_2.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/5%20-%20tim_hieu_-_cap_2%20-%20belajar_-_cap_2.json"
+    },
+    {
+      "file": "6 - tim_hieu_-_cap_3 - belajar_-_cap_3.json",
+      "name": "Tìm hiểu - Cap 3 - Belajar - Cap 3",
+      "wordCount": 17,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/6%20-%20tim_hieu_-_cap_3%20-%20belajar_-_cap_3.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/6%20-%20tim_hieu_-_cap_3%20-%20belajar_-_cap_3.json"
+    },
+    {
+      "file": "7 - mau_sac - warna.json",
+      "name": "Màu sắc - Warna",
+      "wordCount": 19,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/7%20-%20mau_sac%20-%20warna.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/7%20-%20mau_sac%20-%20warna.json"
+    },
+    {
+      "file": "8 - so_dem - angka.json",
+      "name": "Số đếm - Angka",
+      "wordCount": 71,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/8%20-%20so_dem%20-%20angka.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/8%20-%20so_dem%20-%20angka.json"
+    },
+    {
+      "file": "9 -vi_giac - rasa.json",
+      "name": "Vị giác - Rasa",
+      "wordCount": 11,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/9%20-vi_giac%20-%20rasa.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/9%20-vi_giac%20-%20rasa.json"
+    },
+    {
+      "file": "10 - gia_dinh - keluarga.json",
+      "name": "Gia đình - Keluarga",
+      "wordCount": 27,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/10%20-%20gia_dinh%20-%20keluarga.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/10%20-%20gia_dinh%20-%20keluarga.json"
+    },
+    {
+      "file": "11 - dong_vat - hewan.json",
+      "name": "Động vật - Hewan",
+      "wordCount": 43,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/11%20-%20dong_vat%20-%20hewan.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/11%20-%20dong_vat%20-%20hewan.json"
+    },
+    {
+      "file": "12- thuc_vat - tumbuhan.json",
+      "name": "Thực vật - Tumbuhan",
+      "wordCount": 46,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/12-%20thuc_vat%20-%20tumbuhan.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/12-%20thuc_vat%20-%20tumbuhan.json"
+    },
+    {
+      "file": "13 - do_dung_trong_nha - peralatan_rumah_tangga.json",
+      "name": "Đồ dùng trong nhà - Peralatan Rumah Tangga",
+      "wordCount": 61,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/13%20-%20do_dung_trong_nha%20-%20peralatan_rumah_tangga.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/13%20-%20do_dung_trong_nha%20-%20peralatan_rumah_tangga.json"
+    },
+    {
+      "file": "14 - tu_noi_mieu_ta_bieu_cam - kata_penghubung_deskripsi_ekspresi.json",
+      "name": "Từ nối, miêu tả, biểu cảm - Kata Penghubung, Deskripsi, Ekspresi",
+      "wordCount": 96,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/14%20-%20tu_noi_mieu_ta_bieu_cam%20-%20kata_penghubung_deskripsi_ekspresi.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/14%20-%20tu_noi_mieu_ta_bieu_cam%20-%20kata_penghubung_deskripsi_ekspresi.json"
+    },
+    {
+      "file": "15 - thoi_tiet - cuaca.json",
+      "name": "Thời tiết - Cuaca",
+      "wordCount": 28,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/15%20-%20thoi_tiet%20-%20cuaca.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/15%20-%20thoi_tiet%20-%20cuaca.json"
+    },
+    {
+      "file": "16 - dung_cu_thanh_le - alat-alat_misa.json",
+      "name": "Dụng cụ Thánh lễ - Alat-alat misa",
+      "wordCount": 30,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/16%20-%20dung_cu_thanh_le%20-%20alat-alat_misa.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/16%20-%20dung_cu_thanh_le%20-%20alat-alat_misa.json"
+    },
+    {
+      "file": "17 - su_co_ngoai_duong - su_co_ngoai_duong.json",
+      "name": "Sự cố ngoài đường - Insiden di Jalan",
+      "wordCount": 16,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/17%20-%20su_co_ngoai_duong%20-%20su_co_ngoai_duong.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/17%20-%20su_co_ngoai_duong%20-%20su_co_ngoai_duong.json"
+    },
+    {
+      "file": "18 - tu_do - tu_do.json",
+      "name": "Tự do - Kosakata Bebas",
+      "wordCount": 54,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/18%20-%20tu_do%20-%20tu_do.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/18%20-%20tu_do%20-%20tu_do.json"
+    },
+    {
+      "file": "19 - ton_giao - ton_giao.json",
+      "name": "Tôn giáo - Agama",
+      "wordCount": 14,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/19%20-%20ton_giao%20-%20ton_giao.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/19%20-%20ton_giao%20-%20ton_giao.json"
+    },
+    {
+      "file": "20 - thien_nhien - thien_nhien.json",
+      "name": "Thiên nhiên - Alam",
+      "wordCount": 26,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/20%20-%20thien_nhien%20-%20thien_nhien.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/20%20-%20thien_nhien%20-%20thien_nhien.json"
+    },
+    {
+      "file": "21 - truong_hoc - truong_hoc.json",
+      "name": "Trường học - Sekolah",
+      "wordCount": 32,
+      "lang": "id",
+      "url": "https://raw.githubusercontent.com/ngxuanhai123/indo/main/21%20-%20truong_hoc%20-%20truong_hoc.json",
+      "gh_pages_url": "https://ngxuanhai123.github.io/indo/21%20-%20truong_hoc%20-%20truong_hoc.json"
+    }
+  ]
+}
