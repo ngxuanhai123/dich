@@ -15,23 +15,23 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        inter: ['Inter', 'sans-serif'],
-                        heart: ['Pacifico', 'cursive'],
+                        sans: ['"Be Vietnam Pro"', 'system-ui', '-apple-system', 'sans-serif'],
+                        inter: ['"Be Vietnam Pro"', 'system-ui', '-apple-system', 'sans-serif'],
+                        heart: ['"Be Vietnam Pro"', 'system-ui', '-apple-system', 'sans-serif'],
                     },
                     animation: {
-                        'slide-up': 'slideUp 0.3s ease-out forwards',
-                        'spin-slow': 'spin 3s linear infinite',
+                        'slide-up': 'slideUp 0.25s ease-out forwards',
                     },
                     keyframes: {
                         slideUp: {
-                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '0%': { transform: 'translateY(12px)', opacity: '0' },
                             '100%': { transform: 'translateY(0)', opacity: '1' },
                         }
                     }
@@ -40,68 +40,84 @@
         }
     </script>
     <style>
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.4); }
-        .dark .glass { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.1); }
-        body { transition: background-color 0.5s ease, color 0.5s ease; }
-        .heart-beat { animation: heartBeat 1.5s infinite; }
-        @keyframes heartBeat {
-            0% { transform: scale(1); }
-            14% { transform: scale(1.1); }
-            28% { transform: scale(1); }
-            42% { transform: scale(1.1); }
-            70% { transform: scale(1); }
+        * { font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif; }
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .dark body, html.dark body, body.dark-mode {
+            background-color: #090d16;
+            color: #f8fafc;
+        }
+        .glass {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .dark .glass {
+            background: #131d2e;
+            border: 1px solid #1e293b;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
         }
         .zen-mode #sidebar { display: none; }
         .zen-mode main { max-width: 900px; margin: 0 auto; }
         
-        select option { background: white; color: black; }
-        .dark select option { background: #1e293b; color: white; }
+        select option { background: white; color: #0f172a; }
+        .dark select option { background: #1e293b; color: #f8fafc; }
 
         #focusOverlay.active { display: flex; }
 
         /* Styles cho từ tương tác trong Focus Mode */
         .interactive-word {
             position: relative;
-            cursor: pointer; /* Đổi thành pointer để biết là bấm được */
-            border-bottom: 2px dashed rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            border-bottom: 2px dashed rgba(59, 130, 246, 0.4);
             transition: all 0.2s;
             display: inline-block;
             margin: 0 2px;
-            padding: 0 2px;
+            padding: 0 3px;
             border-radius: 4px;
-            user-select: none; /* Tránh bôi đen khi click nhanh */
+            user-select: none;
         }
         .interactive-word:hover, .interactive-word.active {
-            background-color: rgba(251, 191, 36, 0.2); /* Amber background mờ */
-            color: #fbbf24; /* Amber-400 */
-            border-bottom-color: #fbbf24;
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        .dark .interactive-word {
+            border-bottom-color: rgba(96, 165, 250, 0.4);
+        }
+        .dark .interactive-word:hover, .dark .interactive-word.active {
+            background-color: rgba(59, 130, 246, 0.25);
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
         }
         
         /* Tooltip style */
         .word-tooltip {
             visibility: hidden;
             position: absolute;
-            bottom: 140%; /* Cao hơn một chút */
+            bottom: 140%;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #0f172a; /* Slate-900 */
-            color: white;
+            background-color: #0f172a;
+            color: #f8fafc;
             padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 14px;
-            white-space: normal; /* Cho phép xuống dòng */
+            border-radius: 10px;
+            font-size: 13px;
+            white-space: normal;
             min-width: 150px;
             max-width: 250px;
             text-align: center;
             z-index: 1000;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
             opacity: 0;
             transition: opacity 0.2s, transform 0.2s;
             pointer-events: none;
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Logic hiển thị tooltip khi có class active (được click) */
         .interactive-word.active .word-tooltip {
             visibility: visible;
             opacity: 1;
@@ -109,7 +125,6 @@
             pointer-events: auto;
         }
 
-        /* Mũi tên tooltip */
         .word-tooltip::after {
             content: "";
             position: absolute;
@@ -120,6 +135,7 @@
             border-style: solid;
             border-color: #0f172a transparent transparent transparent;
         }
+
         /* Loading dot animation */
         .loading-dots::after {
             content: '.';
@@ -130,52 +146,6 @@
             40% { content: '..'; }
             60% { content: '...'; }
             80%, 100% { content: ''; }
-        }
-
-        /* --- NEW CSS: Floating Home Button --- */
-        .floating-home-btn {
-            position: fixed;
-            bottom: 24px;
-            left: 24px;
-            z-index: 50;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            border-radius: 9999px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            font-weight: 600;
-            font-size: 14px;
-            color: #475569; /* Slate 600 */
-            text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .floating-home-btn:hover {
-            transform: translateY(-4px);
-            color: #e11d48; /* Rose 600 */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
-            border-color: #fda4af; /* Rose 200 */
-        }
-        .floating-home-btn svg { width: 20px; height: 20px; }
-        
-        /* Dark mode support for button */
-        .dark .floating-home-btn {
-            background-color: rgba(15, 23, 42, 0.9); /* Slate 900 */
-            border-color: rgba(51, 65, 85, 0.5);
-            color: #cbd5e1; /* Slate 300 */
-        }
-        .dark .floating-home-btn:hover {
-            color: #fb7185; /* Rose 400 */
-            border-color: #be123c;
-        }
-
-        /* Mobile Optimization */
-        @media (max-width: 640px) {
-            .floating-home-btn span { display: none; } /* Hide text on mobile */
-            .floating-home-btn { padding: 12px; border-radius: 50%; bottom: 20px; left: 20px; }
         }
     </style>
 
@@ -1365,43 +1335,77 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
             <div class="hihi-grid-name">Trang Chủ</div>
             <div class="hihi-grid-desc">Cổng liên kết học tập</div>
           </div>
-        </a>\n        <a href="https://ngxuanhai123.github.io/tuvung/" class="hihi-grid-card">
+      </a>
+      <a href="https://ngxuanhai123.github.io/tuvung/" class="hihi-grid-card">
           <div class="hihi-grid-icon hihi-icon-tuvung"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
           <div class="hihi-grid-info">
             <div class="hihi-grid-name">Từ Vựng</div>
             <div class="hihi-grid-desc">Flashcard & phát âm</div>
           </div>
-        </a>\n        <a href="https://ngxuanhai123.github.io/chinhta/" class="hihi-grid-card">
+      </a>
+      <a href="https://ngxuanhai123.github.io/chinhta/" class="hihi-grid-card">
           <div class="hihi-grid-icon hihi-icon-chinhta"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="10" y1="16" x2="14" y2="16"/></svg></div>
           <div class="hihi-grid-info">
             <div class="hihi-grid-name">Chính Tả</div>
             <div class="hihi-grid-desc">Nghe chép chính tả</div>
           </div>
-        </a>\n        <a href="https://ngxuanhai123.github.io/dich/" class="hihi-grid-card current">
+      </a>
+      <a href="https://ngxuanhai123.github.io/dich/" class="hihi-grid-card current">
           <div class="hihi-grid-icon hihi-icon-dich"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></div>
           <div class="hihi-grid-info">
             <div class="hihi-grid-name">Luyện Dịch</div>
             <div class="hihi-grid-desc">Dịch câu & ngữ cảnh</div>
           </div>
-        </a>\n        <a href="https://ngxuanhai123.github.io/note/" class="hihi-grid-card">
+      </a>
+      <a href="https://ngxuanhai123.github.io/note/" class="hihi-grid-card">
           <div class="hihi-grid-icon hihi-icon-note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
           <div class="hihi-grid-info">
             <div class="hihi-grid-name">Ghi Chú</div>
             <div class="hihi-grid-desc">Lưu trữ cá nhân</div>
           </div>
-        </a>\n        <a href="https://ngxuanhai123.github.io/bamhuyet/" class="hihi-grid-card">
+      </a>
+      <a href="https://ngxuanhai123.github.io/bamhuyet/" class="hihi-grid-card">
           <div class="hihi-grid-icon hihi-icon-bamhuyet"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div>
           <div class="hihi-grid-info">
             <div class="hihi-grid-name">Bấm Huyệt</div>
             <div class="hihi-grid-desc">Sức khỏe trị liệu</div>
           </div>
-        </a>\n        <a href="https://ngxuanhai123.github.io/rosa/" class="hihi-grid-card">
+      </a>
+      <a href="https://ngxuanhai123.github.io/rosa/" class="hihi-grid-card">
           <div class="hihi-grid-icon hihi-icon-rosa"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M7 8h10"/></svg></div>
           <div class="hihi-grid-info">
             <div class="hihi-grid-name">Mân Côi</div>
             <div class="hihi-grid-desc">Lần hạt Mân Côi</div>
           </div>
-        </a>
+      </a>
+      <a href="https://ngxuanhai123.github.io/dich-ios/" class="hihi-grid-card">
+          <div class="hihi-grid-icon" style="background: linear-gradient(135deg, #0284c7, #0369a1);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg></div>
+          <div class="hihi-grid-info">
+            <div class="hihi-grid-name">Dịch iOS</div>
+            <div class="hihi-grid-desc">Dịch màn hình AI</div>
+          </div>
+      </a>
+      <a href="https://ngxuanhai123.github.io/indo/" class="hihi-grid-card">
+          <div class="hihi-grid-icon" style="background: linear-gradient(135deg, #ef4444, #b91c1c);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg></div>
+          <div class="hihi-grid-info">
+            <div class="hihi-grid-name">Tiếng Indo</div>
+            <div class="hihi-grid-desc">Học tiếng Indonesia</div>
+          </div>
+      </a>
+      <a href="https://ngxuanhai123.github.io/nhachocbai/" class="hihi-grid-card">
+          <div class="hihi-grid-icon" style="background: linear-gradient(135deg, #84cc16, #4d7c0f);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+          <div class="hihi-grid-info">
+            <div class="hihi-grid-name">Nhắc Học Bài</div>
+            <div class="hihi-grid-desc">Nhắc nhở hàng ngày</div>
+          </div>
+      </a>
+      <a href="https://ngxuanhai123.github.io/HiHi-Analytics/" class="hihi-grid-card">
+          <div class="hihi-grid-icon" style="background: linear-gradient(135deg, #6366f1, #4338ca);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+          <div class="hihi-grid-info">
+            <div class="hihi-grid-name">HiHi Analytics</div>
+            <div class="hihi-grid-desc">Đo lường & thống kê</div>
+          </div>
+      </a>
     </div>
   </div>
 </div>
@@ -1424,18 +1428,18 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
                 </div>
             </div>
 
-            <div class="p-5 mb-8 bg-gradient-to-br from-rose-500 to-orange-400 rounded-[2rem] text-white shadow-lg">
+            <div class="p-5 mb-8 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white shadow-sm border border-slate-800 dark:border-slate-700">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Danh hiệu</p>
+                        <p class="text-[10px] font-bold opacity-70 uppercase tracking-widest text-slate-400">Danh hiệu</p>
                         <h3 id="userRank" class="text-xl font-black">Người mới</h3>
                     </div>
-                    <i data-lucide="award" class="w-8 h-8 opacity-50"></i>
+                    <i data-lucide="award" class="w-8 h-8 text-amber-400 opacity-80"></i>
                 </div>
-                <div class="w-full bg-white/20 rounded-full h-1.5 mb-2">
-                    <div id="rankProgress" class="bg-white h-1.5 rounded-full" style="width: 10%"></div>
+                <div class="w-full bg-slate-700 rounded-full h-1.5 mb-2">
+                    <div id="rankProgress" class="bg-blue-500 h-1.5 rounded-full" style="width: 10%"></div>
                 </div>
-                <p id="rankSubtext" class="text-[10px] opacity-90 italic">Cần thêm 5 bài để thăng cấp</p>
+                <p id="rankSubtext" class="text-[10px] text-slate-400 italic">Cần thêm 5 bài để thăng cấp</p>
             </div>
             
             <div id="historyList" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 mb-6"></div>
@@ -1451,30 +1455,30 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
         </aside>
 
         <main class="flex-1 p-4 md:p-8 order-1 lg:order-2 relative">
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h1 class="text-4xl font-black tracking-tighter text-slate-900 dark:text-white">HiHi <span class="font-heart text-rose-500 text-2xl">luyện Dịch</span></h1>
-                    <p class="text-sm text-slate-500 italic opacity-80" id="quoteText">"Hành trình vạn dặm bắt đầu từ một đoạn văn."</p>
+                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">HiHi Luyện Dịch</h1>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1" id="quoteText">Hành trình vạn dặm bắt đầu từ một đoạn văn.</p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="dichPickSharedTopic()" class="flex items-center gap-1 px-3 py-2 rounded-xl bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 text-xs font-bold transition-all" title="Lấy câu từ kho từ vựng chung"><i class="fas fa-book-open"></i> Chủ đề từ vựng</button>
-            <button onclick="toggleSidebar()" class="p-3 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-all text-slate-500 lg:hidden" title="Mở sidebar">
-                        <i data-lucide="menu" class="w-5 h-5"></i>
+                <div class="flex items-center gap-2.5">
+                    <button onclick="dichPickSharedTopic()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900 hover:bg-blue-100 text-xs font-bold transition-all" title="Lấy câu từ kho từ vựng chung"><i class="fas fa-book-open"></i> Chủ đề từ vựng</button>
+                    <button onclick="toggleSidebar()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-500 lg:hidden" title="Mở sidebar">
+                        <i data-lucide="menu" class="w-4 h-4"></i>
                     </button>
-                    <button onclick="toggleZen()" class="p-3 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-all text-slate-500" title="Chế độ tập trung">
-                        <i data-lucide="eye-off" class="w-5 h-5"></i>
+                    <button onclick="toggleZen()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-500" title="Chế độ tập trung">
+                        <i data-lucide="eye-off" class="w-4 h-4"></i>
                     </button>
-                    <button onclick="toggleDarkMode()" class="p-3 rounded-full bg-white dark:bg-slate-800 shadow-lg text-amber-500 dark:text-sky-400">
-                        <i data-lucide="sun" id="sunIcon" class="w-5 h-5"></i>
-                        <i data-lucide="moon" id="moonIcon" class="hidden w-5 h-5"></i>
+                    <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-400 transition-all">
+                        <i data-lucide="sun" id="sunIcon" class="w-4 h-4"></i>
+                        <i data-lucide="moon" id="moonIcon" class="hidden w-4 h-4"></i>
                     </button>
                 </div>
             </header>
 
-            <section class="glass rounded-[3rem] p-6 md:p-10 shadow-2xl shadow-rose-200/20 dark:shadow-black/50 mb-8">
-                <div class="flex flex-wrap items-center gap-4 mb-8">
-                    <div class="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl">
-                        <select id="sourceLangSelect" onchange="saveConfig()" class="bg-transparent border-none font-bold text-sm text-slate-800 dark:text-slate-200 outline-none px-4 py-1.5 cursor-pointer">
+            <section class="glass rounded-2xl p-6 md:p-8 shadow-sm mb-8 border border-slate-200 dark:border-slate-800">
+                <div class="flex flex-wrap items-center gap-3 mb-6">
+                    <div class="flex gap-2 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <select id="sourceLangSelect" onchange="saveConfig()" class="bg-transparent border-none font-bold text-xs text-slate-800 dark:text-slate-200 outline-none px-3 py-1 cursor-pointer">
                             <option value="English">🇺🇸 English (Nguồn)</option>
                             <option value="Indonesian">🇮🇩 Tiếng Indo (Nguồn)</option>
                             <option value="Japanese">🇯🇵 Tiếng Nhật (Nguồn)</option>
@@ -1486,11 +1490,11 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
                             <option value="Vietnamese">🇻🇳 Tiếng Việt (Nguồn)</option>
                         </select>
                     </div>
-                    <button type="button" onclick="swapLanguages()" class="p-2 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-all active:scale-95" title="Hoán đổi ngôn ngữ">
-                        <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
+                    <button type="button" onclick="swapLanguages()" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition-all active:scale-95" title="Hoán đổi ngôn ngữ">
+                        <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>
                     </button>
-                    <div class="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl">
-                        <select id="targetLangSelect" onchange="saveConfig()" class="bg-transparent border-none font-bold text-sm text-slate-800 dark:text-slate-200 outline-none px-4 py-1.5 cursor-pointer">
+                    <div class="flex gap-2 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <select id="targetLangSelect" onchange="saveConfig()" class="bg-transparent border-none font-bold text-xs text-slate-800 dark:text-slate-200 outline-none px-3 py-1 cursor-pointer">
                             <option value="Vietnamese">🇻🇳 Tiếng Việt (Đích)</option>
                             <option value="English">🇺🇸 English (Đích)</option>
                             <option value="Indonesian">🇮🇩 Tiếng Indo (Đích)</option>
@@ -1502,7 +1506,7 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
                             <option value="Spanish">🇪🇸 Tiếng TBN (Đích)</option>
                         </select>
                     </div>
-                    <select id="levelSelect" onchange="saveConfig()" class="bg-transparent border-none font-bold text-slate-500 outline-none cursor-pointer">
+                    <select id="levelSelect" onchange="saveConfig()" class="bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 font-bold text-xs text-slate-600 dark:text-slate-300 outline-none cursor-pointer">
                         <option value="A1">Nhẹ nhàng (A1)</option>
                         <option value="A2">Dễ dàng (A2)</option>
                         <option value="B1">Cơ bản (B1)</option>
@@ -1511,23 +1515,23 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
                         <option value="C2">Chuyên gia (C2)</option>
                     </select>
                     
-                    <div class="ml-auto flex gap-3">
-                        <button id="btnVocabGenerate" onclick="dichOpenVocabGenerator()" class="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-2xl font-bold shadow-lg transition-all active:scale-95" title="Lấy từ vựng đang học tạo văn bản luyện dịch">
-                            <i data-lucide="book-open" class="w-4 h-4"></i> Lấy từ vựng tạo bài dịch
+                    <div class="ml-auto flex gap-2.5">
+                        <button id="btnVocabGenerate" onclick="dichOpenVocabGenerator()" class="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-sm transition-all active:scale-95" title="Lấy từ vựng đang học tạo văn bản luyện dịch">
+                            <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Lấy từ vựng tạo bài
                         </button>
-                        <button id="btnGenerate" class="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-2xl font-bold shadow-lg transition-all active:scale-95">
-                            <i data-lucide="wand-2" class="w-4 h-4"></i> AI Tạo văn bản
+                        <button id="btnGenerate" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-sm transition-all active:scale-95">
+                            <i data-lucide="wand-2" class="w-3.5 h-3.5"></i> AI Tạo văn bản
                         </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="relative group">
-                        <div class="absolute -top-3 left-6 flex items-center gap-2 z-10">
-                            <span class="bg-white dark:bg-slate-900 px-3 py-1 rounded-full text-[10px] font-black uppercase text-rose-500 border border-rose-100 dark:border-rose-900 shadow-sm">Nguồn</span>
+                        <div class="absolute -top-3 left-4 flex items-center gap-2 z-10">
+                            <span class="bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900 shadow-sm">Nguồn</span>
                             
                             <div class="relative inline-block">
-                                <button onclick="toggleTTSPanel()" class="p-1.5 rounded-full hover:bg-rose-100 text-rose-500" title="Cài đặt giọng đọc">
+                                <button onclick="toggleTTSPanel()" class="p-1 rounded-md hover:bg-slate-100 text-slate-500" title="Cài đặt giọng đọc">
                                     <i data-lucide="settings-2" class="w-3 h-3"></i>
                                 </button>
                                 <div id="ttsPanel" class="hidden absolute top-8 left-0 w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50 animate-slide-up">
@@ -1537,32 +1541,32 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
                                     </select>
                                     <div class="flex items-center gap-2">
                                         <i data-lucide="rabbit" class="w-4 h-4 text-slate-400"></i>
-                                        <input type="range" id="rateRange" onchange="saveConfig()" min="0.5" max="2" step="0.1" value="1" class="w-full accent-rose-500 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                                        <input type="range" id="rateRange" onchange="saveConfig()" min="0.5" max="2" step="0.1" value="1" class="w-full accent-blue-600 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                                         <span id="rateValue" class="text-xs font-bold w-6">1.0</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <button id="mainSpeakBtn" onclick="toggleSpeak('sourceText', this)" class="p-1.5 rounded-full hover:bg-rose-100 text-rose-500 transition-colors" title="Đọc/Dừng văn bản">
+                            <button id="mainSpeakBtn" onclick="toggleSpeak('sourceText', this)" class="p-1 rounded-md hover:bg-slate-100 text-slate-500 transition-colors" title="Đọc/Dừng văn bản">
                                 <i data-lucide="volume-2" class="w-3 h-3"></i>
                             </button>
-                            <button onclick="pasteFromClipboard('sourceText')" class="p-1.5 rounded-full hover:bg-rose-100 text-rose-500" title="Dán"><i data-lucide="clipboard-paste" class="w-3 h-3"></i></button>
+                            <button onclick="pasteFromClipboard('sourceText')" class="p-1 rounded-md hover:bg-slate-100 text-slate-500" title="Dán"><i data-lucide="clipboard-paste" class="w-3 h-3"></i></button>
                         </div>
-                        <textarea id="sourceText" rows="6" class="w-full bg-transparent border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 outline-none focus:border-rose-400 transition-all text-xl font-medium" placeholder="Dán văn bản hoặc nhấn 'Tạo văn bản'..."></textarea>
+                        <textarea id="sourceText" rows="6" class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 outline-none focus:border-blue-500 transition-all text-lg font-normal" placeholder="Dán văn bản hoặc nhấn 'AI Tạo văn bản'..."></textarea>
                     </div>
 
                     <div class="relative group">
-                        <div class="absolute -top-3 left-6 flex items-center gap-2">
-                            <span class="bg-white dark:bg-slate-900 px-3 py-1 rounded-full text-[10px] font-black uppercase text-sky-500 border border-sky-100 dark:border-sky-900 shadow-sm">Dịch</span>
-                            <button onclick="copyToClipboard('translateText')" class="p-1.5 rounded-full hover:bg-sky-100 text-sky-500"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                        <div class="absolute -top-3 left-4 flex items-center gap-2">
+                            <span class="bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900 shadow-sm">Dịch</span>
+                            <button onclick="copyToClipboard('translateText')" class="p-1 rounded-md hover:bg-slate-100 text-slate-500"><i data-lucide="copy" class="w-3 h-3"></i></button>
                         </div>
-                        <textarea id="translateText" rows="6" class="w-full bg-transparent border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 outline-none focus:border-sky-400 transition-all text-xl font-medium" placeholder="Viết bản dịch của bạn ở đây..."></textarea>
+                        <textarea id="translateText" rows="6" class="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 outline-none focus:border-emerald-500 transition-all text-lg font-normal" placeholder="Viết bản dịch của bạn ở đây..."></textarea>
                     </div>
                 </div>
 
-                <div class="mt-10 flex flex-wrap justify-center gap-6">
-                    <button onclick="startFocusMode()" class="group bg-amber-400 hover:bg-amber-500 text-white px-8 py-5 rounded-[2rem] font-bold text-xl shadow-xl hover:scale-105 transition-all flex items-center gap-3" title="Dịch từng câu với hỗ trợ tra từ">
-                        <i data-lucide="play-circle" class="w-6 h-6"></i>
+                <div class="mt-8 flex flex-wrap justify-center gap-4">
+                    <button onclick="startFocusMode()" class="group bg-emerald-600 hover:bg-emerald-700 text-white px-7 py-3.5 rounded-xl font-bold text-base shadow-sm hover:scale-[1.02] transition-all flex items-center gap-2.5" title="Dịch từng câu với hỗ trợ tra từ">
+                        <i data-lucide="play-circle" class="w-5 h-5"></i>
                         Làm bài ngay
                     </button>
 
@@ -1649,7 +1653,9 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
 
     <script>
         lucide.createIcons();
-        const API_URL = "https://ai-free.ngxuanhai123.workers.dev/dich";
+        const API_URL = "https://ai-no-free.ngxuanhai123.workers.dev/v1/chat/completions";
+        const AI_MODEL = "anhyeu00m/claude-fable-5";
+        const AI_KEY = "Ai@123";
         
         // --- 9-LANGUAGE MAPPING CONFIGURATION ---
         const DICH_LANGUAGES = {
@@ -1756,13 +1762,24 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
         const savedVoiceName = loadConfig(); // Run on startup
 
         // --- DARK MODE & UI TOGGLES ---
+        function syncDichThemeIcons() {
+            const isDark = document.documentElement.classList.contains('dark') || document.documentElement.getAttribute('data-theme') === 'dark';
+            const sun = document.getElementById('sunIcon');
+            const moon = document.getElementById('moonIcon');
+            if (sun && moon) {
+                sun.classList.toggle('hidden', isDark);
+                moon.classList.toggle('hidden', !isDark);
+            }
+        }
         function toggleDarkMode() {
-            const html = document.documentElement;
-            html.classList.toggle('dark');
-            const isDark = html.classList.contains('dark');
-            document.getElementById('sunIcon').classList.toggle('hidden', isDark);
-            document.getElementById('moonIcon').classList.toggle('hidden', !isDark);
-            saveConfig(); // Save state
+            if (typeof toggleHiHiSysTheme === 'function') {
+                toggleHiHiSysTheme();
+            } else {
+                const html = document.documentElement;
+                html.classList.toggle('dark');
+            }
+            syncDichThemeIcons();
+            saveConfig();
         }
         function toggleZen() { document.body.classList.toggle('zen-mode'); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('hidden'); }
@@ -2067,7 +2084,7 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
                     <div class="font-bold text-amber-400 text-base">${word}</div>
                     <div class="text-white font-medium">${meaning}</div>
                     <div class="mt-1 pt-1 border-t border-slate-700">
-                        <a href="https://translate.google.com/?sl=${sCode}&tl=${tCode}&text=${encodeURIComponent(word)}" target="_blank" class="text-[10px] text-slate-400 hover:text-sky-400 flex items-center gap-1">
+                        <a href="https://translate.google.com/?sl=${sCode}&tl=${tCode}&text=${encodeURIComponent(word)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-slate-400 hover:text-sky-400 flex items-center gap-1">
                             <i data-lucide="external-link" class="w-3 h-3"></i> Mở Google Dịch
                         </a>
                     </div>
@@ -2121,17 +2138,32 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
 
         // --- CORE FUNCTIONS ---
         async function callAI(prompt) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 25000);
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${AI_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: AI_MODEL,
+                        messages: [
+                            { role: 'system', content: 'Bạn là chuyên gia ngôn ngữ và trợ lý dịch thuật chính xác, hỗ trợ học tập.' },
+                            { role: 'user', content: prompt }
+                        ],
+                        temperature: 0.7
+                    }),
+                    signal: controller.signal,
                     credentials: 'omit'
                 });
+                clearTimeout(timeoutId);
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);
                 const data = await response.json();
-                return data.response || data.content || data.text || data;
+                return data.choices?.[0]?.message?.content || data.response || data.content || data.text || "";
             } catch (e) { 
+                clearTimeout(timeoutId);
                 console.error("AI Error:", e); 
                 return null; 
             }
@@ -2301,7 +2333,7 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
                             <span class="font-bold text-rose-500">${v.w}</span>
                             <div class="flex gap-2">
                                 <span class="text-xs opacity-70">${v.m}</span>
-                                <a href="${dictUrl}" target="_blank" class="text-xs text-blue-500 hover:underline">Tra</a>
+                                <a href="${dictUrl}" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-500 hover:underline">Tra</a>
                             </div>
                         </div>
                     `;}).join('');
@@ -2366,13 +2398,6 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
         }
     </script>
 
-    <a href="https://ngxuanhai123.github.io/" class="floating-home-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-        <span>Trang chủ</span>
-    </a>
-
 
 <script id="hihi-global-nav-script">
 function applyHiHiTheme(theme) {
@@ -2389,6 +2414,7 @@ function applyHiHiTheme(theme) {
     sun.style.display = theme === 'light' ? 'block' : 'none';
     moon.style.display = theme === 'light' ? 'none' : 'block';
   }
+  if (typeof syncDichThemeIcons === 'function') syncDichThemeIcons();
 }
 
 function toggleHiHiSysTheme() {
