@@ -87,10 +87,10 @@ async function runTests() {
   // TEST 6: Cấu hình Gateway AI & Auth Key
   try {
     const usesAiNoFree = html.includes('ai-no-free.ngxuanhai123.workers.dev');
-    const usesCorrectModel = html.includes('anhyeu00m/claude-fable-5') || html.includes('claude-fable-5');
+    const usesCorrectModel = html.includes('tranhieu13102003/gpt-6-luna') || html.includes('gpt-6-luna');
     const usesAuthKey = html.includes('Ai@123');
     const passed = usesAiNoFree && usesCorrectModel && usesAuthKey;
-    recordResult('6. Cấu hình AI Gateway mới (ai-no-free, claude-fable-5, Ai@123)', passed, `ai-no-free: ${usesAiNoFree}, model: ${usesCorrectModel}, authKey: ${usesAuthKey}`);
+    recordResult('6. Cấu hình AI Gateway mới (ai-no-free, gpt-6-luna, Ai@123)', passed, `ai-no-free: ${usesAiNoFree}, model: ${usesCorrectModel}, authKey: ${usesAuthKey}`);
   } catch (e) {
     recordResult('6. Cấu hình AI Gateway mới', false, e.message);
   }
@@ -105,7 +105,7 @@ async function runTests() {
         'Authorization': 'Bearer Ai@123'
       },
       body: JSON.stringify({
-        model: 'anhyeu00m/claude-fable-5',
+        model: 'tranhieu13102003/gpt-6-luna',
         messages: [{ role: 'user', content: 'Say "READY"' }],
         max_tokens: 10
       })

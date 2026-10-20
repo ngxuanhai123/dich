@@ -1,5 +1,5 @@
 // HiHi Study - Unified Service Worker (Offline Cache & Performance)
-const CACHE_NAME = 'hihi-study-v1.1';
+const CACHE_NAME = 'hihi-study-v1.2';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -30,11 +30,17 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 1. Cache fonts, audio and JSON vocabulary files with CacheFirst strategy
+  // 1. Không cache manifest (vocab_manifest.json, vocab_manifest_indo.json) — dễ stale
+  if (url.pathname.includes('vocab_manifest')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // 2. Cache fonts, audio and static JSON vocabulary files with CacheFirst strategy
   if (
     url.hostname.includes('fonts.') ||
     url.hostname.includes('cdnjs.') ||
-    url.pathname.endsWith('.json') ||
+    (url.pathname.endsWith('.json') && !url.pathname.includes('manifest')) ||
     url.pathname.endsWith('.mp3') ||
     url.pathname.endsWith('.m4a') ||
     url.pathname.endsWith('.webp') ||
@@ -55,7 +61,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. HTML & Scripts: Network-first with Cache fallback
+  // 3. HTML & Scripts: Network-first with Cache fallback
   event.respondWith(
     fetch(event.request)
       .then((response) => {

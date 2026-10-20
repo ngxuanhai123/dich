@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com">
     <link rel="preconnect" href="https://tuvung-88e8d.firebaseapp.com">
-    <link rel="dns-prefetch" href="https://api.github.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="dns-prefetch" href="https://raw.githubusercontent.com">
 
     <meta charset="UTF-8">
@@ -14,7 +14,9 @@
     <title>HiHi Luyện Dịch</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@1.60.0"></script>
+    <!-- Font Awesome: dùng cho các biểu tượng trong bộ UI dùng chung (BXH, Admin, Dropdown) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -147,11 +149,18 @@
             60% { content: '...'; }
             80%, 100% { content: ''; }
         }
+
+        /* Nhịp đập trái tim cho icon trạng thái đang xử lý */
+        .heart-beat { animation: heartBeat 1s ease-in-out infinite; display: inline-block; }
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .heart-beat, .loading-dots::after { animation: none; }
+        }
     </style>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style id="hihi-global-nav-style">
 /* ==========================================================================
    HIHI STUDY - UNIFIED SYSTEM NAVIGATION
@@ -1654,7 +1663,7 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
     <script>
         lucide.createIcons();
         const API_URL = "https://ai-no-free.ngxuanhai123.workers.dev/v1/chat/completions";
-        const AI_MODEL = "anhyeu00m/claude-fable-5";
+        const AI_MODEL = "tranhieu13102003/gpt-6-luna";
         const AI_KEY = "Ai@123";
         
         // --- 9-LANGUAGE MAPPING CONFIGURATION ---
@@ -1698,6 +1707,16 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
         let currentSourceLang = 'English';
         let currentTargetLang = 'Vietnamese';
         let wordCache = {}; // Cache bản dịch từ
+
+        // Thoát ký tự HTML trước khi chèn nội dung động (AI, dữ liệu Firebase) vào innerHTML
+        function escapeHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
 
         // --- STATS & INIT ---
         const defaultStats = { lessons: 0, words: 0, history: [], favorites: [] };
@@ -2061,6 +2080,7 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
             // Kiểm tra Cache trước
             if (wordCache[word]) {
                 tooltipEl.innerHTML = buildTooltipContent(word, wordCache[word], sCode, tCode);
+                lucide.createIcons();
                 return;
             }
 
@@ -2070,21 +2090,27 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
                 const tName = DICH_LANGUAGES[currentTargetLang]?.name || currentTargetLang;
                 const prompt = `Translate the word "${word}" from ${sName} to ${tName}. Provide only the meaning(s) briefly in ${tName}. No explanations.`;
                 const res = await callAI(prompt);
-                const meaning = res ? res.trim() : "Lỗi dịch";
-                wordCache[word] = meaning; // Lưu vào cache
-                tooltipEl.innerHTML = buildTooltipContent(word, meaning, sCode, tCode);
+                if (res && res.trim()) {
+                    const meaning = res.trim();
+                    wordCache[word] = meaning; // Chỉ cache kết quả thành công, không cache lỗi
+                    tooltipEl.innerHTML = buildTooltipContent(word, meaning, sCode, tCode);
+                } else {
+                    // Không cache lỗi: lần bấm sau sẽ thử gọi lại
+                    tooltipEl.innerHTML = `<span class="text-rose-400">Không dịch được. Bấm lại để thử.</span>`;
+                }
             } catch (e) {
-                tooltipEl.innerHTML = "Lỗi kết nối";
+                tooltipEl.innerHTML = `<span class="text-rose-400">Lỗi kết nối. Bấm lại để thử.</span>`;
             }
+            lucide.createIcons();
         }
 
         function buildTooltipContent(word, meaning, sCode, tCode) {
             return `
                 <div class="flex flex-col gap-1 text-left">
-                    <div class="font-bold text-amber-400 text-base">${word}</div>
-                    <div class="text-white font-medium">${meaning}</div>
+                    <div class="font-bold text-amber-400 text-base">${escapeHtml(word)}</div>
+                    <div class="text-white font-medium">${escapeHtml(meaning)}</div>
                     <div class="mt-1 pt-1 border-t border-slate-700">
-                        <a href="https://translate.google.com/?sl=${sCode}&tl=${tCode}&text=${encodeURIComponent(word)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-slate-400 hover:text-sky-400 flex items-center gap-1">
+                        <a href="https://translate.google.com/?sl=${encodeURIComponent(sCode)}&tl=${encodeURIComponent(tCode)}&text=${encodeURIComponent(word)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-slate-400 hover:text-sky-400 flex items-center gap-1">
                             <i data-lucide="external-link" class="w-3 h-3"></i> Mở Google Dịch
                         </a>
                     </div>
@@ -2137,6 +2163,8 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
         }
 
         // --- CORE FUNCTIONS ---
+        // Trả về nội dung AI hoặc null khi thất bại. Lỗi được phân loại để người dùng biết
+        // nên thử lại hay kiểm tra kết nối; chi tiết kỹ thuật chỉ ghi ở console.
         async function callAI(prompt) {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 25000);
@@ -2158,14 +2186,21 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
                     signal: controller.signal,
                     credentials: 'omit'
                 });
-                clearTimeout(timeoutId);
-                if (!response.ok) throw new Error(`Server error: ${response.status}`);
+                if (!response.ok) {
+                    console.error(`AI Error: HTTP ${response.status}`, await response.text().catch(() => ''));
+                    return null;
+                }
                 const data = await response.json();
                 return data.choices?.[0]?.message?.content || data.response || data.content || data.text || "";
-            } catch (e) { 
+            } catch (e) {
+                if (e.name === 'AbortError') {
+                    console.warn('AI Error: yêu cầu quá thời gian (25s)');
+                } else {
+                    console.error('AI Error:', e);
+                }
+                return null;
+            } finally {
                 clearTimeout(timeoutId);
-                console.error("AI Error:", e); 
-                return null; 
             }
         }
 
@@ -2281,6 +2316,12 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
         window.dichPickSharedTopic = window.dichOpenVocabGenerator;
 
         // --- BUTTON ACTIONS ---
+        // Khai báo tường minh thay vì dựa vào implicit global từ id (dễ vỡ khi đổi id/HTML)
+        const btnGenerate = document.getElementById('btnGenerate');
+        const btnGrade = document.getElementById('btnGrade');
+        const BTN_GENERATE_HTML = `<i data-lucide="wand-2" class="w-3.5 h-3.5"></i> AI Tạo văn bản`;
+        const BTN_GRADE_HTML = `AI Chấm Điểm <i data-lucide="sparkles" class="w-6 h-6"></i>`;
+
         btnGenerate.onclick = async () => {
             const level = document.getElementById('levelSelect').value;
             const langName = currentSourceLang;
@@ -2289,11 +2330,19 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
                                (DICH_LANGUAGES[langName]?.name || langName);
             btnGenerate.disabled = true;
             btnGenerate.innerHTML = `<span class="animate-ping">❤️</span> Đang tạo...`;
-            const res = await callAI(`Tạo 1 câu/đoạn văn mẫu bằng ${langPrompt} (trình độ ${level}). Chỉ trả về duy nhất đoạn văn bản kết quả.`);
-            if (res) document.getElementById('sourceText').value = res.trim();
-            btnGenerate.disabled = false;
-            btnGenerate.innerHTML = `<i data-lucide="wand-2" class="w-4 h-4"></i> Tạo văn bản`;
-            lucide.createIcons();
+            try {
+                const res = await callAI(`Tạo 1 câu/đoạn văn mẫu bằng ${langPrompt} (trình độ ${level}). Chỉ trả về duy nhất đoạn văn bản kết quả.`);
+                if (res && res.trim()) {
+                    document.getElementById('sourceText').value = res.trim();
+                    showToast('Đã tạo văn bản mới!', 'success');
+                } else {
+                    showToast('Không tạo được văn bản. Vui lòng thử lại.', 'error');
+                }
+            } finally {
+                btnGenerate.disabled = false;
+                btnGenerate.innerHTML = BTN_GENERATE_HTML;
+                lucide.createIcons();
+            }
         };
 
         btnGrade.onclick = async () => {
@@ -2303,56 +2352,67 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
 
             btnGrade.disabled = true;
             btnGrade.innerHTML = `<i data-lucide="heart" class="heart-beat"></i> HiHi đang đọc...`;
+            lucide.createIcons();
 
             const sName = DICH_LANGUAGES[currentSourceLang]?.name || currentSourceLang;
             const tName = DICH_LANGUAGES[currentTargetLang]?.name || currentTargetLang;
 
             const prompt = `Chấm bài dịch từ ${sName} sang ${tName}. Gốc: ${source}. Dịch: ${trans}. Trả về JSON: {"score": 1-10, "feedback": "...", "vocab": [{"w": "từ", "m": "nghĩa"}], "quote": "..."}`;
-            const res = await callAI(prompt);
-            
-            if (res) {
-                try {
-                    const jsonMatch = res.match(/\{.*\}/s);
-                    if (!jsonMatch) throw new Error("No JSON found");
-                    const data = JSON.parse(jsonMatch[0]);
-                    
-                    const offset = 251.2 - (data.score / 10) * 251.2;
-                    document.getElementById('scoreCircle').style.strokeDashoffset = offset;
-                    document.getElementById('gradeOutput').innerText = data.score;
-                    document.getElementById('feedbackOutput').innerText = data.feedback;
-                    document.getElementById('quoteText').innerText = data.quote;
-                    
-                    const sCode = getGoogleTranslateCode(currentSourceLang);
-                    const tCode = getGoogleTranslateCode(currentTargetLang);
-                    document.getElementById('vocabList').innerHTML = data.vocab.map(v => {
-                        const dictUrl = (currentSourceLang === 'English') 
-                            ? `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(v.w)}`
-                            : `https://translate.google.com/?sl=${sCode}&tl=${tCode}&text=${encodeURIComponent(v.w)}`;
-                        return `
-                        <div class="p-4 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 flex justify-between items-center">
-                            <span class="font-bold text-rose-500">${v.w}</span>
-                            <div class="flex gap-2">
-                                <span class="text-xs opacity-70">${v.m}</span>
-                                <a href="${dictUrl}" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-500 hover:underline">Tra</a>
-                            </div>
-                        </div>
-                    `;}).join('');
+            try {
+                const res = await callAI(prompt);
+                if (!res) {
+                    showToast('Không kết nối được AI. Vui lòng thử lại.', 'error');
+                    return;
+                }
+                const jsonMatch = res.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error("No JSON found");
+                const data = JSON.parse(jsonMatch[0]);
 
-                    document.getElementById('resultArea').classList.remove('hidden');
-                    
-                    stats.lessons += 1;
-                    stats.words += source.split(/\s+/).length;
-                    stats.history.unshift({ text: source.substring(0, 20) + "...", score: data.score });
-                    if(stats.history.length > 5) stats.history.pop();
-                    localStorage.setItem('hihi_stats', JSON.stringify(stats));
-            if (window.hihiUpdateScore && data && data.score) window.hihiUpdateScore('dich', parseInt(data.score));
-                    updateUIStats();
-                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                } catch (e) { console.error(e); showToast("AI lỗi định dạng JSON.", 'error'); }
+                const score = Math.max(0, Math.min(10, Number(data.score) || 0));
+                const offset = 251.2 - (score / 10) * 251.2;
+                document.getElementById('scoreCircle').style.strokeDashoffset = offset;
+                document.getElementById('gradeOutput').innerText = score;
+                document.getElementById('feedbackOutput').innerText = data.feedback || '';
+                if (data.quote) document.getElementById('quoteText').innerText = data.quote;
+
+                const sCode = getGoogleTranslateCode(currentSourceLang);
+                const tCode = getGoogleTranslateCode(currentTargetLang);
+                const vocab = Array.isArray(data.vocab) ? data.vocab : [];
+                // escapeHtml: chặn XSS vì nội dung do AI sinh ra được chèn bằng innerHTML
+                document.getElementById('vocabList').innerHTML = vocab.map(v => {
+                    const w = escapeHtml(v.w || '');
+                    const m = escapeHtml(v.m || '');
+                    const dictUrl = (currentSourceLang === 'English')
+                        ? `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(v.w || '')}`
+                        : `https://translate.google.com/?sl=${sCode}&tl=${tCode}&text=${encodeURIComponent(v.w || '')}`;
+                    return `
+                    <div class="p-4 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                        <span class="font-bold text-rose-500">${w}</span>
+                        <div class="flex gap-2">
+                            <span class="text-xs opacity-70">${m}</span>
+                            <a href="${dictUrl}" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-500 hover:underline">Tra</a>
+                        </div>
+                    </div>
+                `;}).join('');
+
+                document.getElementById('resultArea').classList.remove('hidden');
+
+                stats.lessons += 1;
+                stats.words += source.trim().split(/\s+/).filter(Boolean).length;
+                stats.history.unshift({ text: source.substring(0, 20) + "...", score: score });
+                if(stats.history.length > 5) stats.history.pop();
+                localStorage.setItem('hihi_stats', JSON.stringify(stats));
+                if (window.hihiUpdateScore && score > 0) window.hihiUpdateScore('dich', parseInt(score, 10));
+                updateUIStats();
+                document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (e) {
+                console.error(e);
+                showToast("AI trả về dữ liệu không hợp lệ. Vui lòng thử lại.", 'error');
+            } finally {
+                btnGrade.disabled = false;
+                btnGrade.innerHTML = BTN_GRADE_HTML;
+                lucide.createIcons();
             }
-            btnGrade.disabled = false;
-            btnGrade.innerHTML = `Chấm Điểm & Phân Tích <i data-lucide="sparkles" class="w-6 h-6"></i>`;
-            lucide.createIcons();
         };
 
         function saveFavorite() {
@@ -2363,7 +2423,6 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
             stats.favorites.unshift({ source, trans, score });
             if (stats.favorites.length > 10) stats.favorites.pop();
             localStorage.setItem('hihi_stats', JSON.stringify(stats));
-            if (window.hihiUpdateScore && data && data.score) window.hihiUpdateScore('dich', parseInt(data.score));
             updateUIStats();
             showToast('Đã lưu vào bài yêu thích!', 'success');
         }
@@ -2386,15 +2445,20 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
             document.getElementById('rankProgress').style.width = Math.min(progress, 100) + "%";
             document.getElementById('rankSubtext').innerText = stats.lessons >= 50 ? "Bạn đã đạt đỉnh cao!" : `Cần thêm ${next - stats.lessons} bài để thăng cấp`;
             document.getElementById('historyList').innerHTML = (stats.history || []).map(h => `
-                <div class="p-3 bg-white/30 dark:bg-slate-800/30 rounded-xl flex justify-between text-xs border border-white/20"><span>${h.text}</span><span class="font-bold text-rose-500">${h.score}đ</span></div>
+                <div class="p-3 bg-white/30 dark:bg-slate-800/30 rounded-xl flex justify-between text-xs border border-white/20"><span>${escapeHtml(h.text)}</span><span class="font-bold text-rose-500">${escapeHtml(h.score)}đ</span></div>
             `).join('');
             document.getElementById('favoritesList').innerHTML = (stats.favorites || []).map(f => `
-                <div class="p-3 bg-white/30 dark:bg-slate-800/30 rounded-xl text-xs border border-white/20"><p><strong>Nguồn:</strong> ${f.source.substring(0, 20)}...</p><p><strong>Dịch:</strong> ${f.trans.substring(0, 20)}...</p><span class="font-bold text-rose-500">${f.score}đ</span></div>
+                <div class="p-3 bg-white/30 dark:bg-slate-800/30 rounded-xl text-xs border border-white/20"><p><strong>Nguồn:</strong> ${escapeHtml(String(f.source || '').substring(0, 20))}...</p><p><strong>Dịch:</strong> ${escapeHtml(String(f.trans || '').substring(0, 20))}...</p><span class="font-bold text-rose-500">${escapeHtml(f.score)}đ</span></div>
             `).join('');
         }
 
         function clearAllData() {
-            if(confirm("Xóa toàn bộ lịch sử?")) { localStorage.clear(); location.reload(); }
+            // Chỉ xoá dữ liệu học tập của app này, giữ nguyên cấu hình (ngôn ngữ, giọng đọc, theme)
+            // để người dùng không phải thiết lập lại từ đầu.
+            if (confirm("Xóa toàn bộ lịch sử học tập và bài yêu thích? (Cấu hình ngôn ngữ và giao diện được giữ lại)")) {
+                localStorage.removeItem('hihi_stats');
+                location.reload();
+            }
         }
     </script>
 
@@ -3205,10 +3269,19 @@ window.hihiParseBulkInput = function() {
     const l = line.trim();
     if (!l) continue;
     let parts = [];
+    // Tab là định dạng chuẩn (dán từ Excel/Sheets). Với dấu ":" và "-", chỉ tách ở
+    // lần xuất hiện ĐẦU TIÊN để nghĩa/ví dụ chứa các ký tự này không bị cắt vụn.
     if (l.includes("\t")) parts = l.split("\t");
-    else if (l.includes(" - ")) parts = l.split(" - ");
-    else if (l.includes(":")) parts = l.split(":");
-    else if (l.includes(",")) parts = l.split(",");
+    else if (l.includes(" - ")) {
+      const i = l.indexOf(" - ");
+      parts = [l.slice(0, i), l.slice(i + 3)];
+    } else if (l.includes(":")) {
+      const i = l.indexOf(":");
+      parts = [l.slice(0, i), l.slice(i + 1)];
+    } else if (l.includes(",")) {
+      const i = l.indexOf(",");
+      parts = [l.slice(0, i), l.slice(i + 1)];
+    }
 
     if (parts.length >= 2) {
       const w = parts[0].trim();
@@ -3250,10 +3323,10 @@ function hihiRenderWordTable() {
   tbody.innerHTML = window.hihiStagedWords.map((item, idx) => `
     <tr>
       <td style="color:#94a3b8;font-size:0.75rem;width:30px;">${idx + 1}</td>
-      <td style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);">${item.word || item.english}</td>
-      <td>${item.meaning || item.vietnamese}</td>
-      <td style="color:#38bdf8;font-size:0.82rem;">${item.phonetic || item.ipa || "-"}</td>
-      <td style="font-size:0.8rem;color:#94a3b8;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.example || "-"}</td>
+      <td style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);">${escapeHtml(item.word || item.english)}</td>
+      <td>${escapeHtml(item.meaning || item.vietnamese)}</td>
+      <td style="color:#38bdf8;font-size:0.82rem;">${escapeHtml(item.phonetic || item.ipa || "-")}</td>
+      <td style="font-size:0.8rem;color:#94a3b8;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(item.example || "-")}</td>
       <td style="text-align:right;width:40px;">
         <button class="hihi-btn-secondary" style="padding:2px 8px;font-size:0.75rem;color:#ef4444;" onclick="hihiRemoveWord(${idx})"><i class="fas fa-times"></i></button>
       </td>

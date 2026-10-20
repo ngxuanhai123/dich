@@ -20,7 +20,9 @@ export default {
       'https://ngxuanhai123.github.io',
       'http://localhost:3000',
       'http://localhost:5500',
-      'http://127.0.0.1:5500'
+      'http://127.0.0.1:5500',
+      'http://localhost:8080',
+      'http://127.0.0.1:8080'
     ];
     const origin = request.headers.get('Origin');
     const isAllowed = ALLOWED_ORIGINS.includes(origin);
@@ -52,17 +54,43 @@ export default {
       });
     }
 
-    const prompt = body && typeof body.prompt === 'string' ? body.prompt.trim() : '';
-    if (!prompt || prompt.length > 800) {
-      return new Response(JSON.stringify({ error: 'Prompt không hợp lệ hoặc vượt quá 800 ký tự' }), {
+    // Hỗ trợ cả 2 định dạng: {prompt} (legacy) và {model, messages} (OpenAI-compatible)
+    let messages = body.messages;
+    if (!messages && body.prompt && typeof body.prompt === 'string') {
+      // Legacy format: chuyển prompt thành messages
+      messages = [{ role: 'user', content: body.prompt.trim() }];
+    }
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return new Response(JSON.stringify({ error: 'messages phải là mảng chứa ít nhất 1 message' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Validate messages structure
+    for (const msg of messages) {
+      if (!msg.role || !msg.content || typeof msg.content !== 'string') {
+        return new Response(JSON.stringify({ error: 'Mỗi message phải có role và content (string)' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // Validate tổng độ dài nội dung (tránh abuse)
+    const totalLength = messages.reduce((sum, m) => sum + m.content.length, 0);
+    if (totalLength > 4000) {
+      return new Response(JSON.stringify({ error: 'Nội dung messages vượt quá 4000 ký tự' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
     // 3. TẠO CACHE KEY TỐI ƯU DỰA TRÊN NỘI DUNG
-    const model = env.AI_MODEL || 'gpt-4o-mini';
-    const hash = await sha256(`${model}:${prompt.toLowerCase()}`);
+    const model = body.model || env.AI_MODEL || 'gpt-4o-mini';
+    const cachePayload = JSON.stringify({ model, messages });
+    const hash = await sha256(cachePayload);
     const cacheKeyUrl = `https://hihi-dich-cache.internal/v1/translate/${hash}`;
     const cacheKeyReq = new Request(cacheKeyUrl, { method: 'GET' });
 
@@ -108,7 +136,7 @@ export default {
       });
     }
 
-    // 4. Nếu Cache MISS -> Gọi AI với Timeout 8s
+    // 4. Nếu Cache MISS -> Gọi AI với Timeout 30s (tăng từ 8s)
     const apiKey = env.OPENAI_API_KEY || env.AI_API_KEY;
     if (!apiKey) {
       return new Response(JSON.stringify({ error: 'Chưa cấu hình API Key trên Cloudflare Worker (OPENAI_API_KEY)' }), {
@@ -118,7 +146,7 @@ export default {
     }
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 30000);
 
     try {
       const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -129,18 +157,9 @@ export default {
         },
         body: JSON.stringify({
           model: model,
-          messages: [
-            {
-              role: 'system',
-              content: 'Bạn là chuyên gia ngôn ngữ và trợ lý chấm điểm dịch thuật chính xác, hỗ trợ học tập.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 800
+          messages: messages,
+          temperature: body.temperature || 0.7,
+          max_tokens: body.max_tokens || 800
         }),
         signal: controller.signal
       });
@@ -190,7 +209,7 @@ export default {
     } catch (err) {
       clearTimeout(timeout);
       return new Response(JSON.stringify({
-        error: err.name === 'AbortError' ? 'AI xử lý quá thời gian (Timeout 8s). Vui lòng thử lại!' : err.message
+        error: err.name === 'AbortError' ? 'AI xử lý quá thời gian (Timeout 30s). Vui lòng thử lại!' : err.message
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
