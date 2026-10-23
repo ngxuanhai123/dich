@@ -46,25 +46,22 @@
         body {
             background-color: #f8fafc;
             color: #0f172a;
-            transition: background-color 0.2s ease, color 0.2s ease;
         }
         .dark body, html.dark body, body.dark-mode {
-            background-color: #090d16;
+            background-color: #0a0f1a;
             color: #f8fafc;
         }
         .glass {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         .dark .glass {
-            background: #131d2e;
-            border: 1px solid #1e293b;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            background: #1a2332;
+            border: 1px solid #2d3748;
         }
         .zen-mode #sidebar { display: none; }
         .zen-mode main { max-width: 900px; margin: 0 auto; }
-        
+
         select option { background: white; color: #0f172a; }
         .dark select option { background: #1e293b; color: #f8fafc; }
 
@@ -75,7 +72,6 @@
             position: relative;
             cursor: pointer;
             border-bottom: 2px dashed rgba(59, 130, 246, 0.4);
-            transition: all 0.2s;
             display: inline-block;
             margin: 0 2px;
             padding: 0 3px;
@@ -95,7 +91,7 @@
             color: #60a5fa;
             border-bottom-color: #60a5fa;
         }
-        
+
         /* Tooltip style */
         .word-tooltip {
             visibility: hidden;
@@ -105,17 +101,15 @@
             transform: translateX(-50%);
             background-color: #0f172a;
             color: #f8fafc;
-            padding: 8px 12px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border-radius: 8px;
             font-size: 13px;
             white-space: normal;
             min-width: 150px;
             max-width: 250px;
             text-align: center;
             z-index: 1000;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
             opacity: 0;
-            transition: opacity 0.2s, transform 0.2s;
             pointer-events: none;
             border: 1px solid rgba(255,255,255,0.1);
         }
@@ -123,7 +117,6 @@
         .interactive-word.active .word-tooltip {
             visibility: visible;
             opacity: 1;
-            transform: translateX(-50%) translateY(0);
             pointer-events: auto;
         }
 
@@ -279,14 +272,13 @@ body {
   width: 26px;
   height: 26px;
   border-radius: 7px;
-  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  background: #3b82f6;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-weight: 800;
   font-size: 13px;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
   flex-shrink: 0;
 }
 
@@ -294,9 +286,7 @@ body {
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: -0.3px;
-  background: linear-gradient(135deg, #38bdf8, #06b6d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--hihi-nav-text-hover);
 }
 
 .hihi-nav-sep {
@@ -456,13 +446,13 @@ body {
   color: #ffffff;
 }
 
-.hihi-icon-home { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-.hihi-icon-tuvung { background: linear-gradient(135deg, #10b981, #059669); }
-.hihi-icon-chinhta { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.hihi-icon-dich { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
-.hihi-icon-note { background: linear-gradient(135deg, #ec4899, #be185d); }
-.hihi-icon-bamhuyet { background: linear-gradient(135deg, #06b6d4, #0e7490); }
-.hihi-icon-rosa { background: linear-gradient(135deg, #d97706, #b45309); }
+.hihi-icon-home { background: #3b82f6; }
+.hihi-icon-tuvung { background: #10b981; }
+.hihi-icon-chinhta { background: #f59e0b; }
+.hihi-icon-dich { background: #8b5cf6; }
+.hihi-icon-note { background: #ec4899; }
+.hihi-icon-bamhuyet { background: #06b6d4; }
+.hihi-icon-rosa { background: #d97706; }
 
 .hihi-grid-info {
   display: flex;
@@ -566,7 +556,7 @@ body {
   font-weight: 800;
   padding: 1px 6px;
   border-radius: 4px;
-  background: linear-gradient(135deg, #d97706, #b45309);
+  background: #d97706;
   color: #fff;
   letter-spacing: 0.5px;
 }
@@ -658,7 +648,7 @@ body {
   color: #0f172a;
 }
 .hihi-dropdown-btn.admin-btn {
-  background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(180, 83, 9, 0.15));
+  background: rgba(217, 119, 6, 0.15);
   border-color: rgba(217, 119, 6, 0.4);
   color: #fbbf24;
 }
@@ -988,7 +978,7 @@ body {
 .hihi-btn-primary {
   padding: 8px 16px;
   border-radius: 9px;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: #f59e0b;
   border: none;
   color: #fff;
   font-weight: 700;
@@ -1388,28 +1378,28 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
           </div>
       </a>
       <a href="https://ngxuanhai123.github.io/dich-ios/" class="hihi-grid-card">
-          <div class="hihi-grid-icon" style="background: linear-gradient(135deg, #0284c7, #0369a1);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg></div>
+          <div class="hihi-grid-icon" style="background: #0284c7;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg></div>
           <div class="hihi-grid-info">
             <div class="hihi-grid-name">Dịch iOS</div>
             <div class="hihi-grid-desc">Dịch màn hình AI</div>
           </div>
       </a>
       <a href="https://ngxuanhai123.github.io/indo/" class="hihi-grid-card">
-          <div class="hihi-grid-icon" style="background: linear-gradient(135deg, #ef4444, #b91c1c);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg></div>
+          <div class="hihi-grid-icon" style="background: #ef4444;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg></div>
           <div class="hihi-grid-info">
             <div class="hihi-grid-name">Tiếng Indo</div>
             <div class="hihi-grid-desc">Học tiếng Indonesia</div>
           </div>
       </a>
       <a href="https://ngxuanhai123.github.io/nhachocbai/" class="hihi-grid-card">
-          <div class="hihi-grid-icon" style="background: linear-gradient(135deg, #84cc16, #4d7c0f);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+          <div class="hihi-grid-icon" style="background: #84cc16;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
           <div class="hihi-grid-info">
             <div class="hihi-grid-name">Nhắc Học Bài</div>
             <div class="hihi-grid-desc">Nhắc nhở hàng ngày</div>
           </div>
       </a>
       <a href="https://ngxuanhai123.github.io/HiHi-Analytics/" class="hihi-grid-card">
-          <div class="hihi-grid-icon" style="background: linear-gradient(135deg, #6366f1, #4338ca);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+          <div class="hihi-grid-icon" style="background: #6366f1;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
           <div class="hihi-grid-info">
             <div class="hihi-grid-name">HiHi Analytics</div>
             <div class="hihi-grid-desc">Đo lường & thống kê</div>
@@ -2904,7 +2894,7 @@ function hihiPopulateMonthOptions() {
   }
 
   select.innerHTML = options.map(opt => `
-    <option value="${opt.key}" ${opt.key === hihiCurrentLbMonth ? 'selected' : ''}>${opt.label}</option>
+    <option value="${escapeHtml(opt.key)}" ${opt.key === hihiCurrentLbMonth ? 'selected' : ''}>${opt.label}</option>
   `).join("");
 }
 
@@ -2932,7 +2922,7 @@ async function hihiLoadLeaderboardData(forceRefresh = false) {
     hihiRenderFilteredLeaderboard();
   } catch(e) {
     console.warn("Lỗi tải BXH:", e);
-    if (loadEl) loadEl.innerHTML = `<span style="color:#ef4444;">Lỗi tải dữ liệu: ${e.message}</span>`;
+    if (loadEl) loadEl.innerHTML = `<span style="color:#ef4444;">Lỗi tải dữ liệu: ${escapeHtml(e.message)}</span>`;
   }
 }
 
@@ -3017,10 +3007,10 @@ function hihiRenderFilteredLeaderboard() {
         <td class="hihi-lb-rank rank-${rank}">${badge}</td>
         <td>
           <div class="hihi-lb-user-cell">
-            <img src="${u.photoURL || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%2394a3b8\'%3E%3Cpath d=\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z\'/%3E%3C/svg%3E'}" class="hihi-lb-avatar" alt="Avatar">
+            <img src="${u.photoURL ? escapeHtml(u.photoURL) : 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%2394a3b8\'%3E%3Cpath d=\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z\'/%3E%3C/svg%3E'}" class="hihi-lb-avatar" alt="Avatar">
             <div>
-              <div style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);font-size:0.85rem;">${u.displayName}</div>
-              <div style="font-size:0.7rem;color:#94a3b8;">${hihiCurrentLbPeriod !== 'all' ? 'Tổng tích lũy: ' + u.total_score + 'đ' : (u.email || '')}</div>
+              <div style="font-weight:600;color:var(--hihi-card-text,#f1f5f9);font-size:0.85rem;">${escapeHtml(u.displayName)}</div>
+              <div style="font-size:0.7rem;color:#94a3b8;">${hihiCurrentLbPeriod !== 'all' ? 'Tổng tích lũy: ' + u.total_score + 'đ' : escapeHtml(u.email || '')}</div>
             </div>
           </div>
         </td>
@@ -3428,8 +3418,8 @@ async function hihiLoadCustomTopicsList() {
       div.innerHTML = `
         <div>
           <div style="font-weight:700;color:var(--hihi-card-text,#f1f5f9);">
-            <span style="margin-right:6px;">${flag}</span>${t.name}
-            <span style="display:inline-block;margin-left:6px;font-size:0.7rem;padding:1px 6px;border-radius:4px;background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:600;">${langLabel}</span>
+            <span style="margin-right:6px;">${escapeHtml(flag)}</span>${escapeHtml(t.name)}
+            <span style="display:inline-block;margin-left:6px;font-size:0.7rem;padding:1px 6px;border-radius:4px;background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:600;">${escapeHtml(langLabel)}</span>
           </div>
           <div style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">${t.words?.length || 0} từ vựng</div>
         </div>
@@ -3441,7 +3431,7 @@ async function hihiLoadCustomTopicsList() {
       container.appendChild(div);
     });
   } catch(e) {
-    container.innerHTML = `<span style="color:#ef4444;">Lỗi tải: ${e.message}</span>`;
+    container.innerHTML = `<span style="color:#ef4444;">Lỗi tải: ${escapeHtml(e.message)}</span>`;
   }
 }
 
@@ -3571,7 +3561,7 @@ window.hihiFetchAllTopics = async function() {
         const encodedFile = encodeURIComponent(t.file);
         topics.push({
           id: 'indo_' + t.file,
-          name: `🇮🇩 ${t.name} (${t.wordCount || 0} từ)`,
+          name: `🇮🇩 ${escapeHtml(t.name)} (${t.wordCount || 0} từ)`,
           file: t.file,
           download_url: `https://raw.githubusercontent.com/ngxuanhai123/indo/main/${encodedFile}`,
           fallback_url: `https://ngxuanhai123.github.io/indo/${encodedFile}`,
@@ -3685,10 +3675,10 @@ function hihiRenderTopicCards(list) {
     return `
     <div onclick="hihiSelectTopic('${t.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.1)';this.style.borderColor='#38bdf8';" onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.borderColor='rgba(255,255,255,0.08)';">
       <div>
-        <div style="font-weight:600;font-size:0.88rem;color:var(--hihi-card-text,#f1f5f9);">${t.name}</div>
+        <div style="font-weight:600;font-size:0.88rem;color:var(--hihi-card-text,#f1f5f9);">${escapeHtml(t.name)}</div>
         <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;">
-          <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:600;margin-right:6px;">${flag} ${langName}</span>
-          <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.08);color:#cbd5e1;font-weight:500;margin-right:6px;">${t.category || "Chủ đề"}</span>
+          <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:600;margin-right:6px;">${escapeHtml(flag)} ${escapeHtml(langName)}</span>
+          <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.08);color:#cbd5e1;font-weight:500;margin-right:6px;">${escapeHtml(t.category || "Chủ đề")}</span>
           ${t.isCustom ? "⭐ Tùy chỉnh" : "📚 Kho GitHub"}
         </div>
       </div>
