@@ -1,8 +1,9 @@
 ﻿// HiHi Study - Unified Service Worker (Offline Cache & Performance)
-const CACHE_NAME = 'hihi-dich-v1.3';
+const CACHE_NAME = 'hihi-dich-v1.4';
 const CACHE_PREFIX = 'hihi-dich-';
 const STATIC_ASSETS = [
   './',
+  './hihi-monitor.js',
   './index.html',
   'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
