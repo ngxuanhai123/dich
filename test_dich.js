@@ -1,4 +1,4 @@
-﻿/**
+/**
  * TEST SUITE: HiHi Ultimate (dich)
  * Kiá»ƒm thá»­ toÃ n diá»‡n chá»©c nÄƒng & báº£o máº­t
  */
@@ -90,7 +90,7 @@ async function runTests() {
     const usesCorrectModel = html.includes('tranhieu13102003/gpt-6-luna') || html.includes('gpt-6-luna');
     const usesAuthKey = html.includes('Ai@123');
     const passed = usesAiFree;
-    recordResult('6. Cáº¥u hÃ¬nh AI Gateway má»›i (ai-no-free, gpt-6-luna, Ai@123)', passed, `ai-free: ${usesAiFree}`);
+    recordResult('6. Cấu hình AI Gateway mới (ai-free)', passed, `ai-free: ${usesAiFree}`);
   } catch (e) {
     recordResult('6. Cáº¥u hÃ¬nh AI Gateway má»›i', false, e.message);
   }
