@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" class="light">
 <head>
     <!-- HIHI STUDY PERFORMANCE PRECONNECT -->
@@ -2159,23 +2159,47 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 25000);
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${AI_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: AI_MODEL,
-                        messages: [
-                            { role: 'system', content: 'Bạn là chuyên gia ngôn ngữ và trợ lý dịch thuật chính xác, hỗ trợ học tập.' },
-                            { role: 'user', content: prompt }
-                        ],
-                        temperature: 0.7
-                    }),
-                    signal: controller.signal,
-                    credentials: 'omit'
-                });
+                let response = null;
+                try {
+                    response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${AI_KEY}`
+                        },
+                        body: JSON.stringify({
+                            model: AI_MODEL,
+                            messages: [
+                                { role: 'system', content: 'Bạn là chuyên gia ngôn ngữ và trợ lý dịch thuật chính xác, hỗ trợ học tập.' },
+                                { role: 'user', content: prompt }
+                            ],
+                            temperature: 0.7
+                        }),
+                        signal: controller.signal,
+                        credentials: 'omit'
+                    });
+                } catch (netErr) {
+                    console.warn('Primary AI gateway network error, trying fallback:', netErr);
+                }
+
+                if (!response || !response.ok) {
+                    console.warn(`Primary AI Gateway status: ${response ? response.status : 'offline'}, switching to backup gateway...`);
+                    const fallbackUrl = "https://ai-free.ngxuanhai123.workers.dev/v1/chat/completions";
+                    response = await fetch(fallbackUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            messages: [
+                                { role: 'system', content: 'Bạn là chuyên gia ngôn ngữ và trợ lý dịch thuật chính xác, hỗ trợ học tập.' },
+                                { role: 'user', content: prompt }
+                            ],
+                            temperature: 0.7
+                        }),
+                        signal: controller.signal,
+                        credentials: 'omit'
+                    });
+                }
+
                 if (!response.ok) {
                     console.error(`AI Error: HTTP ${response.status}`, await response.text().catch(() => ''));
                     return null;
