@@ -1,5 +1,6 @@
-// HiHi Study - Unified Service Worker (Offline Cache & Performance)
-const CACHE_NAME = 'hihi-study-v1.2';
+﻿// HiHi Study - Unified Service Worker (Offline Cache & Performance)
+const CACHE_NAME = 'hihi-dich-v1.3';
+const CACHE_PREFIX = 'hihi-dich-';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -20,7 +21,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.filter((key) => (key.startsWith(CACHE_PREFIX) || key.startsWith('hihi-study-')) && key !== CACHE_NAME).map((key) => caches.delete(key))
       );
     })
   );
