@@ -454,13 +454,47 @@ body {
   color: #ffffff;
 }
 
-.hihi-icon-home { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-.hihi-icon-tuvung { background: linear-gradient(135deg, #10b981, #059669); }
-.hihi-icon-chinhta { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.hihi-icon-dich { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
-.hihi-icon-note { background: linear-gradient(135deg, #ec4899, #be185d); }
-.hihi-icon-bamhuyet { background: linear-gradient(135deg, #06b6d4, #0e7490); }
-.hihi-icon-rosa { background: linear-gradient(135deg, #d97706, #b45309); }
+.hihi-grid-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--hihi-card-hover) !important;
+  color: var(--hihi-nav-active-text) !important;
+  border: 1px solid var(--hihi-card-border) !important;
+  transition: all 0.2s ease;
+}
+
+.hihi-grid-card:hover .hihi-grid-icon {
+  background: var(--hihi-nav-active-border) !important;
+  color: #ffffff !important;
+}
+
+.hihi-icon-home,
+.hihi-icon-tuvung,
+.hihi-icon-chinhta,
+.hihi-icon-dich,
+.hihi-icon-note,
+.hihi-icon-bamhuyet,
+.hihi-icon-rosa {
+  background: var(--hihi-card-hover) !important;
+  color: var(--hihi-nav-active-text) !important;
+  border: 1px solid var(--hihi-card-border) !important;
+}
+
+.hihi-grid-card:hover .hihi-icon-home,
+.hihi-grid-card:hover .hihi-icon-tuvung,
+.hihi-grid-card:hover .hihi-icon-chinhta,
+.hihi-grid-card:hover .hihi-icon-dich,
+.hihi-grid-card:hover .hihi-icon-note,
+.hihi-grid-card:hover .hihi-icon-bamhuyet,
+.hihi-grid-card:hover .hihi-icon-rosa {
+  background: var(--hihi-nav-active-border) !important;
+  color: #ffffff !important;
+}
 
 .hihi-grid-info {
   display: flex;
@@ -1387,7 +1421,7 @@ window.hihiAuthLogout = window.hihiAuthLogout || function() {
           </div>
       </a>
       <a href="https://ngxuanhai123.github.io/#userscripts" class="hihi-grid-card">
-          <div class="hihi-grid-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706); color:#fff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></div>
+          <div class="hihi-grid-icon" ><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></div>
           <div class="hihi-grid-info">
             <div class="hihi-grid-name">Kho Userscripts</div>
             <div class="hihi-grid-desc">Tiện ích Tampermonkey</div>
