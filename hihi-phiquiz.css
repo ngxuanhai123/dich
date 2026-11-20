@@ -69,8 +69,6 @@
 /* Base reset */
 *, *::before, *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 html {
@@ -535,6 +533,8 @@ html:not(.fonts-loaded) .msr {
 }
 
 .phiquiz-card {
+  opacity: 1 !important;
+
   border: 2.5px solid var(--color-ink);
   border-radius: 24px;
   background-color: var(--color-surface);
@@ -547,7 +547,7 @@ html:not(.fonts-loaded) .msr {
   color: var(--color-ink);
   will-change: transform;
   transition: transform .14s, box-shadow .14s, background-color .2s;
-  animation: rise .32s cubic-bezier(.22, 1, .36, 1) both;
+  
 }
 .phiquiz-card:hover {
   box-shadow: var(--shadow-hard-lg) !important;
@@ -863,19 +863,7 @@ html:not(.fonts-loaded) .msr {
 }
 
 /* --- 8. MÀN HÌNH CHỜ (SPLASH SCREEN CHUẨN PHIQUIZ) --- */
-.phiquiz-splash {
-  position: fixed;
-  inset: 0;
-  background-color: var(--color-canvas);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  z-index: 999999;
-  pointer-events: none;
-  animation: phiquizSplashDismiss 0.7s cubic-bezier(.16, 1, .3, 1) 0.3s forwards;
-  transition: opacity 0.35s ease;
-}
+.phiquiz-splash { display: none !important; }
 @keyframes phiquizSplashDismiss {
   0%   { opacity: 1; visibility: visible; }
   85%  { opacity: 0.2; visibility: visible; }
@@ -1502,3 +1490,31 @@ html:not(.fonts-loaded) .msr {
 .badge-pink   { background-color: var(--color-pink, #ec4899) !important; color: #ffffff !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
 .badge-red    { background-color: var(--color-red, #ef4444) !important; color: #ffffff !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
 .badge-indigo { background-color: var(--color-indigo, #6366f1) !important; color: #ffffff !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
+
+/* ==========================================================================
+   LAYOUT OFFSETS CHO SIDEBAR (80px) & BOTTOM NAV (56px)
+   ========================================================================== */
+/* phiquiz-layout-offsets */
+@media (min-width: 1024px) {
+  body {
+    padding-left: 80px !important;
+  }
+  .phiquiz-sidebar {
+    display: flex !important;
+  }
+  .phiquiz-bottom-nav {
+    display: none !important;
+  }
+}
+@media (max-width: 1023px) {
+  body {
+    padding-left: 0 !important;
+    padding-bottom: 72px !important;
+  }
+  .phiquiz-sidebar {
+    display: none !important;
+  }
+  .phiquiz-bottom-nav {
+    display: flex !important;
+  }
+}
