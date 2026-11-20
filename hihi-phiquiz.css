@@ -1,0 +1,1504 @@
+/* ==========================================================================
+   PHIQUIZ NEO-BRUTALISM DESIGN SYSTEM
+   Phong cách PhiQuiz Neo-Brutalism sắc nét, viền mực đặc 2.5px, bóng đổ cứng
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+/* --- 1. TOKEN MÀU & THIẾT KẾ (COPY NGUYÊN BẢN THEO ĐẶC TẢ) --- */
+:root {
+  --font-sans: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --color-canvas:   #f8f6f1;   /* nền trang (kem ấm) */
+  --color-surface:  #ffffff;   /* thẻ, sidebar, modal */
+  --color-surface2: #efeee8;   /* nền phụ: header modal, badge, track progress, ô search placeholder */
+  --color-surface3: #e4e2dd;
+  --color-surface4: #d8d6cf;
+  --color-ink:      #1e1e1e;   /* chữ chính + MỌI viền + bóng đổ */
+  --color-muted:    #40484f;   /* chữ phụ */
+  --color-faint:    #707880;   /* placeholder, nhãn nhỏ */
+
+  --color-yellow:      #ffc72e;  /* nút chính, mục đang chọn */
+  --color-yellow-deep: #feb700;  /* sao đánh giá, dải màu */
+  --color-cyan:        #38b6ff;  /* màu chủ đạo: progress, nút phụ */
+  --color-cyan-deep:   #2199e6;  /* link, icon nhấn, focus */
+  --color-orange:      #ff6b4a;
+  --color-green:       #22c55e;
+  --color-green-deep:  #16a34a;
+
+  --radius-xl: .75rem;   /* 12px */
+  --radius-2xl: 1rem;    /* 16px */
+  --radius-3xl: 1.5rem;  /* 24px */
+  --radius-full: 9999px;
+
+  /* Bóng đổ CỨNG: không blur, lệch xuống phải */
+  --shadow-hard:    4px 4px 0 0 #1e1e1e;
+  --shadow-hard-sm: 2px 2px 0 0 #1e1e1e;
+  --shadow-hard-lg: 6px 6px 0 0 #1e1e1e;
+  --shadow-hard-xl: 8px 8px 0 0 #1e1e1e;
+  --shadow-hard-xs: 1.5px 1.5px 0 0 #1e1e1e;
+
+  color-scheme: light dark;
+}
+
+:root[data-theme="dark"], html[data-theme="dark"], body.dark-mode {
+  color-scheme: dark;
+  --color-canvas:   #15191d;
+  --color-surface:  #20262b;
+  --color-surface2: #2b3339;
+  --color-surface3: #3b454d;
+  --color-surface4: #4a555d;
+  --color-ink:      #f5f7f6;
+  --color-muted:    #c6cdd1;
+  --color-faint:    #98a4aa;
+  --color-yellow:      #ffd04a;
+  --color-yellow-deep: #e7ad13;
+  --color-cyan:        #5cc7ff;
+  --color-cyan-deep:   #2ba8eb;
+  --color-orange:      #ff7a5c;
+  --color-green:       #4ade80;
+
+  --shadow-hard:    4px 4px 0 0 var(--color-ink);
+  --shadow-hard-sm: 2px 2px 0 0 var(--color-ink);
+  --shadow-hard-lg: 6px 6px 0 0 var(--color-ink);
+  --shadow-hard-xl: 8px 8px 0 0 var(--color-ink);
+  --shadow-hard-xs: 1.5px 1.5px 0 0 var(--color-ink);
+}
+
+/* Base reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-sans);
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* --- MATERIAL SYMBOLS OUTLINED (ĐẶC TẢ MỤC 0) --- */
+.msr {
+  display: inline-block;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  vertical-align: middle;
+}
+.msr-filled {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+/* Tránh hiện chữ ligature thô trước khi font tải xong */
+html:not(.fonts-loaded) .msr {
+  visibility: hidden !important;
+}
+
+/* --- 2. QUY TẮC NỀN TẢNG & CLASS TIỆN ÍCH DÙNG CHUNG --- */
+.stroke-outer {
+  border: 2.5px solid var(--color-ink);
+  border-radius: 24px;
+}
+
+/* Hiệu ứng "nhấc lên rồi ấn xuống" cho thẻ và nút */
+.pressable {
+  will-change: transform;
+  transition: transform .14s, box-shadow .14s, background-color .2s, color .2s;
+  cursor: pointer;
+  user-select: none;
+}
+.pressable:hover {
+  box-shadow: var(--shadow-hard-lg) !important;
+  transform: translate(-2px, -2px);
+}
+.pressable:active {
+  box-shadow: 0 0 0 0 var(--color-ink) !important;
+  transform: translate(2px, 2px);
+}
+
+.pressable-hover-only {
+  transition: transform .14s, box-shadow .14s;
+}
+.pressable-hover-only:hover {
+  box-shadow: var(--shadow-hard-lg) !important;
+  transform: translate(-2px, -2px);
+}
+.pressable-hover-only:active {
+  box-shadow: 0 0 0 0 var(--color-ink) !important;
+  transform: translate(1px, 1px);
+}
+
+/* Thanh tiến độ chuẩn PhiQuiz */
+.bar {
+  position: relative;
+  border: 2.5px solid var(--color-ink);
+  background: var(--color-surface2);
+  overflow: hidden;
+  border-radius: 9999px;
+  height: 16px;
+}
+.bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 2.5px solid var(--color-ink);
+  border-radius: 9999px;
+  transition: width .7s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* Animations */
+.screen-enter { animation: pop-in .3s cubic-bezier(.22, 1, .36, 1) both; }
+.item-enter { animation: rise .32s cubic-bezier(.22, 1, .36, 1) both; }
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: translateY(14px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes rise {
+  0% { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+
+/* Thanh cuộn mảnh */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #0000000d; border-radius: 9999px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 9999px; }
+.custom-scrollbar { scrollbar-width: thin; scrollbar-color: #1e1e1e #0000000d; }
+
+/* Tailwind Token Utility Classes */
+.bg-canvas   { background-color: var(--color-canvas) !important; }
+.bg-surface  { background-color: var(--color-surface) !important; }
+.bg-surface2 { background-color: var(--color-surface2) !important; }
+.bg-surface3 { background-color: var(--color-surface3) !important; }
+
+.text-ink    { color: var(--color-ink) !important; }
+.text-muted  { color: var(--color-muted) !important; }
+.text-faint  { color: var(--color-faint) !important; }
+
+.border-ink  { border-color: var(--color-ink) !important; }
+
+.bg-yellow      { background-color: var(--color-yellow) !important; }
+.bg-yellow-deep { background-color: var(--color-yellow-deep) !important; }
+.bg-cyan        { background-color: var(--color-cyan) !important; }
+.bg-cyan-deep   { background-color: var(--color-cyan-deep) !important; }
+.bg-orange      { background-color: var(--color-orange) !important; }
+.bg-green       { background-color: var(--color-green) !important; }
+
+.text-cyan-deep   { color: var(--color-cyan-deep) !important; }
+.text-yellow-deep { color: var(--color-yellow-deep) !important; }
+
+.shadow-hard    { box-shadow: var(--shadow-hard) !important; }
+.shadow-hard-sm { box-shadow: var(--shadow-hard-sm) !important; }
+.shadow-hard-lg { box-shadow: var(--shadow-hard-lg) !important; }
+.shadow-hard-xl { box-shadow: var(--shadow-hard-xl) !important; }
+.shadow-hard-xs { box-shadow: var(--shadow-hard-xs) !important; }
+
+/* --- 3. NÚT CHUẨN PHIQUIZ (BUTTON) --- */
+.btn-phiquiz {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  user-select: none;
+  border: 2.5px solid var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  box-shadow: var(--shadow-hard);
+  text-decoration: none;
+  cursor: pointer;
+  line-height: 1.2;
+  transition: transform .14s, box-shadow .14s, background-color .2s, color .2s;
+}
+.btn-phiquiz:hover {
+  box-shadow: var(--shadow-hard-lg);
+  transform: translate(-2px, -2px);
+}
+.btn-phiquiz:active {
+  box-shadow: 0 0 0 0 var(--color-ink);
+  transform: translate(2px, 2px);
+}
+
+.btn-phiquiz.sm {
+  padding: 8px 16px;
+  font-size: 0.8125rem;
+  border-radius: var(--radius-xl);
+}
+.btn-phiquiz.md {
+  padding: 12px 24px;
+  font-size: 0.875rem;
+  border-radius: var(--radius-full);
+}
+.btn-phiquiz.lg {
+  padding: 14px 32px;
+  font-size: 1rem;
+  border-radius: var(--radius-full);
+}
+
+.btn-phiquiz.tone-yellow {
+  background-color: var(--color-yellow);
+  color: #1e1e1e;
+}
+.btn-phiquiz.tone-cyan {
+  background-color: var(--color-cyan);
+  color: #1e1e1e;
+}
+.btn-phiquiz.tone-surface {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.btn-phiquiz:disabled,
+.btn-phiquiz[disabled] {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transform: none !important;
+  box-shadow: var(--shadow-hard-sm) !important;
+}
+
+/* --- 4. BỐ CỤC: SIDEBAR DESKTOP (≥1024px) & MOBILE BOTTOM NAV (<1024px) --- */
+.phiquiz-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  background-color: var(--color-surface);
+  border-right: 2.5px solid var(--color-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  z-index: 1000;
+}
+.phiquiz-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.phiquiz-sidebar-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  color: var(--color-muted);
+  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 140ms ease;
+}
+.phiquiz-sidebar-btn:hover {
+  border: 2px solid var(--color-ink);
+  background-color: rgba(56, 182, 255, 0.25);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-hard-xs);
+  transform: translate(-1px, -1px);
+}
+.phiquiz-sidebar-btn.active {
+  background-color: var(--color-yellow);
+  border: 2px solid var(--color-ink);
+  box-shadow: var(--shadow-hard-sm);
+  color: #1e1e1e;
+}
+.phiquiz-sidebar-footer {
+  width: 100%;
+  border-top: 2.5px solid var(--color-ink);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.phiquiz-sidebar-btn.login-btn {
+  background-color: var(--color-yellow);
+  border: 2px solid var(--color-ink);
+  box-shadow: var(--shadow-hard-sm);
+  color: #1e1e1e;
+}
+.phiquiz-sidebar-btn.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hard);
+}
+
+/* Mobile Bottom Navigation (<1024px) */
+.phiquiz-bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 2.5px solid var(--color-ink);
+  display: none;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+:root[data-theme="dark"] .phiquiz-bottom-nav {
+  background-color: rgba(32, 38, 43, 0.95);
+}
+.phiquiz-bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--color-muted);
+  text-decoration: none;
+  height: 44px;
+  width: 4.75rem;
+  border-radius: var(--radius-xl);
+  font-size: 9px;
+  font-weight: 800;
+  border: 2px solid transparent;
+  transition: all 140ms ease;
+  background: transparent;
+  cursor: pointer;
+}
+.phiquiz-bottom-nav-item .msr {
+  font-size: 20px;
+}
+.phiquiz-bottom-nav-item.active {
+  background-color: var(--color-yellow);
+  border: 2px solid var(--color-ink);
+  box-shadow: var(--shadow-hard-sm);
+  color: #1e1e1e;
+}
+
+@media (max-width: 1023px) {
+  .phiquiz-sidebar { display: none !important; }
+  .phiquiz-bottom-nav { display: flex !important; }
+  .phiquiz-main-container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 20px)) !important;
+  }
+}
+
+/* --- 5. NỘI DUNG CHÍNH (MAIN CONTAINER) --- */
+.phiquiz-main-container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px 24px 56px 104px; /* Chừa 80px sidebar + 24px lề */
+}
+
+/* Hero Section */
+.phiquiz-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 36px;
+}
+@media (min-width: 1024px) {
+  .phiquiz-hero {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: 40px;
+  }
+}
+.phiquiz-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.phiquiz-hero-badge-icon {
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-yellow);
+  border: 2px solid var(--color-ink);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e1e1e;
+}
+.phiquiz-hero h1 {
+  font-size: clamp(1.85rem, 3.5vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.12;
+  color: var(--color-ink);
+  margin-bottom: 12px;
+  text-wrap: balance;
+}
+.phiquiz-hero p {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-muted);
+  line-height: 1.625;
+  max-width: 36rem;
+  margin-bottom: 20px;
+}
+.phiquiz-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Search Box Chuẩn PhiQuiz */
+.phiquiz-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.phiquiz-search-wrap .msr {
+  position: absolute;
+  left: 14px;
+  color: var(--color-faint);
+  pointer-events: none;
+  font-size: 20px;
+}
+.phiquiz-search-input {
+  width: 100%;
+  height: 48px;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  border: 2.5px solid var(--color-ink);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-hard-sm);
+  padding: 0 16px 0 44px;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 700;
+  outline: none;
+  transition: box-shadow .14s ease, transform .14s ease;
+}
+.phiquiz-search-input::placeholder {
+  color: var(--color-faint);
+  font-weight: 500;
+}
+.phiquiz-search-input:focus {
+  box-shadow: var(--shadow-hard);
+  transform: translate(-1px, -1px);
+}
+
+/* --- 6. THẺ MÔN HỌC / THẺ DỰ ÁN (CARD CHUẨN PHIQUIZ) --- */
+.phiquiz-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+@media (min-width: 640px) {
+  .phiquiz-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1280px) {
+  .phiquiz-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.phiquiz-card {
+  border: 2.5px solid var(--color-ink);
+  border-radius: 24px;
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-hard);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--color-ink);
+  will-change: transform;
+  transition: transform .14s, box-shadow .14s, background-color .2s;
+  animation: rise .32s cubic-bezier(.22, 1, .36, 1) both;
+}
+.phiquiz-card:hover {
+  box-shadow: var(--shadow-hard-lg) !important;
+  transform: translate(-2px, -2px);
+}
+.phiquiz-card:active {
+  box-shadow: 0 0 0 0 var(--color-ink) !important;
+  transform: translate(2px, 2px);
+}
+
+/* Dải màu trên thẻ cao 16px */
+.phiquiz-card-strip {
+  height: 16px;
+  width: 100%;
+  border-bottom: 2.5px solid var(--color-ink);
+}
+.phiquiz-strip-cyan        { background-color: var(--color-cyan); }
+.phiquiz-strip-orange      { background-color: var(--color-orange); }
+.phiquiz-strip-yellow-deep { background-color: var(--color-yellow-deep); }
+.phiquiz-strip-green       { background-color: var(--color-green); }
+
+/* Thân thẻ p-6 */
+.phiquiz-card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 16px;
+}
+
+.phiquiz-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.phiquiz-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.28;
+  color: var(--color-ink);
+}
+.phiquiz-card-desc {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-muted);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.phiquiz-card-icon-box {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: var(--radius-2xl);
+  border: 2.5px solid var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e1e1e;
+}
+
+/* Hàng meta: câu hỏi, sao, badge môn */
+.phiquiz-card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+.phiquiz-card-meta .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.phiquiz-stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.phiquiz-stars .star-filled { color: var(--color-yellow-deep); }
+.phiquiz-stars .star-empty  { color: var(--color-faint); opacity: 0.5; }
+
+.phiquiz-badge-code {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background-color: var(--color-surface2);
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  color: var(--color-muted);
+}
+
+/* Tiến độ học */
+.phiquiz-progress-wrap {
+  margin-top: auto;
+}
+.phiquiz-progress-labels {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.phiquiz-progress-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-faint);
+}
+.phiquiz-progress-pct {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--color-ink);
+}
+
+/* Nút Bắt đầu học → full width */
+.phiquiz-card-btn {
+  width: 100%;
+  padding: 12px 20px;
+  background-color: var(--color-surface);
+  border: 2.5px solid var(--color-ink);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-hard);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  transition: all 140ms ease;
+}
+.phiquiz-card:hover .phiquiz-card-btn {
+  background-color: var(--color-yellow);
+  color: #1e1e1e;
+}
+
+/* --- 7. MODAL THÔNG BÁO CHUẨN PHIQUIZ --- */
+.phiquiz-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.phiquiz-modal-overlay.active {
+  display: flex;
+}
+.phiquiz-modal-box {
+  width: 100%;
+  max-width: 520px;
+  background-color: var(--color-surface);
+  border: 2.5px solid var(--color-ink);
+  border-radius: var(--radius-3xl);
+  box-shadow: var(--shadow-hard-xl);
+  overflow: hidden;
+  animation: phiquizModalIn 200ms cubic-bezier(.16, 1, .3, 1) forwards;
+}
+@keyframes phiquizModalIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.phiquiz-modal-header {
+  background-color: var(--color-surface2);
+  border-bottom: 2px solid var(--color-ink);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.phiquiz-modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.phiquiz-modal-icon {
+  width: 52px;
+  height: 52px;
+  background-color: var(--color-yellow);
+  border: 2.5px solid var(--color-ink);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-hard-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e1e1e;
+}
+.phiquiz-modal-icon .msr {
+  font-size: 28px;
+}
+.phiquiz-modal-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: rgba(255, 199, 46, 0.3);
+  border: 1.5px solid var(--color-ink);
+  border-radius: var(--radius-full);
+  padding: 2px 10px;
+  color: #1e1e1e;
+  margin-bottom: 4px;
+}
+.phiquiz-modal-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-ink);
+}
+.phiquiz-modal-close {
+  width: 32px;
+  height: 32px;
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-hard-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-ink);
+  transition: all 140ms ease;
+}
+.phiquiz-modal-close:hover {
+  background-color: rgba(255, 107, 74, 0.2);
+  transform: translate(-1px, -1px);
+}
+
+.phiquiz-modal-body {
+  padding: 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--color-ink);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.phiquiz-modal-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.phiquiz-check-circle {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  background-color: var(--color-cyan);
+  border: 1.5px solid var(--color-ink);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e1e1e;
+  font-size: 11px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+.phiquiz-modal-link {
+  color: var(--color-cyan-deep);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.phiquiz-modal-update {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(30, 30, 30, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-faint);
+}
+
+.phiquiz-modal-footer {
+  background-color: var(--color-surface2);
+  border-top: 2px solid var(--color-ink);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.phiquiz-checkbox-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-muted);
+  cursor: pointer;
+  user-select: none;
+}
+.phiquiz-checkbox-wrap input {
+  accent-color: var(--color-cyan);
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-ink);
+}
+
+/* --- 8. MÀN HÌNH CHỜ (SPLASH SCREEN CHUẨN PHIQUIZ) --- */
+.phiquiz-splash {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-canvas);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 999999;
+  pointer-events: none;
+  animation: phiquizSplashDismiss 0.7s cubic-bezier(.16, 1, .3, 1) 0.3s forwards;
+  transition: opacity 0.35s ease;
+}
+@keyframes phiquizSplashDismiss {
+  0%   { opacity: 1; visibility: visible; }
+  85%  { opacity: 0.2; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; display: none; }
+}
+
+.phiquiz-splash-card {
+  width: 100%;
+  max-width: 360px;
+  background-color: var(--color-surface);
+  border: 2.5px solid var(--color-ink);
+  border-radius: 28px;
+  box-shadow: 6px 6px 0 0 var(--color-ink);
+  padding: 2rem 2.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: phiquizSplashIn 0.3s cubic-bezier(.16, 1, .3, 1) forwards;
+}
+@keyframes phiquizSplashIn {
+  from { opacity: 0; transform: translateY(12px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.phiquiz-splash-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+.phiquiz-splash-sub {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+.phiquiz-splash-progress {
+  width: 100%;
+  height: 10px;
+  border: 2px solid var(--color-ink);
+  background-color: var(--color-surface2);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 8px;
+  position: relative;
+}
+.phiquiz-splash-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  background-color: var(--color-cyan);
+  border-radius: var(--radius-full);
+  animation: phiquizIndeterminate 1.3s infinite ease-in-out;
+}
+@keyframes phiquizIndeterminate {
+  0%   { left: -45%; width: 30%; }
+  50%  { width: 55%; }
+  100% { left: 100%; width: 30%; }
+}
+
+/* ==========================================================================
+   TƯƠNG THÍCH TOÀN BỘ ỨNG DỤNG TRONG HỆ SINH THÁI (MODALS, BẢNG, NÚT, FORM)
+   ========================================================================== */
+
+/* 1. Modal hệ thống chung */
+.hihi-modal-overlay,
+.hihi-suite-modal-backdrop {
+  background-color: rgba(30, 30, 30, 0.65) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+.hihi-modal-box,
+.hihi-suite-modal {
+  background-color: var(--color-surface) !important;
+  border: 2.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-3xl) !important;
+  box-shadow: var(--shadow-hard-xl) !important;
+  color: var(--color-ink) !important;
+  overflow: hidden !important;
+}
+
+.hihi-modal-header,
+.hihi-suite-modal-header {
+  background-color: var(--color-surface2) !important;
+  border-bottom: 2.5px solid var(--color-ink) !important;
+  color: var(--color-ink) !important;
+  padding: 16px 20px !important;
+}
+
+.hihi-modal-title,
+.hihi-suite-modal-title {
+  font-family: var(--font-sans) !important;
+  font-weight: 800 !important;
+  font-size: 1.15rem !important;
+  color: var(--color-ink) !important;
+}
+
+.hihi-modal-close,
+.hihi-suite-modal-close {
+  width: 32px !important;
+  height: 32px !important;
+  background-color: var(--color-surface) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  color: var(--color-ink) !important;
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+}
+.hihi-modal-close:hover,
+.hihi-suite-modal-close:hover {
+  background-color: rgba(255, 107, 74, 0.2) !important;
+  transform: translate(-1px, -1px) !important;
+}
+
+.hihi-grid-card {
+  background-color: var(--color-surface) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-2xl) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  padding: 12px 14px !important;
+  color: var(--color-ink) !important;
+  transition: all 140ms ease !important;
+}
+.hihi-grid-card:hover {
+  background-color: rgba(56, 182, 255, 0.15) !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: var(--shadow-hard-sm) !important;
+}
+.hihi-grid-card.current {
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+}
+.hihi-grid-icon {
+  width: 38px !important;
+  height: 38px !important;
+  background-color: var(--color-surface2) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--color-ink) !important;
+}
+
+/* User Dropdown */
+.hihi-user-dropdown {
+  background-color: var(--color-surface) !important;
+  border: 2.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-2xl) !important;
+  box-shadow: var(--shadow-hard) !important;
+  color: var(--color-ink) !important;
+  padding: 16px !important;
+}
+.hihi-dropdown-header {
+  border-bottom: 2px solid var(--color-ink) !important;
+  padding-bottom: 12px !important;
+}
+.hihi-dropdown-scores {
+  background-color: var(--color-surface2) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-2xl) !important;
+  padding: 10px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+  margin: 12px 0 !important;
+  text-align: center !important;
+}
+.score-val {
+  font-weight: 800 !important;
+  font-size: 1.1rem !important;
+  color: var(--color-ink) !important;
+}
+.score-lbl {
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  color: var(--color-muted) !important;
+}
+.hihi-dropdown-btn {
+  width: 100% !important;
+  padding: 10px 14px !important;
+  margin-top: 6px !important;
+  border-radius: var(--radius-xl) !important;
+  border: 2px solid var(--color-ink) !important;
+  background-color: var(--color-surface) !important;
+  color: var(--color-ink) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  font-weight: 800 !important;
+  font-size: 0.8125rem !important;
+  cursor: pointer !important;
+  transition: all 140ms ease !important;
+}
+.hihi-dropdown-btn:hover {
+  background-color: var(--color-yellow) !important;
+  transform: translate(-1px, -1px) !important;
+  box-shadow: var(--shadow-hard-sm) !important;
+}
+
+/* Header Pills */
+.hihi-auth-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 16px !important;
+  border-radius: var(--radius-full) !important;
+  border: 2px solid var(--color-ink) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+  font-weight: 800 !important;
+  font-size: 0.8125rem !important;
+  cursor: pointer !important;
+}
+.hihi-user-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 4px 14px 4px 4px !important;
+  border-radius: var(--radius-full) !important;
+  border: 2px solid var(--color-ink) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  background-color: var(--color-surface) !important;
+  color: var(--color-ink) !important;
+  cursor: pointer !important;
+  font-weight: 800 !important;
+  font-size: 0.8125rem !important;
+}
+.hihi-user-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  border: 2px solid var(--color-ink) !important;
+  object-fit: cover !important;
+}
+.hihi-admin-tag {
+  background-color: var(--color-orange) !important;
+  color: #1e1e1e !important;
+  border: 1.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-full) !important;
+  padding: 1px 6px !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+}
+
+/* Leaderboard Filter & Tabs */
+.hihi-lb-filter-row {
+  background-color: var(--color-surface2) !important;
+  border-bottom: 2px solid var(--color-ink) !important;
+  padding: 12px 16px !important;
+}
+.hihi-lb-period-btn,
+.hihi-lb-tab,
+.hihi-topic-lang-pill {
+  padding: 6px 14px !important;
+  border-radius: var(--radius-full) !important;
+  border: 2px solid var(--color-ink) !important;
+  background-color: var(--color-surface) !important;
+  color: var(--color-ink) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  transition: all 140ms ease !important;
+}
+.hihi-lb-period-btn:hover,
+.hihi-lb-tab:hover,
+.hihi-topic-lang-pill:hover {
+  transform: translate(-1px, -1px) !important;
+  box-shadow: var(--shadow-hard-sm) !important;
+}
+.hihi-lb-period-btn.active,
+.hihi-lb-tab.active,
+.hihi-topic-lang-pill.active {
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+}
+.hihi-lb-table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+.hihi-lb-table th {
+  background-color: var(--color-surface2) !important;
+  border-bottom: 2px solid var(--color-ink) !important;
+  padding: 10px 14px !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  color: var(--color-ink) !important;
+}
+.hihi-lb-table td {
+  padding: 10px 14px !important;
+  border-bottom: 1px solid var(--color-ink) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  color: var(--color-ink) !important;
+}
+
+/* 2. Overrides cho Vocabulary (Tuvung) */
+.glass-panel {
+  background-color: var(--color-surface) !important;
+  border: 2.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-3xl) !important;
+  box-shadow: var(--shadow-hard) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: var(--color-ink) !important;
+}
+.stat-card {
+  background-color: var(--color-surface) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-2xl) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  color: var(--color-ink) !important;
+  transition: all 140ms ease !important;
+}
+.stat-card:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: var(--shadow-hard-sm) !important;
+}
+.mode-btn {
+  background-color: var(--color-surface) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-2xl) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  color: var(--color-ink) !important;
+  font-weight: 800 !important;
+  transition: all 140ms ease !important;
+}
+.mode-btn:hover {
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: var(--shadow-hard-sm) !important;
+}
+.input-glass {
+  background-color: var(--color-surface) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-2xl) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  color: var(--color-ink) !important;
+  font-weight: 700 !important;
+}
+.btn-primary {
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+  border: 2.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-full) !important;
+  box-shadow: var(--shadow-hard-sm) !important;
+  font-weight: 800 !important;
+  text-shadow: none !important;
+  transition: all 140ms ease !important;
+}
+.btn-primary:hover {
+  box-shadow: var(--shadow-hard) !important;
+  transform: translate(-2px, -2px) !important;
+}
+.card__face {
+  background-color: var(--color-surface) !important;
+  border: 2.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-3xl) !important;
+  box-shadow: var(--shadow-hard-xl) !important;
+  color: var(--color-ink) !important;
+}
+.card__face--front { background-color: var(--color-surface) !important; }
+.card__face--back  { background-color: var(--color-surface2) !important; }
+.topic-item, .topic-card {
+  background-color: var(--color-surface) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-2xl) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  color: var(--color-ink) !important;
+}
+.tab-item, .lb-tab, .repo-btn {
+  background-color: var(--color-surface) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-full) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  color: var(--color-ink) !important;
+  font-weight: 800 !important;
+}
+.tab-item.active, .lb-tab.active, .repo-btn.active {
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+}
+
+/* 3. Overrides cho Spelling (Chinhta) */
+.glass-card {
+  background-color: var(--color-surface) !important;
+  border: 2.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-3xl) !important;
+  box-shadow: var(--shadow-hard) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: var(--color-ink) !important;
+}
+.icon-btn {
+  background-color: var(--color-surface) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  color: var(--color-ink) !important;
+}
+.icon-btn:hover {
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+}
+.tab {
+  background-color: var(--color-surface) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-full) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  color: var(--color-ink) !important;
+  font-weight: 800 !important;
+}
+.tab.active {
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+}
+#userInput, .chinhta-input, select, input[type="text"] {
+  background-color: var(--color-surface) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-2xl) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  color: var(--color-ink) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 700 !important;
+}
+#progressFill {
+  background-color: var(--color-cyan) !important;
+  border-radius: var(--radius-full) !important;
+}
+.btn-action, #startBtn, #resetBtn, #nextBtn, #replayBtn {
+  border: 2.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-full) !important;
+  box-shadow: var(--shadow-hard-sm) !important;
+  font-weight: 800 !important;
+}
+#startBtn {
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+}
+#nextBtn, #replayBtn {
+  background-color: var(--color-cyan) !important;
+  color: #1e1e1e !important;
+}
+
+/* 4. Overrides cho Translation (Dich) */
+.dich-card, .trans-box, .box-glass {
+  background-color: var(--color-surface) !important;
+  border: 2.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-3xl) !important;
+  box-shadow: var(--shadow-hard) !important;
+  backdrop-filter: none !important;
+  color: var(--color-ink) !important;
+}
+.dich-btn, .trans-btn {
+  border: 2.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-full) !important;
+  box-shadow: var(--shadow-hard-sm) !important;
+  font-weight: 800 !important;
+}
+
+/* 5. Overrides cho Notes (Note) */
+.note-card, .editor-wrap, .note-panel {
+  background-color: var(--color-surface) !important;
+  border: 2.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-3xl) !important;
+  box-shadow: var(--shadow-hard) !important;
+  backdrop-filter: none !important;
+  color: var(--color-ink) !important;
+}
+
+/* 6. Overrides cho Acupressure (Bamhuyet) */
+.point-card, .meridian-box, .huyet-panel {
+  background-color: var(--color-surface) !important;
+  border: 2.5px solid var(--color-ink) !important;
+  border-radius: var(--radius-3xl) !important;
+  box-shadow: var(--shadow-hard) !important;
+  backdrop-filter: none !important;
+  color: var(--color-ink) !important;
+}
+
+/* Tôn trọng prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   APP-SPECIFIC BRAND COLOR IDENTITY (PHIQUIZ SYSTEM)
+   Mỗi ứng dụng có một dải màu & bản sắc riêng biệt, dễ dàng nhận diện tức thì
+   ========================================================================== */
+
+/* 1. Dải màu nhận diện trên đỉnh cửa sổ trình duyệt (6px) */
+.phiquiz-app-top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background-color: var(--app-accent, var(--color-cyan));
+  border-bottom: 2px solid var(--color-ink);
+  z-index: 99999;
+}
+
+/* 2. Thẻ nhận diện thương hiệu đầu trang (App Brand Banner) */
+.phiquiz-brand-banner {
+  width: 100%;
+  max-width: 1240px;
+  margin: 16px auto 24px auto;
+  border: 2.5px solid var(--color-ink);
+  border-radius: var(--radius-3xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-hard);
+  overflow: hidden;
+  animation: rise .32s cubic-bezier(.22, 1, .36, 1) both;
+}
+.phiquiz-brand-banner-strip {
+  height: 14px;
+  width: 100%;
+  background-color: var(--app-accent, var(--color-cyan));
+  border-bottom: 2.5px solid var(--color-ink);
+}
+.phiquiz-brand-banner-body {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.phiquiz-brand-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.phiquiz-brand-banner-icon {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: var(--radius-2xl);
+  background-color: var(--app-accent, var(--color-cyan));
+  border: 2.5px solid var(--color-ink);
+  box-shadow: var(--shadow-hard-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e1e1e;
+}
+.phiquiz-brand-banner-icon .msr {
+  font-size: 30px;
+}
+.phiquiz-brand-banner-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-ink);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.phiquiz-brand-banner-sub {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin-top: 3px;
+}
+.phiquiz-brand-banner-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-ink);
+  background-color: var(--app-accent, var(--color-cyan));
+  color: #1e1e1e;
+  font-weight: 800;
+  font-size: 0.75rem;
+  box-shadow: var(--shadow-hard-xs);
+}
+
+/* Nút đang chọn trên sidebar & bottom nav thừa hưởng màu đặc trưng của app */
+.phiquiz-sidebar-btn.active {
+  background-color: var(--app-accent, var(--color-yellow)) !important;
+  color: #1e1e1e !important;
+}
+.phiquiz-bottom-nav-item.active {
+  background-color: var(--app-accent, var(--color-yellow)) !important;
+  color: #1e1e1e !important;
+}
+
+
+/* ==========================================================================
+   APP BRAND IDENTITY STRIPS & BADGES (PHIQUIZ EXTENSIONS)
+   ========================================================================== */
+.phiquiz-strip-purple { background-color: var(--color-purple, #a855f7) !important; }
+.phiquiz-strip-pink   { background-color: var(--color-pink, #ec4899) !important; }
+.phiquiz-strip-red    { background-color: var(--color-red, #ef4444) !important; }
+.phiquiz-strip-indigo { background-color: var(--color-indigo, #6366f1) !important; }
+
+.bg-purple  { background-color: var(--color-purple, #a855f7) !important; }
+.bg-pink    { background-color: var(--color-pink, #ec4899) !important; }
+.bg-orange  { background-color: var(--color-orange, #ff6b4a) !important; }
+.bg-yellow  { background-color: var(--color-yellow, #ffc72e) !important; }
+.bg-green   { background-color: var(--color-green, #22c55e) !important; }
+.bg-red     { background-color: var(--color-red, #ef4444) !important; }
+.bg-indigo  { background-color: var(--color-indigo, #6366f1) !important; }
+
+.badge-cyan   { background-color: var(--color-cyan, #38b6ff) !important; color: #1e1e1e !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
+.badge-orange { background-color: var(--color-orange, #ff6b4a) !important; color: #1e1e1e !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
+.badge-yellow { background-color: var(--color-yellow, #ffc72e) !important; color: #1e1e1e !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
+.badge-green  { background-color: var(--color-green, #22c55e) !important; color: #1e1e1e !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
+.badge-purple { background-color: var(--color-purple, #a855f7) !important; color: #ffffff !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
+.badge-pink   { background-color: var(--color-pink, #ec4899) !important; color: #ffffff !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
+.badge-red    { background-color: var(--color-red, #ef4444) !important; color: #ffffff !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
+.badge-indigo { background-color: var(--color-indigo, #6366f1) !important; color: #ffffff !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
