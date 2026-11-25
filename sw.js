@@ -1,19 +1,24 @@
 ﻿// HiHi Study - Unified Service Worker (Offline Cache & Performance)
-const CACHE_NAME = 'hihi-dich-v1.5';
+const CACHE_NAME = 'hihi-dich-v2.1-neobrutalism';
 const CACHE_PREFIX = 'hihi-dich-';
 const STATIC_ASSETS = [
   './',
   './hihi-leaderboard.js',
   './hihi-monitor.js',
   './index.html',
-  'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+  './hihi-phiquiz.css'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch(() => {});
+      return Promise.all(
+        STATIC_ASSETS.map((asset) =>
+          fetch(new Request(asset, { cache: 'no-cache' }))
+            .then((res) => (res && res.ok ? cache.put(asset, res) : null))
+            .catch(() => null)
+        )
+      );
     })
   );
   self.skipWaiting();
@@ -31,6 +36,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
 
   // 1. Không cache manifest (vocab_manifest.json, vocab_manifest_indo.json) — dễ stale
@@ -64,9 +70,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. HTML & Scripts: Network-first with Cache fallback
+  // 3. HTML, CSS & Scripts: Network-first (revalidate HTTP cache) with Cache fallback
+  const networkReq = url.origin === self.location.origin
+    ? new Request(event.request.url, { cache: 'no-cache' })
+    : event.request;
   event.respondWith(
-    fetch(event.request)
+    fetch(networkReq)
       .then((response) => {
         if (response && response.status === 200) {
           const clone = response.clone();
