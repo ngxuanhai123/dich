@@ -1,5 +1,5 @@
 ﻿// HiHi Study - Unified Service Worker (Offline Cache & Performance)
-const CACHE_NAME = 'hihi-dich-v2.1-neobrutalism';
+const CACHE_NAME = 'hihi-dich-v2.2-neobrutalism';
 const CACHE_PREFIX = 'hihi-dich-';
 const STATIC_ASSETS = [
   './',

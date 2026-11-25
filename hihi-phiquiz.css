@@ -122,12 +122,12 @@ html:not(.fonts-loaded) .msr {
 
 /* Hiệu ứng "nhấc lên rồi ấn xuống" cho thẻ và nút */
 .pressable {
-  will-change: transform;
   transition: transform .14s, box-shadow .14s, background-color .2s, color .2s;
   cursor: pointer;
   user-select: none;
 }
 .pressable:hover {
+  will-change: transform;
   box-shadow: var(--shadow-hard-lg) !important;
   transform: translate(-2px, -2px);
 }
@@ -537,7 +537,7 @@ body.dark-mode .phiquiz-bottom-nav {
 }
 
 .phiquiz-card {
-  opacity: 1 !important;
+  opacity: 1;
 
   border: 2.5px solid var(--color-ink);
   border-radius: 24px;
@@ -549,11 +549,11 @@ body.dark-mode .phiquiz-bottom-nav {
   cursor: pointer;
   text-decoration: none;
   color: var(--color-ink);
-  will-change: transform;
   transition: transform .14s, box-shadow .14s, background-color .2s;
   
 }
 .phiquiz-card:hover {
+  will-change: transform;
   box-shadow: var(--shadow-hard-lg) !important;
   transform: translate(-2px, -2px);
 }
@@ -1662,10 +1662,24 @@ select option {
   #hihi-global-nav > div {
     padding: 8px 12px !important;
     gap: 8px !important;
+    flex-wrap: wrap;
   }
   #hihi-global-nav > div > div:first-child {
     gap: 6px !important;
     min-width: 0;
+    flex-shrink: 0;
+  }
+  #hihi-global-nav .btn-phiquiz {
+    flex-shrink: 0;
+  }
+  #hihi-global-nav .phiquiz-search-wrap {
+    order: 3;
+    flex: 1 0 100% !important;
+    max-width: 100% !important;
+  }
+  #hihi-global-nav .phiquiz-search-input {
+    height: 40px !important;
+    font-size: 0.8125rem !important;
   }
   #hihi-global-nav > div > div:first-child > a > span {
     display: none !important;
