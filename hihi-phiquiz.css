@@ -42,7 +42,7 @@
   color-scheme: light dark;
 }
 
-:root[data-theme="dark"], html[data-theme="dark"], body.dark-mode {
+:root[data-theme="dark"], html[data-theme="dark"], html.dark, body.dark-mode {
   color-scheme: dark;
   --color-canvas:   #15191d;
   --color-surface:  #20262b;
@@ -84,6 +84,7 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   min-height: 100vh;
+  padding-top: 0 !important;
   overflow-x: hidden;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -371,8 +372,11 @@ html:not(.fonts-loaded) .msr {
   z-index: 1000;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-:root[data-theme="dark"] .phiquiz-bottom-nav {
-  background-color: rgba(32, 38, 43, 0.95);
+:root[data-theme="dark"] .phiquiz-bottom-nav,
+html[data-theme="dark"] .phiquiz-bottom-nav,
+html.dark .phiquiz-bottom-nav,
+body.dark-mode .phiquiz-bottom-nav {
+  background-color: rgba(32, 38, 43, 0.96);
 }
 .phiquiz-bottom-nav-item {
   display: flex;
@@ -932,13 +936,21 @@ html:not(.fonts-loaded) .msr {
 /* 1. Modal hệ thống chung */
 .hihi-modal-overlay,
 .hihi-suite-modal-backdrop {
+  background: rgba(30, 30, 30, 0.65) !important;
   background-color: rgba(30, 30, 30, 0.65) !important;
   backdrop-filter: blur(4px) !important;
   -webkit-backdrop-filter: blur(4px) !important;
 }
+.hihi-modal-overlay.active,
+.hihi-suite-modal-backdrop.active {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
 
 .hihi-modal-box,
 .hihi-suite-modal {
+  background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
   border: 2.5px solid var(--color-ink) !important;
   border-radius: var(--radius-3xl) !important;
@@ -949,6 +961,7 @@ html:not(.fonts-loaded) .msr {
 
 .hihi-modal-header,
 .hihi-suite-modal-header {
+  background: var(--color-surface2) !important;
   background-color: var(--color-surface2) !important;
   border-bottom: 2.5px solid var(--color-ink) !important;
   color: var(--color-ink) !important;
@@ -967,6 +980,7 @@ html:not(.fonts-loaded) .msr {
 .hihi-suite-modal-close {
   width: 32px !important;
   height: 32px !important;
+  background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
   border: 2px solid var(--color-ink) !important;
   border-radius: var(--radius-xl) !important;
@@ -978,11 +992,13 @@ html:not(.fonts-loaded) .msr {
 }
 .hihi-modal-close:hover,
 .hihi-suite-modal-close:hover {
+  background: rgba(255, 107, 74, 0.2) !important;
   background-color: rgba(255, 107, 74, 0.2) !important;
   transform: translate(-1px, -1px) !important;
 }
 
 .hihi-grid-card {
+  background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
   border: 2px solid var(--color-ink) !important;
   border-radius: var(--radius-2xl) !important;
@@ -992,17 +1008,39 @@ html:not(.fonts-loaded) .msr {
   transition: all 140ms ease !important;
 }
 .hihi-grid-card:hover {
-  background-color: rgba(56, 182, 255, 0.15) !important;
+  background: var(--color-surface2) !important;
+  background-color: var(--color-surface2) !important;
   transform: translate(-2px, -2px) !important;
   box-shadow: var(--shadow-hard-sm) !important;
 }
+.hihi-grid-name {
+  color: var(--color-ink) !important;
+  font-weight: 800 !important;
+}
+.hihi-grid-desc {
+  color: var(--color-muted) !important;
+  font-weight: 600 !important;
+}
 .hihi-grid-card.current {
+  background: var(--color-yellow) !important;
   background-color: var(--color-yellow) !important;
   color: #1e1e1e !important;
+}
+.hihi-grid-card.current .hihi-grid-name,
+.hihi-grid-card.current .hihi-grid-desc {
+  color: #1e1e1e !important;
+}
+.hihi-grid-card.current::after {
+  background-color: #1e1e1e !important;
+  color: #ffc72e !important;
+  padding: 2px 8px !important;
+  border-radius: 9999px !important;
+  font-weight: 800 !important;
 }
 .hihi-grid-icon {
   width: 38px !important;
   height: 38px !important;
+  background: var(--color-surface2) !important;
   background-color: var(--color-surface2) !important;
   border: 2px solid var(--color-ink) !important;
   border-radius: 10px !important;
@@ -1011,9 +1049,16 @@ html:not(.fonts-loaded) .msr {
   justify-content: center !important;
   color: var(--color-ink) !important;
 }
+.hihi-grid-card.current .hihi-grid-icon {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #1e1e1e !important;
+  border-color: #1e1e1e !important;
+}
 
 /* User Dropdown */
 .hihi-user-dropdown {
+  background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
   border: 2.5px solid var(--color-ink) !important;
   border-radius: var(--radius-2xl) !important;
@@ -1021,11 +1066,18 @@ html:not(.fonts-loaded) .msr {
   color: var(--color-ink) !important;
   padding: 16px !important;
 }
+#hihiDropName {
+  color: var(--color-ink) !important;
+}
+#hihiDropEmail {
+  color: var(--color-muted) !important;
+}
 .hihi-dropdown-header {
   border-bottom: 2px solid var(--color-ink) !important;
   padding-bottom: 12px !important;
 }
 .hihi-dropdown-scores {
+  background: var(--color-surface2) !important;
   background-color: var(--color-surface2) !important;
   border: 2px solid var(--color-ink) !important;
   border-radius: var(--radius-2xl) !important;
@@ -1052,7 +1104,8 @@ html:not(.fonts-loaded) .msr {
   margin-top: 6px !important;
   border-radius: var(--radius-xl) !important;
   border: 2px solid var(--color-ink) !important;
-  background-color: var(--color-surface) !important;
+  background: var(--color-surface2) !important;
+  background-color: var(--color-surface2) !important;
   color: var(--color-ink) !important;
   box-shadow: var(--shadow-hard-xs) !important;
   font-weight: 800 !important;
@@ -1061,39 +1114,97 @@ html:not(.fonts-loaded) .msr {
   transition: all 140ms ease !important;
 }
 .hihi-dropdown-btn:hover {
+  background: var(--color-yellow) !important;
   background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
   transform: translate(-1px, -1px) !important;
   box-shadow: var(--shadow-hard-sm) !important;
 }
+.hihi-dropdown-btn.logout-btn {
+  color: #dc2626 !important;
+}
+:root[data-theme="dark"] .hihi-dropdown-btn.logout-btn,
+html[data-theme="dark"] .hihi-dropdown-btn.logout-btn,
+html.dark .hihi-dropdown-btn.logout-btn {
+  color: #f87171 !important;
+}
+.hihi-dropdown-btn.logout-btn:hover {
+  background: #dc2626 !important;
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+.hihi-btn-secondary {
+  background: var(--color-surface2) !important;
+  background-color: var(--color-surface2) !important;
+  color: var(--color-ink) !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  font-weight: 800 !important;
+}
+.hihi-btn-secondary:hover {
+  background: var(--color-yellow) !important;
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+}
+.hihi-btn-primary {
+  background: var(--color-yellow) !important;
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+  border: 2px solid var(--color-ink) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-hard-xs) !important;
+  font-weight: 800 !important;
+}
+.hihi-admin-tab-btn {
+  background: var(--color-surface2) !important;
+  color: var(--color-ink) !important;
+  border: 2px solid var(--color-ink) !important;
+  font-weight: 800 !important;
+}
+.hihi-admin-tab-btn.active {
+  background: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+}
 
-/* Header Pills */
+/* Header Pills (KHÔNG dùng display:!important để JS ẩn/hiện chính xác khi đăng nhập/đăng xuất!) */
 .hihi-auth-btn {
-  display: inline-flex !important;
+  display: inline-flex;
   align-items: center !important;
   gap: 8px !important;
   padding: 8px 16px !important;
   border-radius: var(--radius-full) !important;
   border: 2px solid var(--color-ink) !important;
   box-shadow: var(--shadow-hard-xs) !important;
+  background: var(--color-yellow) !important;
   background-color: var(--color-yellow) !important;
   color: #1e1e1e !important;
   font-weight: 800 !important;
   font-size: 0.8125rem !important;
   cursor: pointer !important;
+  white-space: nowrap !important;
+}
+.hihi-auth-btn span,
+.hihi-auth-btn * {
+  color: #1e1e1e !important;
 }
 .hihi-user-pill {
-  display: inline-flex !important;
+  display: inline-flex;
   align-items: center !important;
   gap: 8px !important;
   padding: 4px 14px 4px 4px !important;
   border-radius: var(--radius-full) !important;
   border: 2px solid var(--color-ink) !important;
   box-shadow: var(--shadow-hard-xs) !important;
+  background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
   color: var(--color-ink) !important;
   cursor: pointer !important;
   font-weight: 800 !important;
   font-size: 0.8125rem !important;
+}
+.hihi-user-name {
+  color: var(--color-ink) !important;
 }
 .hihi-user-avatar {
   width: 32px !important;
@@ -1124,6 +1235,7 @@ html:not(.fonts-loaded) .msr {
   padding: 6px 14px !important;
   border-radius: var(--radius-full) !important;
   border: 2px solid var(--color-ink) !important;
+  background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
   color: var(--color-ink) !important;
   box-shadow: var(--shadow-hard-xs) !important;
@@ -1140,8 +1252,12 @@ html:not(.fonts-loaded) .msr {
   box-shadow: var(--shadow-hard-sm) !important;
 }
 .hihi-lb-period-btn.active,
+.hihi-lb-period-btn.active *,
 .hihi-lb-tab.active,
-.hihi-topic-lang-pill.active {
+.hihi-lb-tab.active *,
+.hihi-topic-lang-pill.active,
+.hihi-topic-lang-pill.active * {
+  background: var(--color-yellow) !important;
   background-color: var(--color-yellow) !important;
   color: #1e1e1e !important;
 }
@@ -1169,8 +1285,23 @@ html:not(.fonts-loaded) .msr {
   color: var(--color-ink) !important;
 }
 
+/* Global Select / Input Contrast Fix across Light & Dark Mode */
+select,
+.hihi-admin-input,
+.hihi-admin-textarea,
+.hihi-lb-select {
+  background-color: var(--color-surface) !important;
+  color: var(--color-ink) !important;
+  border: 2px solid var(--color-ink) !important;
+}
+select option {
+  background-color: var(--color-surface) !important;
+  color: var(--color-ink) !important;
+}
+
 /* 2. Overrides cho Vocabulary (Tuvung) */
 .glass-panel {
+  background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
   border: 2.5px solid var(--color-ink) !important;
   border-radius: var(--radius-3xl) !important;
@@ -1180,6 +1311,7 @@ html:not(.fonts-loaded) .msr {
   color: var(--color-ink) !important;
 }
 .stat-card {
+  background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
   border: 2px solid var(--color-ink) !important;
   border-radius: var(--radius-2xl) !important;
@@ -1192,6 +1324,7 @@ html:not(.fonts-loaded) .msr {
   box-shadow: var(--shadow-hard-sm) !important;
 }
 .mode-btn {
+  background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
   border: 2px solid var(--color-ink) !important;
   border-radius: var(--radius-2xl) !important;
@@ -1200,13 +1333,22 @@ html:not(.fonts-loaded) .msr {
   font-weight: 800 !important;
   transition: all 140ms ease !important;
 }
-.mode-btn:hover {
+.mode-btn:hover,
+.mode-btn:hover * {
   background-color: var(--color-yellow) !important;
   color: #1e1e1e !important;
+}
+.mode-btn:hover {
   transform: translate(-2px, -2px) !important;
   box-shadow: var(--shadow-hard-sm) !important;
 }
+.mode-btn.active,
+.mode-btn.active * {
+  background-color: var(--color-yellow) !important;
+  color: #1e1e1e !important;
+}
 .input-glass {
+  background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
   border: 2px solid var(--color-ink) !important;
   border-radius: var(--radius-2xl) !important;
@@ -1215,6 +1357,7 @@ html:not(.fonts-loaded) .msr {
   font-weight: 700 !important;
 }
 .btn-primary {
+  background: var(--color-yellow) !important;
   background-color: var(--color-yellow) !important;
   color: #1e1e1e !important;
   border: 2.5px solid var(--color-ink) !important;
@@ -1223,6 +1366,13 @@ html:not(.fonts-loaded) .msr {
   font-weight: 800 !important;
   text-shadow: none !important;
   transition: all 140ms ease !important;
+}
+.btn-primary *,
+.btn-phiquiz.tone-yellow,
+.btn-phiquiz.tone-yellow *,
+.btn-phiquiz.tone-cyan,
+.btn-phiquiz.tone-cyan * {
+  color: #1e1e1e !important;
 }
 .btn-primary:hover {
   box-shadow: var(--shadow-hard) !important;
@@ -1252,13 +1402,16 @@ html:not(.fonts-loaded) .msr {
   color: var(--color-ink) !important;
   font-weight: 800 !important;
 }
-.tab-item.active, .lb-tab.active, .repo-btn.active {
+.tab-item.active, .tab-item.active *,
+.lb-tab.active, .lb-tab.active *,
+.repo-btn.active, .repo-btn.active * {
   background-color: var(--color-yellow) !important;
   color: #1e1e1e !important;
 }
 
 /* 3. Overrides cho Spelling (Chinhta) */
 .glass-card {
+  background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
   border: 2.5px solid var(--color-ink) !important;
   border-radius: var(--radius-3xl) !important;
@@ -1274,11 +1427,12 @@ html:not(.fonts-loaded) .msr {
   box-shadow: var(--shadow-hard-xs) !important;
   color: var(--color-ink) !important;
 }
-.icon-btn:hover {
+.icon-btn:hover,
+.icon-btn:hover * {
   background-color: var(--color-yellow) !important;
   color: #1e1e1e !important;
 }
-.tab {
+.tab, .source-btn {
   background-color: var(--color-surface) !important;
   border: 2px solid var(--color-ink) !important;
   border-radius: var(--radius-full) !important;
@@ -1286,11 +1440,12 @@ html:not(.fonts-loaded) .msr {
   color: var(--color-ink) !important;
   font-weight: 800 !important;
 }
-.tab.active {
+.tab.active, .tab.active *,
+.source-btn.active, .source-btn.active * {
   background-color: var(--color-yellow) !important;
   color: #1e1e1e !important;
 }
-#userInput, .chinhta-input, select, input[type="text"] {
+#userInput, .chinhta-input, input[type="text"] {
   background-color: var(--color-surface) !important;
   border: 2px solid var(--color-ink) !important;
   border-radius: var(--radius-2xl) !important;
@@ -1309,12 +1464,17 @@ html:not(.fonts-loaded) .msr {
   box-shadow: var(--shadow-hard-sm) !important;
   font-weight: 800 !important;
 }
-#startBtn {
+#startBtn, #startBtn * {
   background-color: var(--color-yellow) !important;
   color: #1e1e1e !important;
+  text-shadow: none !important;
 }
-#nextBtn, #replayBtn {
+#nextBtn, #nextBtn *, #replayBtn, #replayBtn * {
   background-color: var(--color-cyan) !important;
+  color: #1e1e1e !important;
+}
+#resetBtn, #resetBtn * {
+  background-color: var(--color-orange) !important;
   color: #1e1e1e !important;
 }
 
@@ -1492,8 +1652,52 @@ html:not(.fonts-loaded) .msr {
 .badge-indigo { background-color: var(--color-indigo, #6366f1) !important; color: #ffffff !important; border: 2px solid var(--color-ink) !important; box-shadow: var(--shadow-hard-xs) !important; font-weight: 800 !important; }
 
 /* ==========================================================================
-   LAYOUT OFFSETS CHO SIDEBAR (80px) & BOTTOM NAV (56px)
+   LAYOUT OFFSETS CHO SIDEBAR (80px) & BOTTOM NAV (56px) & MOBILE HEADER
    ========================================================================== */
+#hihi-global-nav {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 639px) {
+  #hihi-global-nav > div {
+    padding: 8px 12px !important;
+    gap: 8px !important;
+  }
+  #hihi-global-nav > div > div:first-child {
+    gap: 6px !important;
+    min-width: 0;
+  }
+  #hihi-global-nav > div > div:first-child > a > span {
+    display: none !important;
+  }
+  #hihi-global-nav > div > div:first-child > span:not(.phiquiz-badge-code) {
+    display: none !important;
+  }
+  #hihi-global-nav .phiquiz-badge-code {
+    font-size: 0.65rem !important;
+    padding: 3px 8px !important;
+    white-space: nowrap;
+  }
+  #hihi-global-nav > div > div:last-child {
+    gap: 6px !important;
+    flex-shrink: 0;
+  }
+  #hihi-global-nav .btn-phiquiz[onclick*="hihiOpenLeaderboard"] span:last-child {
+    display: none !important;
+  }
+  #hihi-global-nav .btn-phiquiz[onclick*="hihiOpenLeaderboard"] {
+    padding: 8px 10px !important;
+  }
+  #hihiSysAuthBtn.hihi-auth-btn {
+    padding: 7px 10px !important;
+    font-size: 0.72rem !important;
+  }
+}
+@media (max-width: 400px) {
+  #hihi-global-nav .phiquiz-badge-code {
+    display: none !important;
+  }
+}
 /* phiquiz-layout-offsets */
 @media (min-width: 1024px) {
   body {
@@ -1509,7 +1713,7 @@ html:not(.fonts-loaded) .msr {
 @media (max-width: 1023px) {
   body {
     padding-left: 0 !important;
-    padding-bottom: 72px !important;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 16px)) !important;
   }
   .phiquiz-sidebar {
     display: none !important;

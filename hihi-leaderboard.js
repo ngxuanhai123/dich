@@ -1,6 +1,6 @@
 /**
  * HIHI STUDY - UNIFIED LEADERBOARD SYSTEM (hihi-leaderboard.js)
- * Bảng Xếp Hạng Toàn Hệ Sinh Thái - Đồng nhất, nhận diện đầy đủ mọi trang
+ * Bảng Xếp Hạng Toàn Hệ Sinh Thái - Neo-Brutalism Light/Dark Theme, Zero FontAwesome dependency
  */
 (function () {
   'use strict';
@@ -19,6 +19,13 @@
   let currentMonth = getMonthKey();
   let searchQuery = '';
 
+  // --- SVG ICONS (Không phụ thuộc FontAwesome) ---
+  const SVG_TROPHY = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>';
+  const SVG_REFRESH = '<svg id="hihiLbRefreshIcon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>';
+  const SVG_CLOSE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+  const SVG_SPINNER = '<svg class="hihi-lb-spin" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+  const SVG_CROWN = '<svg viewBox="0 0 24 24" width="20" height="20" fill="#ffc72e" stroke="#1e1e1e" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>';
+
   // --- HELPER TIME KEYS ---
   function getWeekKey(d) {
     d = d || new Date();
@@ -33,6 +40,12 @@
   function getMonthKey(d) {
     d = d || new Date();
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  }
+
+  function formatMonthLabel(mk) {
+    if (!mk || !/^\d{4}-\d{2}$/.test(mk)) return mk || '';
+    const [y, m] = mk.split('-');
+    return `Tháng ${parseInt(m, 10)}/${y}`;
   }
 
   function escapeHtml(str) {
@@ -77,7 +90,6 @@
     }
 
     try {
-      // 1. Tải song song hihi_leaderboard và legacy leaderboard
       const [resHihi, resLegacy] = await Promise.allSettled([
         fetch(`${FIRESTORE_BASE}/hihi_leaderboard`),
         fetch(`${FIRESTORE_BASE}/leaderboard`)
@@ -85,7 +97,6 @@
 
       const userMap = new Map();
 
-      // Parse hihi_leaderboard
       if (resHihi.status === 'fulfilled' && resHihi.value.ok) {
         const data = await resHihi.value.json();
         if (data.documents) {
@@ -122,7 +133,6 @@
         }
       }
 
-      // Merge legacy leaderboard nếu có người dùng chưa chuyển đổi
       if (resLegacy.status === 'fulfilled' && resLegacy.value.ok) {
         const data = await resLegacy.value.json();
         if (data.documents) {
@@ -146,7 +156,6 @@
                 monthly: {}
               });
             } else {
-              // Bổ sung điểm legacy vào tuvung nếu chưa có
               const existing = userMap.get(leg.id);
               if (!existing.tuvung_score && legScore > 0) {
                 existing.tuvung_score = legScore;
@@ -157,12 +166,10 @@
         }
       }
 
-      // 2. Chuyển map thành mảng
       cachedUsers = Array.from(userMap.values());
       cacheTimestamp = now;
-
-      // Cập nhật biến toàn cục
       window.hihiCachedLeaderboardUsers = cachedUsers;
+      populateMonthOptions();
       return cachedUsers;
     } catch (e) {
       console.warn('[HiHi Leaderboard] Lỗi nạp dữ liệu:', e);
@@ -171,12 +178,42 @@
     }
   }
 
+  // --- CẬP NHẬT SELECT THÁNG ---
+  function populateMonthOptions() {
+    const select = document.getElementById('hihiLbMonthSelect');
+    if (!select) return;
+    const months = new Set();
+    const now = new Date();
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.add(getMonthKey(d));
+    }
+    if (Array.isArray(cachedUsers)) {
+      cachedUsers.forEach(u => {
+        if (u.monthKey) months.add(u.monthKey);
+        if (u.monthly && typeof u.monthly === 'object') {
+          Object.keys(u.monthly).forEach(k => {
+            if (/^\d{4}-\d{2}$/.test(k)) months.add(k);
+          });
+        }
+      });
+    }
+    const sorted = Array.from(months).sort().reverse();
+    if (!months.has(currentMonth) && sorted.length) {
+      currentMonth = sorted[0];
+    }
+    const thisMonth = getMonthKey();
+    select.innerHTML = sorted
+      .map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m === thisMonth ? formatMonthLabel(m) + ' (Hiện tại)' : formatMonthLabel(m))}</option>`)
+      .join('');
+    select.value = currentMonth;
+  }
+
   // --- TÍNH TOÁN ĐIỂM THEO BỘ LỌC KỲ VÀ MÔN ---
   function computeUserScore(u, period, subject, targetMonth) {
     const currWeek = getWeekKey();
     const currMonth = targetMonth || getMonthKey();
 
-    // 1. Lọc theo môn học
     if (subject === 'tuvung') {
       if (period === 'all') return u.tuvung_score || 0;
       if (period === 'week') return (u.weekKey === currWeek ? (u.week_tuvung || 0) : 0);
@@ -208,7 +245,6 @@
       return u.streak || 0;
     }
 
-    // 2. Mặc định 'total' (Toàn hệ thống)
     if (period === 'all') {
       return u.total_score || ((u.tuvung_score || 0) + (u.chinhta_score || 0) + (u.dich_score || 0));
     }
@@ -227,353 +263,423 @@
 
   // --- CẤP ĐỘ DANH HIỆU ---
   function getLevelBadge(score) {
-    if (score >= 10000) return { label: 'Huyền thoại', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', icon: 'fas fa-crown' };
-    if (score >= 5000) return { label: 'Đại sư', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.15)', icon: 'fas fa-gem' };
-    if (score >= 2000) return { label: 'Cao thủ', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.15)', icon: 'fas fa-shield-alt' };
-    if (score >= 500) return { label: 'Chăm chỉ', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', icon: 'fas fa-book-reader' };
-    return { label: 'Tân binh', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)', icon: 'fas fa-seedling' };
+    if (score >= 10000) return { label: 'Huyền thoại', bg: '#ffc72e', fg: '#1e1e1e', emoji: '👑' };
+    if (score >= 5000) return { label: 'Đại sư', bg: '#e9d5ff', fg: '#1e1e1e', emoji: '💎' };
+    if (score >= 2000) return { label: 'Cao thủ', bg: '#7dd3fc', fg: '#1e1e1e', emoji: '🛡️' };
+    if (score >= 500) return { label: 'Chăm chỉ', bg: '#86efac', fg: '#1e1e1e', emoji: '📖' };
+    return { label: 'Tân binh', bg: 'var(--color-surface2, #efeee8)', fg: 'var(--color-muted, #40484f)', emoji: '🌱' };
   }
 
-  // --- INJECT CSS & MODAL HTML NẾU CHƯA CÓ ---
+  // --- INJECT CSS & MODAL HTML ---
   function injectStylesAndModal() {
-    if (document.getElementById('hihi-leaderboard-styles')) return;
+    if (!document.getElementById('hihi-leaderboard-styles')) {
+      const style = document.createElement('style');
+      style.id = 'hihi-leaderboard-styles';
+      style.textContent = `
+        @keyframes hihiLbSpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .hihi-lb-spin { animation: hihiLbSpin 0.8s linear infinite; display: inline-block; }
 
-    const style = document.createElement('style');
-    style.id = 'hihi-leaderboard-styles';
-    style.textContent = `
-      /* FLOATING TRIGGER BUTTON */
-      #hihiFloatingLbBtn {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        z-index: 9998;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 18px;
-        background: linear-gradient(135deg, #0ea5e9, #3b82f6);
-        color: #ffffff;
-        font-family: 'Be Vietnam Pro', system-ui, sans-serif;
-        font-size: 0.85rem;
-        font-weight: 700;
-        border-radius: 999px;
-        box-shadow: 0 4px 20px rgba(14, 165, 233, 0.45);
-        cursor: pointer;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
-        user-select: none;
-      }
-      #hihiFloatingLbBtn:hover {
-        transform: translateY(-2px) scale(1.04);
-        box-shadow: 0 8px 28px rgba(14, 165, 233, 0.65);
-      }
-      #hihiFloatingLbBtn i { font-size: 1.05rem; color: #fef08a; }
+        /* MODAL BACKDROP */
+        .hihi-lb-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(18, 22, 26, 0.58);
+          backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(4px);
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 99999;
+          padding: 16px;
+        }
+        .hihi-lb-modal-backdrop.active {
+          display: flex;
+        }
 
-      /* MODAL BACKDROP */
-      .hihi-lb-modal-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 23, 42, 0.82);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 99999;
-        padding: 16px;
-        opacity: 0;
-        transition: opacity 0.25s ease;
-      }
-      .hihi-lb-modal-backdrop.active {
-        display: flex;
-        opacity: 1;
-      }
+        /* MODAL CONTAINER */
+        .hihi-lb-modal-box {
+          background: var(--color-surface, #ffffff);
+          color: var(--color-ink, #1e1e1e);
+          border: 2.5px solid var(--color-ink, #1e1e1e);
+          border-radius: 24px;
+          width: 100%;
+          max-width: 700px;
+          max-height: 90vh;
+          display: flex;
+          flex-direction: column;
+          box-shadow: var(--shadow-hard-xl, 8px 8px 0 0 #1e1e1e);
+          overflow: hidden;
+          font-family: var(--font-sans, "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif);
+        }
 
-      /* MODAL CONTAINER */
-      .hihi-lb-modal-box {
-        background: #0f172a;
-        color: #f8fafc;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 24px;
-        width: 100%;
-        max-width: 680px;
-        max-height: 90vh;
-        display: flex;
-        flex-direction: column;
-        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(14, 165, 233, 0.2);
-        overflow: hidden;
-        font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
-        animation: hihiLbPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      }
-      @keyframes hihiLbPop {
-        0% { transform: scale(0.94) translateY(10px); opacity: 0; }
-        100% { transform: scale(1) translateY(0); opacity: 1; }
-      }
+        /* HEADER */
+        .hihi-lb-modal-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 16px 20px;
+          border-bottom: 2.5px solid var(--color-ink, #1e1e1e);
+          background: var(--color-surface2, #efeee8);
+        }
+        .hihi-lb-title {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 1.15rem;
+          font-weight: 800;
+          color: var(--color-ink, #1e1e1e);
+        }
+        .hihi-lb-title-icon {
+          width: 36px;
+          height: 36px;
+          border-radius: 12px;
+          background: var(--color-yellow, #ffc72e);
+          color: #1e1e1e;
+          border: 2px solid var(--color-ink, #1e1e1e);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: var(--shadow-hard-sm, 2px 2px 0 0 #1e1e1e);
+          flex-shrink: 0;
+        }
+        .hihi-lb-actions { display: flex; align-items: center; gap: 8px; }
+        .hihi-lb-btn-icon {
+          background: var(--color-surface, #ffffff);
+          border: 2px solid var(--color-ink, #1e1e1e);
+          color: var(--color-ink, #1e1e1e);
+          width: 36px;
+          height: 36px;
+          border-radius: 12px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          box-shadow: var(--shadow-hard-sm, 2px 2px 0 0 #1e1e1e);
+          transition: transform 0.12s ease, background 0.12s ease;
+        }
+        .hihi-lb-btn-icon:hover {
+          background: var(--color-yellow, #ffc72e);
+          color: #1e1e1e;
+          transform: translate(-1px, -1px);
+        }
+        .hihi-lb-btn-icon:active { transform: translate(1px, 1px); }
 
-      /* HEADER */
-      .hihi-lb-modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(30, 41, 59, 0.6);
-      }
-      .hihi-lb-title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: #f8fafc;
-      }
-      .hihi-lb-title i { color: #f59e0b; font-size: 1.25rem; }
-      .hihi-lb-actions { display: flex; align-items: center; gap: 8px; }
-      .hihi-lb-btn-icon {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #94a3b8;
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: 0.15s;
-      }
-      .hihi-lb-btn-icon:hover { background: rgba(255, 255, 255, 0.18); color: #fff; }
+        /* FILTERS */
+        .hihi-lb-filter-area {
+          padding: 14px 20px;
+          background: var(--color-surface, #ffffff);
+          border-bottom: 2px solid var(--color-ink, #1e1e1e);
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .hihi-lb-pill-group {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          align-items: center;
+        }
+        .hihi-lb-filter-label {
+          font-size: 0.78rem;
+          color: var(--color-muted, #40484f);
+          font-weight: 800;
+          margin-right: 2px;
+        }
+        .hihi-lb-pill {
+          padding: 6px 13px;
+          font-size: 0.78rem;
+          font-weight: 700;
+          border-radius: 999px;
+          border: 2px solid var(--color-ink, #1e1e1e);
+          background: var(--color-surface2, #efeee8);
+          color: var(--color-ink, #1e1e1e);
+          cursor: pointer;
+          transition: transform 0.12s ease, background 0.12s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          box-shadow: var(--shadow-hard-sm, 2px 2px 0 0 #1e1e1e);
+        }
+        .hihi-lb-pill:hover {
+          background: var(--color-canvas, #f8f6f1);
+          transform: translateY(-1px);
+        }
+        .hihi-lb-pill.active {
+          background: var(--color-yellow, #ffc72e) !important;
+          color: #1e1e1e !important;
+          border-color: var(--color-ink, #1e1e1e) !important;
+          font-weight: 800;
+        }
+        .hihi-lb-month-wrap {
+          display: none;
+          align-items: center;
+          gap: 6px;
+        }
+        .hihi-lb-month-wrap.visible { display: inline-flex; }
+        .hihi-lb-month-select {
+          background: var(--color-surface2, #efeee8);
+          color: var(--color-ink, #1e1e1e);
+          border: 2px solid var(--color-ink, #1e1e1e);
+          border-radius: 999px;
+          padding: 5px 12px;
+          font-size: 0.78rem;
+          font-weight: 700;
+          outline: none;
+          cursor: pointer;
+          font-family: inherit;
+        }
+        .hihi-lb-search-input {
+          background: var(--color-surface2, #efeee8);
+          border: 2px solid var(--color-ink, #1e1e1e);
+          border-radius: 14px;
+          padding: 8px 14px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: var(--color-ink, #1e1e1e);
+          outline: none;
+          width: 100%;
+          box-sizing: border-box;
+          font-family: inherit;
+        }
+        .hihi-lb-search-input::placeholder { color: var(--color-faint, #707880); }
+        .hihi-lb-search-input:focus {
+          background: var(--color-surface, #ffffff);
+          box-shadow: var(--shadow-hard-sm, 2px 2px 0 0 #1e1e1e);
+        }
 
-      /* FILTERS */
-      .hihi-lb-filter-area {
-        padding: 14px 20px 10px;
-        background: rgba(15, 23, 42, 0.95);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-      .hihi-lb-pill-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        align-items: center;
-      }
-      .hihi-lb-pill {
-        padding: 6px 14px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        background: rgba(255, 255, 255, 0.04);
-        color: #94a3b8;
-        cursor: pointer;
-        transition: 0.15s;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-      }
-      .hihi-lb-pill:hover { background: rgba(255, 255, 255, 0.1); color: #f8fafc; }
-      .hihi-lb-pill.active {
-        background: linear-gradient(135deg, #0ea5e9, #2563eb);
-        color: #fff;
-        border-color: #38bdf8;
-        box-shadow: 0 2px 10px rgba(14, 165, 233, 0.4);
-      }
-      .hihi-lb-search-input {
-        background: rgba(30, 41, 59, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 6px 12px;
-        font-size: 0.8rem;
-        color: #fff;
-        outline: none;
-        width: 100%;
-        transition: border-color 0.2s;
-      }
-      .hihi-lb-search-input:focus { border-color: #38bdf8; }
+        /* CONTENT BODY */
+        .hihi-lb-body {
+          padding: 18px 20px;
+          overflow-y: auto;
+          flex: 1;
+          background: var(--color-canvas, #f8f6f1);
+        }
 
-      /* CONTENT BODY */
-      .hihi-lb-body {
-        padding: 16px 20px;
-        overflow-y: auto;
-        flex: 1;
-      }
+        /* PODIUM STAGES (TOP 1, 2, 3) */
+        .hihi-lb-podium {
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          gap: 12px;
+          margin-bottom: 22px;
+          padding-top: 16px;
+        }
+        .hihi-lb-podium-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          width: clamp(86px, 28vw, 132px);
+        }
+        .hihi-lb-podium-avatar-wrap {
+          position: relative;
+          margin-bottom: 8px;
+        }
+        .hihi-lb-podium-avatar {
+          width: 54px;
+          height: 54px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2.5px solid var(--color-ink, #1e1e1e);
+          background: var(--color-surface, #ffffff);
+          box-shadow: var(--shadow-hard-sm, 2px 2px 0 0 #1e1e1e);
+        }
+        .hihi-lb-podium-item.top-1 .hihi-lb-podium-avatar {
+          width: 68px;
+          height: 68px;
+          border-width: 3px;
+        }
+        .hihi-lb-podium-crown {
+          position: absolute;
+          top: -16px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: inline-flex;
+          line-height: 1;
+        }
+        .hihi-lb-podium-name {
+          font-size: 0.82rem;
+          font-weight: 800;
+          color: var(--color-ink, #1e1e1e);
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .hihi-lb-podium-score {
+          font-size: 0.78rem;
+          font-weight: 800;
+          color: var(--color-cyan-deep, #0e9f9b);
+          margin-top: 2px;
+        }
+        .hihi-lb-podium-box {
+          width: 100%;
+          border-radius: 14px 14px 8px 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 900;
+          font-size: 1.15rem;
+          margin-top: 8px;
+          border: 2.5px solid var(--color-ink, #1e1e1e);
+          box-shadow: var(--shadow-hard-sm, 2px 2px 0 0 #1e1e1e);
+        }
+        .hihi-lb-podium-item.top-1 .hihi-lb-podium-box {
+          height: 64px;
+          background: var(--color-yellow, #ffc72e);
+          color: #1e1e1e;
+        }
+        .hihi-lb-podium-item.top-2 .hihi-lb-podium-box {
+          height: 48px;
+          background: var(--color-surface, #ffffff);
+          color: var(--color-ink, #1e1e1e);
+        }
+        .hihi-lb-podium-item.top-3 .hihi-lb-podium-box {
+          height: 38px;
+          background: #ffad85;
+          color: #1e1e1e;
+        }
 
-      /* PODIUM STAGES (TOP 1, 2, 3) */
-      .hihi-lb-podium {
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        gap: 12px;
-        margin-bottom: 24px;
-        padding-top: 10px;
-      }
-      .hihi-lb-podium-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        width: clamp(80px, 28vw, 120px);
-      }
-      .hihi-lb-podium-avatar-wrap {
-        position: relative;
-        margin-bottom: 8px;
-      }
-      .hihi-lb-podium-avatar {
-        width: 54px;
-        height: 54px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #64748b;
-        background: #1e293b;
-      }
-      .hihi-lb-podium-item.top-1 .hihi-lb-podium-avatar { width: 68px; height: 68px; border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.45); }
-      .hihi-lb-podium-item.top-2 .hihi-lb-podium-avatar { border-color: #94a3b8; box-shadow: 0 0 15px rgba(148, 163, 184, 0.3); }
-      .hihi-lb-podium-item.top-3 .hihi-lb-podium-avatar { border-color: #d97706; box-shadow: 0 0 15px rgba(217, 119, 6, 0.3); }
-      .hihi-lb-podium-crown {
-        position: absolute;
-        top: -12px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: #f59e0b;
-        font-size: 1.1rem;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-      }
-      .hihi-lb-podium-name {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: #f8fafc;
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .hihi-lb-podium-score {
-        font-size: 0.75rem;
-        font-weight: 800;
-        color: #38bdf8;
-      }
-      .hihi-lb-podium-box {
-        width: 100%;
-        border-radius: 12px 12px 4px 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        font-size: 1.1rem;
-        color: #fff;
-        margin-top: 6px;
-      }
-      .hihi-lb-podium-item.top-1 .hihi-lb-podium-box { height: 65px; background: linear-gradient(180deg, rgba(245, 158, 11, 0.4), rgba(245, 158, 11, 0.1)); border-top: 2px solid #f59e0b; }
-      .hihi-lb-podium-item.top-2 .hihi-lb-podium-box { height: 48px; background: linear-gradient(180deg, rgba(148, 163, 184, 0.4), rgba(148, 163, 184, 0.1)); border-top: 2px solid #94a3b8; }
-      .hihi-lb-podium-item.top-3 .hihi-lb-podium-box { height: 38px; background: linear-gradient(180deg, rgba(217, 119, 6, 0.4), rgba(217, 119, 6, 0.1)); border-top: 2px solid #d97706; }
+        /* ROWS LIST */
+        .hihi-lb-list { display: flex; flex-direction: column; gap: 10px; }
+        .hihi-lb-row {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 14px;
+          border-radius: 16px;
+          background: var(--color-surface, #ffffff);
+          color: var(--color-ink, #1e1e1e);
+          border: 2px solid var(--color-ink, #1e1e1e);
+          box-shadow: var(--shadow-hard-sm, 2px 2px 0 0 #1e1e1e);
+          transition: transform 0.12s ease;
+        }
+        .hihi-lb-row:hover { transform: translate(-1px, -1px); }
+        .hihi-lb-row.me {
+          background: var(--color-yellow, #ffc72e);
+          color: #1e1e1e;
+          border-width: 2.5px;
+        }
+        .hihi-lb-rank {
+          width: 32px;
+          font-weight: 800;
+          font-size: 0.95rem;
+          text-align: center;
+          color: var(--color-muted, #40484f);
+          flex-shrink: 0;
+        }
+        .hihi-lb-row.me .hihi-lb-rank { color: #1e1e1e; }
+        .hihi-lb-rank.r1, .hihi-lb-rank.r2, .hihi-lb-rank.r3 { font-size: 1.25rem; }
+        .hihi-lb-avatar {
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          object-fit: cover;
+          background: var(--color-surface2, #efeee8);
+          flex-shrink: 0;
+          border: 2px solid var(--color-ink, #1e1e1e);
+        }
+        .hihi-lb-user-info { flex: 1; min-width: 0; }
+        .hihi-lb-user-name {
+          font-size: 0.9rem;
+          font-weight: 800;
+          color: var(--color-ink, #1e1e1e);
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+        .hihi-lb-row.me .hihi-lb-user-name { color: #1e1e1e; }
+        .hihi-lb-tag-me {
+          font-size: 0.68rem;
+          padding: 2px 8px;
+          border-radius: 999px;
+          background: #1e1e1e;
+          color: #ffc72e;
+          font-weight: 800;
+        }
+        .hihi-lb-level-badge {
+          font-size: 0.68rem;
+          font-weight: 800;
+          padding: 2px 8px;
+          border-radius: 999px;
+          border: 1.5px solid #1e1e1e;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .hihi-lb-breakdown {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-top: 6px;
+          font-size: 0.72rem;
+        }
+        .hihi-lb-sub-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 3px;
+          padding: 2px 8px;
+          border-radius: 8px;
+          background: var(--color-surface2, #efeee8);
+          color: var(--color-ink, #1e1e1e);
+          border: 1.5px solid var(--color-ink, #1e1e1e);
+          font-weight: 700;
+        }
+        .hihi-lb-row.me .hihi-lb-sub-tag {
+          background: #ffffff;
+          color: #1e1e1e;
+          border-color: #1e1e1e;
+        }
+        .hihi-lb-score-col {
+          text-align: right;
+          flex-shrink: 0;
+        }
+        .hihi-lb-score-main {
+          font-size: 1.1rem;
+          font-weight: 900;
+          color: var(--color-cyan-deep, #0e9f9b);
+        }
+        .hihi-lb-row.me .hihi-lb-score-main { color: #1e1e1e; }
+        .hihi-lb-score-label {
+          font-size: 0.66rem;
+          color: var(--color-muted, #40484f);
+          text-transform: uppercase;
+          font-weight: 800;
+        }
+        .hihi-lb-row.me .hihi-lb-score-label { color: #1e1e1e; }
+        .hihi-lb-empty {
+          text-align: center;
+          padding: 40px 20px;
+          color: var(--color-muted, #40484f);
+          font-weight: 700;
+        }
 
-      /* ROWS LIST */
-      .hihi-lb-list { display: flex; flex-direction: column; gap: 8px; }
-      .hihi-lb-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 14px;
-        border-radius: 16px;
-        background: rgba(30, 41, 59, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        transition: transform 0.15s, background 0.15s;
-      }
-      .hihi-lb-row:hover { background: rgba(30, 41, 59, 0.7); transform: translateX(3px); }
-      .hihi-lb-row.me {
-        background: rgba(14, 165, 233, 0.15);
-        border: 1px solid rgba(56, 189, 248, 0.4);
-        box-shadow: 0 0 15px rgba(14, 165, 233, 0.15);
-      }
-      .hihi-lb-rank {
-        width: 32px;
-        font-weight: 800;
-        font-size: 0.95rem;
-        text-align: center;
-        color: #94a3b8;
-        flex-shrink: 0;
-      }
-      .hihi-lb-rank.r1 { color: #f59e0b; font-size: 1.25rem; }
-      .hihi-lb-rank.r2 { color: #cbd5e1; font-size: 1.15rem; }
-      .hihi-lb-rank.r3 { color: #d97706; font-size: 1.1rem; }
-      .hihi-lb-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-        background: #1e293b;
-        flex-shrink: 0;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .hihi-lb-user-info { flex: 1; min-width: 0; }
-      .hihi-lb-user-name {
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: #f8fafc;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .hihi-lb-tag-me {
-        font-size: 0.65rem;
-        padding: 2px 6px;
-        border-radius: 6px;
-        background: #0284c7;
-        color: #fff;
-        font-weight: 700;
-      }
-      .hihi-lb-breakdown {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 4px;
-        font-size: 0.68rem;
-      }
-      .hihi-lb-sub-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
-        padding: 1px 6px;
-        border-radius: 6px;
-        background: rgba(255, 255, 255, 0.05);
-        color: #cbd5e1;
-      }
-      .hihi-lb-score-col {
-        text-align: right;
-        flex-shrink: 0;
-      }
-      .hihi-lb-score-main {
-        font-size: 1.05rem;
-        font-weight: 900;
-        color: #38bdf8;
-      }
-      .hihi-lb-score-label {
-        font-size: 0.65rem;
-        color: #94a3b8;
-        text-transform: uppercase;
-        font-weight: 600;
-      }
+        /* FOOTER */
+        .hihi-lb-footer {
+          padding: 12px 20px;
+          background: var(--color-surface2, #efeee8);
+          border-top: 2px solid var(--color-ink, #1e1e1e);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          font-size: 0.76rem;
+          font-weight: 700;
+          color: var(--color-muted, #40484f);
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
-      /* FOOTER */
-      .hihi-lb-footer {
-        padding: 12px 20px;
-        background: rgba(30, 41, 59, 0.6);
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 0.75rem;
-        color: #94a3b8;
-      }
-    `;
-    document.head.appendChild(style);
+    // Dọn dẹp floating button cũ nếu còn sót từ cache/inline script
+    const oldFloatBtn = document.getElementById('hihiFloatingLbBtn');
+    if (oldFloatBtn) oldFloatBtn.remove();
 
-    // INJECT MODAL HTML
+    // INJECT MODAL HTML NẾU CHƯA CÓ
     if (!document.getElementById('hihiLeaderboardModal')) {
       const modal = document.createElement('div');
       modal.id = 'hihiLeaderboardModal';
@@ -582,67 +688,58 @@
         <div class="hihi-lb-modal-box" onclick="event.stopPropagation()">
           <div class="hihi-lb-modal-header">
             <div class="hihi-lb-title">
-              <i class="fas fa-trophy"></i>
+              <span class="hihi-lb-title-icon">${SVG_TROPHY}</span>
               <span>Bảng Xếp Hạng HiHi Study</span>
             </div>
             <div class="hihi-lb-actions">
-              <button class="hihi-lb-btn-icon" onclick="window.hihiLeaderboard.refresh()" title="Làm mới dữ liệu">
-                <i class="fas fa-sync-alt" id="hihiLbRefreshIcon"></i>
+              <button type="button" class="hihi-lb-btn-icon" onclick="window.hihiLeaderboard.refresh()" title="Làm mới dữ liệu" aria-label="Làm mới bảng xếp hạng">
+                ${SVG_REFRESH}
               </button>
-              <button class="hihi-lb-btn-icon" onclick="window.hihiLeaderboard.close()" title="Đóng">
-                <i class="fas fa-times"></i>
+              <button type="button" class="hihi-lb-btn-icon" onclick="window.hihiLeaderboard.close()" title="Đóng" aria-label="Đóng bảng xếp hạng">
+                ${SVG_CLOSE}
               </button>
             </div>
           </div>
 
           <div class="hihi-lb-filter-area">
-            <!-- Kỳ thời gian -->
             <div class="hihi-lb-pill-group">
-              <span style="font-size:0.75rem;color:#94a3b8;font-weight:700;margin-right:4px;">Kỳ:</span>
-              <button class="hihi-lb-pill active" data-period="all" onclick="window.hihiLeaderboard.setPeriod('all', this)">🌐 Toàn thời gian</button>
-              <button class="hihi-lb-pill" data-period="week" onclick="window.hihiLeaderboard.setPeriod('week', this)">📅 Tuần này</button>
-              <button class="hihi-lb-pill" data-period="month" onclick="window.hihiLeaderboard.setPeriod('month', this)">🗓️ Tháng này</button>
+              <span class="hihi-lb-filter-label">Kỳ:</span>
+              <button type="button" class="hihi-lb-pill active" data-period="all" onclick="window.hihiLeaderboard.setPeriod('all', this)">🌐 Toàn thời gian</button>
+              <button type="button" class="hihi-lb-pill" data-period="week" onclick="window.hihiLeaderboard.setPeriod('week', this)">📅 Tuần này</button>
+              <button type="button" class="hihi-lb-pill" data-period="month" onclick="window.hihiLeaderboard.setPeriod('month', this)">🗓️ Theo tháng</button>
+              <span id="hihiLbMonthWrap" class="hihi-lb-month-wrap">
+                <select id="hihiLbMonthSelect" class="hihi-lb-month-select" aria-label="Chọn tháng" onchange="window.hihiLeaderboard.setMonth(this.value)"></select>
+              </span>
             </div>
 
-            <!-- Môn học -->
             <div class="hihi-lb-pill-group">
-              <span style="font-size:0.75rem;color:#94a3b8;font-weight:700;margin-right:4px;">Môn:</span>
-              <button class="hihi-lb-pill active" data-subject="total" onclick="window.hihiLeaderboard.setSubject('total', this)">⭐ Toàn Hệ Thống</button>
-              <button class="hihi-lb-pill" data-subject="tuvung" onclick="window.hihiLeaderboard.setSubject('tuvung', this)">📖 Từ Vựng</button>
-              <button class="hihi-lb-pill" data-subject="chinhta" onclick="window.hihiLeaderboard.setSubject('chinhta', this)">⌨️ Chính Tả</button>
-              <button class="hihi-lb-pill" data-subject="dich" onclick="window.hihiLeaderboard.setSubject('dich', this)">🌐 Luyện Dịch</button>
-              <button class="hihi-lb-pill" data-subject="bamhuyet" onclick="window.hihiLeaderboard.setSubject('bamhuyet', this)">🩺 Bấm Huyệt</button>
+              <span class="hihi-lb-filter-label">Môn:</span>
+              <button type="button" class="hihi-lb-pill active" data-subject="total" onclick="window.hihiLeaderboard.setSubject('total', this)">⭐ Toàn Hệ Thống</button>
+              <button type="button" class="hihi-lb-pill" data-subject="tuvung" onclick="window.hihiLeaderboard.setSubject('tuvung', this)">📖 Từ Vựng</button>
+              <button type="button" class="hihi-lb-pill" data-subject="chinhta" onclick="window.hihiLeaderboard.setSubject('chinhta', this)">⌨️ Chính Tả</button>
+              <button type="button" class="hihi-lb-pill" data-subject="dich" onclick="window.hihiLeaderboard.setSubject('dich', this)">🌐 Luyện Dịch</button>
+              <button type="button" class="hihi-lb-pill" data-subject="bamhuyet" onclick="window.hihiLeaderboard.setSubject('bamhuyet', this)">🩺 Bấm Huyệt</button>
             </div>
 
-            <!-- Tìm kiếm -->
-            <input type="text" class="hihi-lb-search-input" placeholder="🔍 Tìm kiếm học viên theo tên..." oninput="window.hihiLeaderboard.onSearch(this.value)">
+            <input type="text" class="hihi-lb-search-input" placeholder="Tìm kiếm học viên theo tên..." oninput="window.hihiLeaderboard.onSearch(this.value)">
           </div>
 
           <div class="hihi-lb-body" id="hihiLbModalBody">
-            <div style="text-align:center;padding:40px;color:#94a3b8;">
-              <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;margin-bottom:10px;"></i>
+            <div class="hihi-lb-empty">
+              <div style="margin-bottom:10px;">${SVG_SPINNER}</div>
               <div>Đang tải bảng xếp hạng toàn hệ thống...</div>
             </div>
           </div>
 
           <div class="hihi-lb-footer">
             <span id="hihiLbStatusText">Hệ thống đồng bộ trực tiếp • 0 học viên</span>
-            <span style="color:#38bdf8;font-weight:700;">HiHi Study v2.0</span>
+            <span style="color:var(--color-ink, #1e1e1e);font-weight:800;">HiHi Study</span>
           </div>
         </div>
       `;
       modal.onclick = () => window.hihiLeaderboard.close();
       document.body.appendChild(modal);
-    }
-
-    // INJECT FLOATING BUTTON NẾU CHƯA CÓ VÀ KHÔNG PHẢI TRANG CÓ THANH NAV RIÊNG
-    if (!document.getElementById('hihiFloatingLbBtn')) {
-      const btn = document.createElement('div');
-      btn.id = 'hihiFloatingLbBtn';
-      btn.innerHTML = `<i class="fas fa-trophy"></i> <span>Bảng Xếp Hạng</span>`;
-      btn.title = 'Bấm để mở Bảng Xếp Hạng HiHi Study';
-      btn.onclick = () => window.hihiLeaderboard.open();
-      document.body.appendChild(btn);
+      populateMonthOptions();
     }
   }
 
@@ -651,14 +748,12 @@
     if (!containerEl) return;
     const users = cachedUsers || [];
 
-    // Lọc theo tìm kiếm
     let filtered = users.filter(u => {
       if (!searchQuery) return true;
       const q = searchQuery.toLowerCase();
       return (u.displayName && u.displayName.toLowerCase().includes(q)) || (u.email && u.email.toLowerCase().includes(q));
     });
 
-    // Tính điểm và sắp xếp
     const ranked = filtered.map(u => {
       const score = computeUserScore(u, currentPeriod, currentSubject, currentMonth);
       return { ...u, activeScore: score };
@@ -666,76 +761,74 @@
 
     ranked.sort((a, b) => b.activeScore - a.activeScore);
 
-    // Lấy thông tin user hiện tại (SSO)
     const currentUid = (window.currentUser && window.currentUser.uid) ||
-                       (window.hihiCurrentUserData && window.hihiCurrentUserData.uid) ||
-                       (function() {
-                         try {
-                           for (let i = 0; i < localStorage.length; i++) {
-                             const k = localStorage.key(i);
-                             if (k && k.startsWith('firebase:authUser:')) {
-                               const obj = JSON.parse(localStorage.getItem(k));
-                               return obj.uid;
-                             }
-                           }
-                         } catch(e) {}
-                         return null;
-                       })();
+      (window.hihiCurrentUser && window.hihiCurrentUser.uid) ||
+      (window.hihiCurrentUserData && window.hihiCurrentUserData.uid) ||
+      (function () {
+        try {
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('firebase:authUser:')) {
+              const obj = JSON.parse(localStorage.getItem(k));
+              return obj && obj.uid ? obj.uid : null;
+            }
+          }
+        } catch (e) {}
+        return null;
+      })();
 
     const statusEl = document.getElementById('hihiLbStatusText');
     if (statusEl) {
-      statusEl.textContent = `Hiển thị ${ranked.length} học viên • Đồng bộ toàn hệ thống`;
+      const periodNote = currentPeriod === 'month' ? ` • ${formatMonthLabel(currentMonth)}` : '';
+      statusEl.textContent = `Hiển thị ${ranked.length} học viên${periodNote} • Đồng bộ toàn hệ thống`;
     }
 
     if (ranked.length === 0) {
       containerEl.innerHTML = `
-        <div style="text-align:center;padding:40px;color:#94a3b8;">
-          <i class="fas fa-medal" style="font-size:2rem;opacity:0.4;margin-bottom:12px;display:block;"></i>
-          Chưa có điểm nào được ghi nhận cho bộ lọc này.<br>
-          <span style="font-size:0.8rem;opacity:0.7;">Hãy học bài và là người đầu tiên ghi danh!</span>
+        <div class="hihi-lb-empty">
+          <div style="font-size:2rem;margin-bottom:10px;">🏅</div>
+          <div>Chưa có điểm nào được ghi nhận cho bộ lọc này.</div>
+          <div style="font-size:0.82rem;opacity:0.8;margin-top:4px;">Hãy học bài và là người đầu tiên ghi danh!</div>
         </div>
       `;
       return;
     }
 
-    // 1. PODIUM TOP 1, 2, 3
     let podiumHtml = '';
     if (ranked.length >= 2 && !searchQuery) {
       const top1 = ranked[0];
       const top2 = ranked[1];
       const top3 = ranked[2] || null;
+      const unit = currentSubject === 'bamhuyet' ? ' ngày' : ' XP';
 
       podiumHtml = `
         <div class="hihi-lb-podium">
-          <!-- TOP 2 -->
           <div class="hihi-lb-podium-item top-2">
             <div class="hihi-lb-podium-avatar-wrap">
               <img src="${top2.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" class="hihi-lb-podium-avatar" alt="Top 2">
             </div>
             <div class="hihi-lb-podium-name">${escapeHtml(top2.displayName)}</div>
-            <div class="hihi-lb-podium-score">${top2.activeScore.toLocaleString()}</div>
+            <div class="hihi-lb-podium-score">${top2.activeScore.toLocaleString()}${unit}</div>
             <div class="hihi-lb-podium-box">2</div>
           </div>
 
-          <!-- TOP 1 -->
           <div class="hihi-lb-podium-item top-1">
             <div class="hihi-lb-podium-avatar-wrap">
-              <i class="fas fa-crown hihi-lb-podium-crown"></i>
+              <span class="hihi-lb-podium-crown">${SVG_CROWN}</span>
               <img src="${top1.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" class="hihi-lb-podium-avatar" alt="Top 1">
             </div>
             <div class="hihi-lb-podium-name">${escapeHtml(top1.displayName)}</div>
-            <div class="hihi-lb-podium-score" style="color:#f59e0b;">${top1.activeScore.toLocaleString()}</div>
+            <div class="hihi-lb-podium-score" style="color:var(--color-ink, #1e1e1e);">${top1.activeScore.toLocaleString()}${unit}</div>
             <div class="hihi-lb-podium-box">1</div>
           </div>
 
-          <!-- TOP 3 -->
           ${top3 ? `
           <div class="hihi-lb-podium-item top-3">
             <div class="hihi-lb-podium-avatar-wrap">
               <img src="${top3.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" class="hihi-lb-podium-avatar" alt="Top 3">
             </div>
             <div class="hihi-lb-podium-name">${escapeHtml(top3.displayName)}</div>
-            <div class="hihi-lb-podium-score" style="color:#d97706;">${top3.activeScore.toLocaleString()}</div>
+            <div class="hihi-lb-podium-score">${top3.activeScore.toLocaleString()}${unit}</div>
             <div class="hihi-lb-podium-box">3</div>
           </div>
           ` : ''}
@@ -743,14 +836,11 @@
       `;
     }
 
-    // 2. ROWS LIST
     let rowsHtml = '<div class="hihi-lb-list">';
-    let meFound = false;
 
     ranked.forEach((u, idx) => {
       const rank = idx + 1;
       const isMe = currentUid && (u.uid === currentUid || u.id === currentUid);
-      if (isMe) meFound = true;
 
       let rankClass = '';
       let badge = `${rank}`;
@@ -768,8 +858,8 @@
             <div class="hihi-lb-user-name">
               <span>${escapeHtml(u.displayName)}</span>
               ${isMe ? '<span class="hihi-lb-tag-me">Bạn</span>' : ''}
-              <span style="font-size:0.65rem;font-weight:700;padding:1px 6px;border-radius:4px;color:${level.color};background:${level.bg}">
-                <i class="${level.icon}"></i> ${level.label}
+              <span class="hihi-lb-level-badge" style="color:${level.fg};background:${level.bg};">
+                <span>${level.emoji}</span> ${level.label}
               </span>
             </div>
             <div class="hihi-lb-breakdown">
@@ -788,7 +878,6 @@
     });
 
     rowsHtml += '</div>';
-
     containerEl.innerHTML = podiumHtml + rowsHtml;
   }
 
@@ -803,8 +892,8 @@
       const bodyEl = document.getElementById('hihiLbModalBody');
       if (bodyEl) {
         bodyEl.innerHTML = `
-          <div style="text-align:center;padding:40px;color:#94a3b8;">
-            <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;margin-bottom:10px;"></i>
+          <div class="hihi-lb-empty">
+            <div style="margin-bottom:10px;">${SVG_SPINNER}</div>
             <div>Đang tải Bảng Vàng HiHi Study...</div>
           </div>
         `;
@@ -822,23 +911,30 @@
 
     refresh: async function () {
       const icon = document.getElementById('hihiLbRefreshIcon');
-      if (icon) icon.classList.add('fa-spin');
+      if (icon) icon.classList.add('hihi-lb-spin');
       const bodyEl = document.getElementById('hihiLbModalBody');
       await fetchLeaderboardData(true);
-      if (icon) icon.classList.remove('fa-spin');
+      if (icon) icon.classList.remove('hihi-lb-spin');
       renderLeaderboardView(bodyEl);
     },
 
     setPeriod: function (period, btn) {
       currentPeriod = period;
-      document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#hihiLeaderboardModal [data-period]').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
+      const monthWrap = document.getElementById('hihiLbMonthWrap');
+      if (monthWrap) monthWrap.classList.toggle('visible', period === 'month');
+      renderLeaderboardView(document.getElementById('hihiLbModalBody'));
+    },
+
+    setMonth: function (monthStr) {
+      if (monthStr) currentMonth = monthStr;
       renderLeaderboardView(document.getElementById('hihiLbModalBody'));
     },
 
     setSubject: function (subject, btn) {
       currentSubject = subject;
-      document.querySelectorAll('[data-subject]').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#hihiLeaderboardModal [data-subject]').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
       renderLeaderboardView(document.getElementById('hihiLbModalBody'));
     },
@@ -849,9 +945,10 @@
     },
 
     renderInline: async function (containerId) {
+      injectStylesAndModal();
       const el = document.getElementById(containerId);
       if (!el) return;
-      el.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> Đang tải Bảng Xếp Hạng...</div>';
+      el.innerHTML = `<div class="hihi-lb-empty">${SVG_SPINNER}<div style="margin-top:8px;">Đang tải Bảng Xếp Hạng...</div></div>`;
       await fetchLeaderboardData(false);
       renderLeaderboardView(el);
     },
@@ -860,6 +957,13 @@
       return cachedUsers || [];
     }
   };
+
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('hihiLeaderboardModal');
+      if (modal && modal.classList.contains('active')) controller.close();
+    }
+  });
 
   // EXPOSE GLOBAL API
   window.hihiLeaderboard = controller;
