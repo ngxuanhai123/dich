@@ -1356,9 +1356,12 @@ body {
       <button class="hihi-suite-modal-close" onclick="hihiCloseTopicPicker()">&times;</button>
     </div>
     <div class="hihi-suite-modal-body">
-      <p style="font-size:0.8rem;color:var(--hihi-nav-text,#94a3b8);margin-bottom:10px;">
-        Chọn chủ đề từ kho dữ liệu dùng chung (hoặc lọc theo ngôn ngữ bạn đang học):
-      </p>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
+        <p style="font-size:0.8rem;color:var(--hihi-nav-text,#94a3b8);margin:0;">
+          Chọn chủ đề từ kho dữ liệu dùng chung (hoặc lọc theo ngôn ngữ bạn đang học):
+        </p>
+        <span id="hihiPickerSyncedBadge" style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:800;padding:3px 10px;border-radius:999px;background:var(--color-yellow);color:#1e1e1e;border:1.5px solid var(--color-ink);">🇺🇸 Nguồn: Tiếng Anh</span>
+      </div>
 
       <!-- THANH LỌC NGÔN NGỮ CHỦ ĐỀ -->
       <div id="hihiTopicLangFilterBar" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;scrollbar-width:thin;">
@@ -1514,7 +1517,7 @@ body {
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <p class="text-sm font-semibold" style="color:var(--color-muted);" id="quoteText">Hành trình vạn dặm bắt đầu từ một đoạn văn.</p>
                 <div class="flex items-center gap-2.5">
-                    <button onclick="dichPickSharedTopic()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-extrabold transition-all" style="background:var(--color-yellow);color:#1e1e1e;border:2px solid var(--color-ink);box-shadow:var(--shadow-hard-xs);" title="Lấy câu từ kho từ vựng chung"><i class="fas fa-book-open"></i> Chủ đề từ vựng</button>
+                    <button id="dichPickSharedTopicBtn" onclick="dichPickSharedTopic()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-extrabold transition-all" style="background:var(--color-yellow);color:#1e1e1e;border:2px solid var(--color-ink);box-shadow:var(--shadow-hard-xs);" title="Lấy câu từ kho từ vựng chung"><i class="fas fa-book-open"></i> <span>Chủ đề từ vựng</span></button>
                     <button onclick="toggleSidebar()" class="p-2.5 rounded-xl transition-all lg:hidden" style="background:var(--color-surface);color:var(--color-ink);border:2px solid var(--color-ink);" title="Mở sidebar lịch sử">
                         <i data-lucide="menu" class="w-4 h-4"></i>
                     </button>
@@ -1566,7 +1569,7 @@ body {
                     
                     <div class="ml-auto flex gap-2.5">
                         <button id="btnVocabGenerate" onclick="dichOpenVocabGenerator()" class="flex items-center gap-2 px-4 py-2 rounded-xl font-extrabold text-xs transition-all active:scale-95" style="background:var(--color-yellow);color:#1e1e1e;border:2px solid var(--color-ink);box-shadow:var(--shadow-hard-xs);" title="Lấy từ vựng đang học tạo văn bản luyện dịch">
-                            <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Lấy từ vựng tạo bài
+                            <i data-lucide="book-open" class="w-3.5 h-3.5"></i> <span id="btnVocabGenerateLabel">Lấy từ vựng tạo bài (🇺🇸 Tiếng Anh)</span>
                         </button>
                         <button id="btnGenerate" class="flex items-center gap-2 px-5 py-2 rounded-xl font-extrabold text-xs transition-all active:scale-95" style="background:var(--color-cyan);color:#1e1e1e;border:2px solid var(--color-ink);box-shadow:var(--shadow-hard-xs);">
                             <i data-lucide="wand-2" class="w-3.5 h-3.5"></i> AI Tạo văn bản
@@ -1783,6 +1786,7 @@ body {
             currentSourceLang = config.source;
             currentTargetLang = config.target;
             wordCache = {}; // Clear cache khi đổi ngôn ngữ
+            if (typeof syncVocabSourceLanguage === 'function') syncVocabSourceLanguage();
         }
 
         function loadConfig() {
@@ -1873,6 +1877,7 @@ body {
             
             populateVoiceList(); 
             saveConfig();
+            syncVocabSourceLanguage();
         }
 
         sourceSelect.addEventListener('change', () => handleLangChange('source'));
@@ -2271,11 +2276,95 @@ body {
             }, 3000);
         }
 
+        function getActiveSourceInfo() {
+            const curSrc = document.getElementById('sourceLangSelect')?.value || currentSourceLang || 'English';
+            const meta = DICH_LANGUAGES[curSrc] || DICH_LANGUAGES.English;
+            return { key: curSrc, code: meta.code || LANG_NAME_TO_CODE[curSrc] || 'en', name: meta.name || curSrc, flag: meta.flag || '🇺🇸' };
+        }
+
+        function syncVocabSourceLanguage() {
+            const info = getActiveSourceInfo();
+            const btnLabel = document.getElementById('btnVocabGenerateLabel');
+            const btn = document.getElementById('btnVocabGenerate');
+            const topBtn = document.getElementById('dichPickSharedTopicBtn');
+            const syncedBadge = document.getElementById('hihiPickerSyncedBadge');
+
+            if (btnLabel) btnLabel.textContent = `Lấy từ vựng tạo bài (${info.flag} ${info.name})`;
+            if (btn) btn.title = `Lấy từ vựng ${info.name} để tạo văn bản luyện dịch`;
+            if (topBtn) {
+                topBtn.title = `Chọn chủ đề từ vựng ${info.name}`;
+                const sp = topBtn.querySelector('span');
+                if (sp) sp.textContent = `Chủ đề ${info.flag} ${info.name}`;
+            }
+            if (syncedBadge) syncedBadge.textContent = `${info.flag} Nguồn: ${info.name}`;
+
+            if (typeof window.hihiSetTopicPickerLang === 'function') {
+                window.hihiSetTopicPickerLang(info.code);
+            } else {
+                window.hihiCurrentPickerLang = info.code;
+            }
+        }
+        window.syncVocabSourceLanguage = syncVocabSourceLanguage;
+        syncVocabSourceLanguage();
+
+        window.dichGenerateVocabByAI = async function(langCodeOverride) {
+            const info = getActiveSourceInfo();
+            const targetKey = (langCodeOverride && LANG_CODE_TO_NAME[langCodeOverride]) || info.key;
+            const meta = DICH_LANGUAGES[targetKey] || info;
+            const level = document.getElementById('levelSelect')?.value || 'B1';
+            const langPrompt = (targetKey === 'Indonesian') ? 'tiếng Indonesia (Indonesian)' :
+                               (targetKey === 'English') ? 'tiếng Anh (English)' :
+                               `${meta.name} (${targetKey})`;
+
+            if (typeof window.hihiCloseTopicPicker === 'function') window.hihiCloseTopicPicker();
+
+            const btn = document.getElementById('btnVocabGenerate');
+            const origHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<span class="animate-ping">📖</span> Đang lấy từ vựng ${meta.flag}...`;
+            }
+            showToast(`Đang chọn từ vựng ${meta.flag} ${meta.name} (${level}) và tạo bài dịch...`, 'info');
+            try {
+                const prompt = `Bạn là giáo viên ${langPrompt}. Hãy chọn ngẫu nhiên 6 từ vựng hữu ích trình độ ${level} bằng ${langPrompt}, rồi viết 1 đoạn văn tự nhiên dài 3–5 câu bằng ${langPrompt} sử dụng cả 6 từ đó. Chỉ trả về đúng JSON (không markdown): {"passage":"...","vocab":["w1","w2",...]}`;
+                const raw = await callAI(prompt);
+                let passage = '';
+                let vocabItems = [];
+                if (raw) {
+                    try {
+                        const jsonMatch = raw.match(/\{[\s\S]*\}/);
+                        const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : raw);
+                        passage = (parsed.passage || '').trim();
+                        if (Array.isArray(parsed.vocab)) vocabItems = parsed.vocab.filter(Boolean);
+                    } catch {
+                        passage = raw.trim().replace(/^["']|["']$/g, '');
+                    }
+                }
+                if (passage) {
+                    document.getElementById('sourceText').value = passage;
+                    document.getElementById('translateText').value = '';
+                    const noteSuffix = vocabItems.length ? ` (${vocabItems.slice(0, 6).join(', ')})` : '';
+                    showToast(`Đã tạo bài ${meta.flag} ${meta.name}${noteSuffix}!`, 'success');
+                } else {
+                    showToast(`Chưa tạo được bài cho ${meta.name}, vui lòng thử lại.`, 'error');
+                }
+            } catch (e) {
+                showToast(`Lỗi kết nối AI khi tạo bài ${meta.name}.`, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                    syncVocabSourceLanguage();
+                    if (window.lucide) lucide.createIcons();
+                }
+            }
+        };
+
         // Lấy từ vựng đang học từ kho chủ đề dùng chung và tạo bài luyện dịch AI
         window.dichOpenVocabGenerator = function() {
             if (typeof window.hihiOpenTopicPicker === "function") {
-                const curSrc = document.getElementById('sourceLangSelect')?.value || currentSourceLang || 'English';
-                const curCode = LANG_NAME_TO_CODE[curSrc] || 'en';
+                const { code: curCode } = getActiveSourceInfo();
+                syncVocabSourceLanguage();
 
                 window.hihiOpenTopicPicker(async (topicName, words, topicLang, topicObj) => {
                     if (!words || words.length === 0) {
@@ -2284,7 +2373,8 @@ body {
                     }
 
                     // 1. Tự động đồng bộ ngôn ngữ nguồn theo đúng chủ đề từ vựng đã chọn
-                    const detectedCode = topicLang || topicObj?.lang || (words && words[0]?.lang) || 'en';
+                    const rawLang = String(topicLang || topicObj?.lang || (words && words[0]?.lang) || 'en').toLowerCase().split('-')[0];
+                    const detectedCode = rawLang === 'indo' || rawLang === 'in' ? 'id' : rawLang;
                     const targetLangKey = LANG_CODE_TO_NAME[detectedCode] || 'English';
                     const srcSel = document.getElementById('sourceLangSelect');
                     const tgtSel = document.getElementById('targetLangSelect');
@@ -2298,6 +2388,7 @@ body {
                         }
                         saveConfig();
                         populateVoiceList();
+                        syncVocabSourceLanguage();
                         const flag = DICH_LANGUAGES[targetLangKey]?.flag || '';
                         showToast(`Đã chuyển ngôn ngữ học sang ${flag} ${DICH_LANGUAGES[targetLangKey]?.name || targetLangKey}`, "info");
                     }
@@ -2343,6 +2434,7 @@ body {
                         if (btn) {
                             btn.disabled = false;
                             btn.innerHTML = origHtml;
+                            syncVocabSourceLanguage();
                             if (window.lucide) lucide.createIcons();
                         }
                     }
@@ -3012,7 +3104,12 @@ window.hihiDetectCurrentAppLang = function() {
   const savedAdminLang = localStorage.getItem("hihi_admin_lang");
   if (savedAdminLang && HIHI_LANGUAGES[savedAdminLang]) return savedAdminLang;
 
-  // 2. App-specific active language (e.g. tuvung's currentLang or fp_aurora_lang)
+  // 2. App-specific active language (ngôn ngữ nguồn hiện tại trên HiHi Dịch hoặc tuvung)
+  const srcSelect = document.getElementById("sourceLangSelect");
+  if (srcSelect && typeof LANG_NAME_TO_CODE !== "undefined" && LANG_NAME_TO_CODE[srcSelect.value]) {
+    const mapped = LANG_NAME_TO_CODE[srcSelect.value];
+    if (HIHI_LANGUAGES[mapped]) return mapped;
+  }
   if (typeof window.currentLang === "string" && HIHI_LANGUAGES[window.currentLang]) {
     return window.currentLang;
   }
@@ -3353,7 +3450,7 @@ window.hihiFetchAllTopics = async function() {
   if (cached) {
     try {
       const parsed = JSON.parse(cached);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed.some(t => t && t.lang === 'id')) {
         window.hihiAllSharedTopics = parsed;
         return window.hihiAllSharedTopics;
       }
@@ -3488,10 +3585,18 @@ window.hihiFetchAllTopics = async function() {
   return topics;
 };
 
+function hihiNormalizeTopicLang(raw) {
+  const code = String(raw || 'en').trim().toLowerCase().split('-')[0];
+  if (code === 'indo' || code === 'in' || code === 'indonesian') return 'id';
+  if (code === 'english') return 'en';
+  if (code === 'vietnamese') return 'vi';
+  return code;
+}
+
 window.hihiCurrentPickerLang = 'all';
 
 window.hihiSetTopicPickerLang = function(lang, btnEl) {
-  window.hihiCurrentPickerLang = lang || 'all';
+  window.hihiCurrentPickerLang = lang === 'all' ? 'all' : hihiNormalizeTopicLang(lang || 'all');
   const bar = document.getElementById("hihiTopicLangFilterBar");
   if (bar) {
     bar.querySelectorAll(".hihi-topic-lang-pill").forEach(p => {
@@ -3509,15 +3614,23 @@ window.hihiOpenTopicPicker = async function(onSelectCallback, defaultLang) {
   window.hihiOnTopicSelect = onSelectCallback;
   const m = document.getElementById("hihiTopicPickerModal");
   if (m) m.classList.add("active");
+  const searchEl = document.getElementById("hihiTopicSearchInput");
+  if (searchEl) searchEl.value = "";
   const container = document.getElementById("hihiTopicListContainer");
   if (container) container.innerHTML = "<div style='text-align:center;padding:20px;color:#94a3b8;'><i class='fas fa-spinner fa-spin'></i> Đang tải danh sách chủ đề...</div>";
 
-  // Pre-select language filter pill
-  let targetLang = defaultLang;
-  if (targetLang && LANG_NAME_TO_CODE && LANG_NAME_TO_CODE[targetLang]) {
+  // Pre-select language filter pill synced with current source language
+  let targetLang = defaultLang || (document.getElementById('sourceLangSelect')?.value || '');
+  if (targetLang && typeof LANG_NAME_TO_CODE !== "undefined" && LANG_NAME_TO_CODE[targetLang]) {
     targetLang = LANG_NAME_TO_CODE[targetLang];
   }
-  window.hihiCurrentPickerLang = targetLang || 'all';
+  window.hihiCurrentPickerLang = targetLang ? hihiNormalizeTopicLang(targetLang) : 'all';
+
+  const syncedBadge = document.getElementById("hihiPickerSyncedBadge");
+  if (syncedBadge && typeof getActiveSourceInfo === "function") {
+    const info = getActiveSourceInfo();
+    syncedBadge.textContent = `${info.flag} Nguồn: ${info.name}`;
+  }
 
   const bar = document.getElementById("hihiTopicLangFilterBar");
   if (bar) {
@@ -3544,12 +3657,20 @@ function hihiRenderTopicCards(list) {
   const container = document.getElementById("hihiTopicListContainer");
   if (!container) return;
   if (!list || list.length === 0) {
-    const langLabel = (window.hihiCurrentPickerLang && window.hihiCurrentPickerLang !== 'all') 
-      ? `cho ngôn ngữ này` : '';
+    const curCode = window.hihiCurrentPickerLang || 'all';
+    const langCfg = (typeof HIHI_LANGUAGES !== "undefined" && HIHI_LANGUAGES[curCode]) || null;
+    const langLabel = curCode !== 'all'
+      ? `cho ${langCfg ? `${langCfg.flag} ${langCfg.name}` : 'ngôn ngữ này'}` : '';
+    const aiBtnHtml = (curCode !== 'all' && typeof window.dichGenerateVocabByAI === "function")
+      ? `<button type="button" onclick="dichGenerateVocabByAI('${escapeHtml(curCode)}')" style="font-size:0.78rem;padding:8px 14px;border-radius:10px;background:var(--color-cyan);color:#1e1e1e;font-weight:800;border:2px solid var(--color-ink);box-shadow:var(--shadow-hard-xs);cursor:pointer;">🤖 Lấy từ vựng & tạo bài ${escapeHtml(langCfg ? `${langCfg.flag} ${langCfg.name}` : '')} bằng AI</button>`
+      : '';
     container.innerHTML = `<div style='text-align:center;padding:24px 10px;color:var(--color-muted);font-weight:700;'>
       <div style="font-size:1.5rem;margin-bottom:8px;">🔍</div>
-      Không tìm thấy chủ đề phù hợp ${langLabel}.
-      <div style="margin-top:10px;"><button type="button" onclick="hihiSetTopicPickerLang('all')" style="font-size:0.75rem;padding:6px 14px;border-radius:10px;background:var(--color-yellow);color:#1e1e1e;font-weight:800;border:2px solid var(--color-ink);cursor:pointer;">Xem tất cả chủ đề</button></div>
+      Chưa có chủ đề GitHub sẵn ${escapeHtml(langLabel)}.
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;">
+        ${aiBtnHtml}
+        <button type="button" onclick="hihiSetTopicPickerLang('all')" style="font-size:0.75rem;padding:8px 14px;border-radius:10px;background:var(--color-yellow);color:#1e1e1e;font-weight:800;border:2px solid var(--color-ink);cursor:pointer;">Xem tất cả chủ đề</button>
+      </div>
     </div>`;
     return;
   }
@@ -3577,7 +3698,7 @@ window.hihiFilterTopicList = function() {
   const list = window.hihiAllSharedTopics || [];
   const filtered = list.filter(t => {
     const matchKw = !kw || (t.name && t.name.toLowerCase().includes(kw)) || (t.category && t.category.toLowerCase().includes(kw));
-    const topicLang = t.lang || 'en';
+    const topicLang = hihiNormalizeTopicLang(t.lang || 'en');
     const matchLang = (lang === 'all') || (topicLang === lang);
     return matchKw && matchLang;
   });
