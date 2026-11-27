@@ -127,7 +127,9 @@ async function runTests() {
   // TEST 9: Đồng bộ Bảng Xếp Hạng toàn hệ sinh thái & Single Sign-On (SSO)
   try {
     const hasSharedConfig = html.includes('tuvung-88e8d');
-    const hasHihiLbSync = html.includes('hihi_leaderboard') && html.includes('hihiLeaderboardModal');
+    const lbPath = path.join(dir, 'hihi-leaderboard.js');
+    const lbJs = fs.existsSync(lbPath) ? fs.readFileSync(lbPath, 'utf8') : '';
+    const hasHihiLbSync = html.includes('hihi_leaderboard') && (html.includes('hihiLeaderboardModal') || (html.includes('hihi-leaderboard.js') && html.includes('hihiOpenLeaderboard') && lbJs.includes('hihiLeaderboardModal')));
     const hasAuth = html.includes('window.hihiAuth');
     const passed = hasSharedConfig && hasHihiLbSync && hasAuth;
     recordResult('9. Đồng bộ Bảng Xếp Hạng toàn hệ sinh thái & Single Sign-On (SSO)', passed, passed ? 'Đã liên kết hihi_leaderboard & SSO tuvung-88e8d' : 'Chưa đồng bộ BXH chung');

@@ -58,6 +58,18 @@
       .replace(/'/g, '&#39;');
   }
 
+  function sanitizePhotoUrl(url) {
+    const fallback = 'https://www.gravatar.com/avatar/?d=mp';
+    if (!url || typeof url !== 'string') return fallback;
+    try {
+      const parsed = new URL(url.trim());
+      if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+        return parsed.href;
+      }
+    } catch (_) {}
+    return fallback;
+  }
+
   // --- PARSE FIRESTORE REST DOC ---
   function parseFirestoreDoc(doc) {
     const f = doc.fields || {};
@@ -107,8 +119,7 @@
                 id: u.id,
                 uid: u.uid || u.id,
                 displayName: u.displayName || 'Học viên',
-                photoURL: u.photoURL || '',
-                email: u.email || '',
+                photoURL: sanitizePhotoUrl(u.photoURL),
                 total_score: Number(u.total_score || 0),
                 tuvung_score: Number(u.tuvung_score || 0),
                 chinhta_score: Number(u.chinhta_score || 0),
@@ -144,8 +155,7 @@
                 id: leg.id,
                 uid: leg.id,
                 displayName: leg.displayName || 'Học viên',
-                photoURL: leg.photoURL || '',
-                email: leg.email || '',
+                photoURL: sanitizePhotoUrl(leg.photoURL),
                 total_score: legScore,
                 tuvung_score: legScore,
                 chinhta_score: 0,
@@ -751,7 +761,7 @@
     let filtered = users.filter(u => {
       if (!searchQuery) return true;
       const q = searchQuery.toLowerCase();
-      return (u.displayName && u.displayName.toLowerCase().includes(q)) || (u.email && u.email.toLowerCase().includes(q));
+      return !!(u.displayName && u.displayName.toLowerCase().includes(q));
     });
 
     const ranked = filtered.map(u => {
@@ -805,7 +815,7 @@
         <div class="hihi-lb-podium">
           <div class="hihi-lb-podium-item top-2">
             <div class="hihi-lb-podium-avatar-wrap">
-              <img src="${top2.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" class="hihi-lb-podium-avatar" alt="Top 2">
+              <img src="${escapeHtml(sanitizePhotoUrl(top2.photoURL))}" class="hihi-lb-podium-avatar" alt="Top 2">
             </div>
             <div class="hihi-lb-podium-name">${escapeHtml(top2.displayName)}</div>
             <div class="hihi-lb-podium-score">${top2.activeScore.toLocaleString()}${unit}</div>
@@ -815,7 +825,7 @@
           <div class="hihi-lb-podium-item top-1">
             <div class="hihi-lb-podium-avatar-wrap">
               <span class="hihi-lb-podium-crown">${SVG_CROWN}</span>
-              <img src="${top1.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" class="hihi-lb-podium-avatar" alt="Top 1">
+              <img src="${escapeHtml(sanitizePhotoUrl(top1.photoURL))}" class="hihi-lb-podium-avatar" alt="Top 1">
             </div>
             <div class="hihi-lb-podium-name">${escapeHtml(top1.displayName)}</div>
             <div class="hihi-lb-podium-score" style="color:var(--color-ink, #1e1e1e);">${top1.activeScore.toLocaleString()}${unit}</div>
@@ -825,7 +835,7 @@
           ${top3 ? `
           <div class="hihi-lb-podium-item top-3">
             <div class="hihi-lb-podium-avatar-wrap">
-              <img src="${top3.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" class="hihi-lb-podium-avatar" alt="Top 3">
+              <img src="${escapeHtml(sanitizePhotoUrl(top3.photoURL))}" class="hihi-lb-podium-avatar" alt="Top 3">
             </div>
             <div class="hihi-lb-podium-name">${escapeHtml(top3.displayName)}</div>
             <div class="hihi-lb-podium-score">${top3.activeScore.toLocaleString()}${unit}</div>
@@ -852,14 +862,14 @@
 
       rowsHtml += `
         <div class="hihi-lb-row ${isMe ? 'me' : ''}">
-          <div class="hihi-lb-rank ${rankClass}">${badge}</div>
-          <img src="${u.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" class="hihi-lb-avatar" alt="Avatar">
+          <div class="hihi-lb-rank ${rankClass}">${escapeHtml(badge)}</div>
+          <img src="${escapeHtml(sanitizePhotoUrl(u.photoURL))}" class="hihi-lb-avatar" alt="Avatar">
           <div class="hihi-lb-user-info">
             <div class="hihi-lb-user-name">
               <span>${escapeHtml(u.displayName)}</span>
               ${isMe ? '<span class="hihi-lb-tag-me">Bạn</span>' : ''}
               <span class="hihi-lb-level-badge" style="color:${level.fg};background:${level.bg};">
-                <span>${level.emoji}</span> ${level.label}
+                <span>${escapeHtml(level.emoji)}</span> ${escapeHtml(level.label)}
               </span>
             </div>
             <div class="hihi-lb-breakdown">

@@ -3671,7 +3671,7 @@ function hihiRenderTopicCards(list) {
     const flag = t.flag || (HIHI_LANGUAGES[t.lang]?.flag) || '🇺🇸';
     const langName = t.langName || (HIHI_LANGUAGES[t.lang]?.name) || 'Tiếng Anh';
     return `
-    <div onclick="hihiSelectTopic('${t.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:14px;background:var(--color-surface);border:2px solid var(--color-ink);box-shadow:var(--shadow-hard-xs);cursor:pointer;transition:transform 0.12s ease;">
+    <div onclick="hihiSelectTopic(this.dataset.topicId)" data-topic-id="${escapeHtml(t.id)}" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:14px;background:var(--color-surface);border:2px solid var(--color-ink);box-shadow:var(--shadow-hard-xs);cursor:pointer;transition:transform 0.12s ease;">
       <div>
         <div style="font-weight:800;font-size:0.9rem;color:var(--color-ink);">${escapeHtml(t.name)}</div>
         <div style="font-size:0.74rem;color:var(--color-muted);margin-top:4px;font-weight:700;">

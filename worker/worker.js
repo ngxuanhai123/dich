@@ -1,11 +1,10 @@
-﻿// Cloudflare Worker: Dá»ch thuáº­t & Cháº¥m Äiá»m thÃ´ng minh vá»i Edge Cache & Memory Cache
-// Báº£n báº£o máº­t (Secured Version) - KhÃ³a CORS, chá»ng spam quota, há» trá»£ Groq & OpenAI
+﻿// Cloudflare Worker: Dịch thuật & Chấm điểm thông minh với Edge Cache & Memory Cache
+// Bản bảo mật (Secured Version) - Chặn Origin:null, rate limit, timeout an toàn
 
 const MEMORY_CACHE = new Map();
 const MEMORY_CACHE_MAX = 300;
-const MEMORY_TTL_MS = 60 * 60 * 1000; // 1 giá» trong RAM Worker
+const MEMORY_TTL_MS = 60 * 60 * 1000;
 
-// HÃ m bÄm SHA-256 an toÃ n báº±ng Web Crypto API
 async function sha256(str) {
   const buf = new TextEncoder().encode(str);
   const hashBuf = await crypto.subtle.digest('SHA-256', buf);
@@ -13,24 +12,38 @@ async function sha256(str) {
   return hashArr.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Kiá»m tra Origin há»£p lá»
 function isAllowedOrigin(origin) {
-  if (!origin) return true; // Cho phÃ©p requests tá»« apps native (iOS/curl/shortcuts khÃ´ng cÃ³ header Origin)
-  if (origin === 'null') return true;
+  if (!origin) return true;
+  if (origin === 'null') return false;
 
-  // Localhost phÃ¡t triá»n
   if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return true;
-
-  // Domain chÃ­nh thá»©c trÃªn GitHub Pages
   if (origin === 'https://ngxuanhai123.github.io') return true;
-
-  // Domain Memrise (cho Userscript / Add-on)
   if (/^https:\/\/([a-z0-9-]+\.)?memrise\.com$/i.test(origin)) return true;
-
-  // Chrome extensions
-  if (origin.startsWith('chrome-extension://')) return true;
+  if (origin.startsWith('chrome-extension://') || origin.startsWith('moz-extension://')) return true;
 
   return false;
+}
+
+const RATE_LIMIT_MAP = new Map();
+const RATE_LIMIT_WINDOW_MS = 10 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 20;
+
+function isRateLimited(ip) {
+  if (!ip) return false;
+  const now = Date.now();
+  let record = RATE_LIMIT_MAP.get(ip);
+  if (!record || (now - record.resetTime > RATE_LIMIT_WINDOW_MS)) {
+    record = { count: 1, resetTime: now };
+    RATE_LIMIT_MAP.set(ip, record);
+    if (RATE_LIMIT_MAP.size > 2000) {
+      for (const [k, v] of RATE_LIMIT_MAP.entries()) {
+        if (now - v.resetTime > RATE_LIMIT_WINDOW_MS) RATE_LIMIT_MAP.delete(k);
+      }
+    }
+    return false;
+  }
+  record.count++;
+  return record.count > RATE_LIMIT_MAX_REQUESTS;
 }
 
 export default {
@@ -38,24 +51,35 @@ export default {
     const url = new URL(request.url);
     const origin = request.headers.get('Origin');
 
-    // 1. Fail-fast: Cháº·n Äá»©ng má»i domain khÃ´ng ÄÆ°á»£c phÃ©p
     if (origin && !isAllowedOrigin(origin)) {
-      return new Response(JSON.stringify({ error: 'Forbidden: Domain cá»§a báº¡n khÃ´ng ÄÆ°á»£c phÃ©p sá»­ dá»¥ng API nÃ y.' }), {
+      return new Response(JSON.stringify({ error: 'Forbidden: Domain của bạn không được phép sử dụng API này.' }), {
         status: 403,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'Vary': 'Origin' }
       });
     }
 
     const corsHeaders = {
-      'Access-Control-Allow-Origin': origin || 'https://ngxuanhai123.github.io',
+      'Access-Control-Allow-Origin': (origin && isAllowedOrigin(origin)) ? origin : 'https://ngxuanhai123.github.io',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-app-token',
       'Access-Control-Max-Age': '86400',
+      'Vary': 'Origin',
     };
 
-    // 2. Preflight request (OPTIONS)
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders });
+    }
+
+    const clientIp = request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for') || 'unknown';
+    if (isRateLimited(clientIp)) {
+      return new Response(JSON.stringify({ error: 'Too Many Requests: Rate limit exceeded. Vui lòng thử lại sau.' }), {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          'Retry-After': '10',
+        }
+      });
     }
 
     if (url.pathname === '/favicon.ico') {
@@ -63,18 +87,17 @@ export default {
     }
 
     if (request.method !== 'POST') {
-      return new Response(JSON.stringify({ error: 'Chá» cháº¥p nháº­n phÆ°Æ¡ng thá»©c POST' }), {
+      return new Response(JSON.stringify({ error: 'Chỉ chấp nhận phương thức POST' }), {
         status: 405,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    // 3. Parse vÃ  validate dá»¯ liá»u Äáº§u vÃ o
     let body;
     try {
       body = await request.json();
     } catch (e) {
-      return new Response(JSON.stringify({ error: 'Dá»¯ liá»u JSON khÃ´ng há»£p lá»' }), {
+      return new Response(JSON.stringify({ error: 'Dữ liệu JSON không hợp lệ' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -82,18 +105,16 @@ export default {
 
     const prompt = body && typeof body.prompt === 'string' ? body.prompt.trim() : '';
     if (!prompt || prompt.length > 4000) {
-      return new Response(JSON.stringify({ error: 'Prompt khÃ´ng há»£p lá» hoáº·c vÆ°á»£t quÃ¡ giá»i háº¡n (tá»i Äa 4000 kÃ½ tá»±)' }), {
+      return new Response(JSON.stringify({ error: 'Prompt không hợp lệ hoặc vượt quá giới hạn (tối đa 4000 ký tự)' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    // 4. CACHE Tá»I Æ¯U HÃA (TIáº¾T KIá»M QUOTA)
     const hash = await sha256(prompt.toLowerCase());
     const cacheKeyUrl = `https://hihi-dich-cache.internal/v2/translate/${hash}`;
     const cacheKeyReq = new Request(cacheKeyUrl, { method: 'GET' });
 
-    // Táº§ng 1: In-Memory Cache (RAM)
     const now = Date.now();
     const memEntry = MEMORY_CACHE.get(hash);
     if (memEntry && (now - memEntry.ts < MEMORY_TTL_MS)) {
@@ -106,7 +127,6 @@ export default {
       });
     }
 
-    // Táº§ng 2: Cloudflare Edge Cache
     const edgeCache = caches.default;
     let cachedRes = null;
     try {
@@ -130,12 +150,11 @@ export default {
       });
     }
 
-    // 5. XÃC Äá»NH NHÃ CUNG Cáº¤P AI (Æ¯u tiÃªn Groq vÃ¬ ÄÃ£ cáº¥u hÃ¬nh Secret, fallback OpenAI)
-    const groqKey = env.GROQ_API_KEY || env['env.GROQ_API_KEY'];
+    const groqKey = env.GROQ_API_KEY;
     const openaiKey = env.OPENAI_API_KEY || env.AI_API_KEY;
 
     if (!groqKey && !openaiKey) {
-      return new Response(JSON.stringify({ error: 'ChÆ°a cáº¥u hÃ¬nh API Key trÃªn Cloudflare Worker (GROQ_API_KEY hoáº·c OPENAI_API_KEY)' }), {
+      return new Response(JSON.stringify({ error: 'Chưa cấu hình API Key trên Cloudflare Worker' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -148,7 +167,6 @@ export default {
       let aiContent = '';
 
       if (groqKey) {
-        // Sá»­ dá»¥ng Groq API
         const model = env.AI_MODEL || 'openai/gpt-oss-120b';
         const aiRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
@@ -157,16 +175,10 @@ export default {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: model,
+            model,
             messages: [
-              {
-                role: 'system',
-                content: 'Báº¡n lÃ  chuyÃªn gia ngÃ´n ngá»¯ vÃ  trá»£ lÃ½ dá»ch thuáº­t chÃ­nh xÃ¡c, há» trá»£ há»c táº­p.'
-              },
-              {
-                role: 'user',
-                content: prompt
-              }
+              { role: 'system', content: 'Bạn là chuyên gia ngôn ngữ và trợ lý dịch thuật chính xác, hỗ trợ học tập.' },
+              { role: 'user', content: prompt }
             ],
             temperature: 0.7,
             max_tokens: 1000
@@ -174,15 +186,14 @@ export default {
           signal: controller.signal
         });
 
-        clearTimeout(timeout);
         if (!aiRes.ok) {
-          const errText = await aiRes.text();
-          throw new Error(`Groq API Error (${aiRes.status}): ${errText.slice(0, 150)}`);
+          const errText = await aiRes.text().catch(() => '');
+          console.error('Groq API Error:', aiRes.status, errText.slice(0, 200));
+          throw new Error(`Lỗi dịch vụ AI (${aiRes.status})`);
         }
         const data = await aiRes.json();
-        aiContent = data.choices?.[0]?.message?.content || '';
+        aiContent = (data.choices?.[0]?.message?.content || '').trim();
       } else {
-        // Sá»­ dá»¥ng OpenAI API
         const model = env.AI_MODEL || 'gpt-4o-mini';
         const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -191,16 +202,10 @@ export default {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: model,
+            model,
             messages: [
-              {
-                role: 'system',
-                content: 'Báº¡n lÃ  chuyÃªn gia ngÃ´n ngá»¯ vÃ  trá»£ lÃ½ dá»ch thuáº­t chÃ­nh xÃ¡c, há» trá»£ há»c táº­p.'
-              },
-              {
-                role: 'user',
-                content: prompt
-              }
+              { role: 'system', content: 'Bạn là chuyên gia ngôn ngữ và trợ lý dịch thuật chính xác, hỗ trợ học tập.' },
+              { role: 'user', content: prompt }
             ],
             temperature: 0.7,
             max_tokens: 1000
@@ -208,16 +213,22 @@ export default {
           signal: controller.signal
         });
 
-        clearTimeout(timeout);
         if (!aiRes.ok) {
-          const errText = await aiRes.text();
-          throw new Error(`OpenAI API Error (${aiRes.status}): ${errText.slice(0, 150)}`);
+          const errText = await aiRes.text().catch(() => '');
+          console.error('OpenAI API Error:', aiRes.status, errText.slice(0, 200));
+          throw new Error(`Lỗi dịch vụ AI (${aiRes.status})`);
         }
         const data = await aiRes.json();
-        aiContent = data.choices?.[0]?.message?.content || '';
+        aiContent = (data.choices?.[0]?.message?.content || '').trim();
       }
 
-      // ÄÃ³ng gÃ³i response tÆ°Æ¡ng thÃ­ch ngÆ°á»£c 100% vá»i frontend
+      if (!aiContent) {
+        return new Response(JSON.stringify({ error: 'AI không trả về nội dung.' }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       const finalResult = {
         response: aiContent,
         translation: aiContent,
@@ -225,14 +236,12 @@ export default {
         text: aiContent
       };
 
-      // LÆ°u vÃ o RAM Cache
       if (MEMORY_CACHE.size >= MEMORY_CACHE_MAX) {
         const firstKey = MEMORY_CACHE.keys().next().value;
         MEMORY_CACHE.delete(firstKey);
       }
       MEMORY_CACHE.set(hash, { data: finalResult, ts: now });
 
-      // LÆ°u vÃ o Cloudflare Edge Cache (TTL 7 ngÃ y)
       const edgeCacheHeaders = {
         'Content-Type': 'application/json',
         'Cache-Control': 'public, max-age=86400, s-maxage=604800',
@@ -257,13 +266,14 @@ export default {
         }
       });
     } catch (err) {
-      clearTimeout(timeout);
       return new Response(JSON.stringify({
-        error: err.name === 'AbortError' ? 'AI xá»­ lÃ½ quÃ¡ thá»i gian (Timeout 12s). Vui lÃ²ng thá»­ láº¡i!' : err.message
+        error: err.name === 'AbortError' ? 'AI xử lý quá thời gian (Timeout 12s). Vui lòng thử lại!' : err.message
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
+    } finally {
+      clearTimeout(timeout);
     }
   }
 };
